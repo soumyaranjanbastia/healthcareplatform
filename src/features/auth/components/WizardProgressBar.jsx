@@ -46,16 +46,17 @@ const LabelText = styled.span`
 `;
 
 const STEP_LABELS = {
-  1: "Basic Details",
-  2: "Business Details",
-  3: "Bank Details",
-  4: "Documents",
-  5: "Roster Setup",
-  6: "Review Details",
-  7: "Verification Completed"
+  1: "Verification",
+  2: "Partner Type",
+  3: "Basic Details",
+  4: "Business Details",
+  5: "Bank Details",
+  6: "Documents",
+  7: "Screen Config",
+  8: "Review & Submit"
 };
 
-const WizardProgressBar = ({ currentStep = 1, totalSteps = 7 }) => {
+const WizardProgressBar = ({ currentStep = 1, totalSteps = 8 }) => {
   const steps = Array.from({ length: totalSteps }, (_, i) => i + 1);
 
   return (

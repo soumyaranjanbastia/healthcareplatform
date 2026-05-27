@@ -66,7 +66,7 @@ const UploadAction = styled.div`
   justify-content: center;
 `;
 
-const Step4Documents = ({ onNext, onPrev, data, updateData }) => {
+const Step6Documents = ({ onNext, onPrev, data, updateData }) => {
   const [uploads, setUploads] = useState(data.uploads || {
     shopPhoto: false,
     hospitalReg: false,
@@ -149,4 +149,4 @@ const Step4Documents = ({ onNext, onPrev, data, updateData }) => {
   );
 };
 
-export default Step4Documents;
+export default Step6Documents;

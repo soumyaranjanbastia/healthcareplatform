@@ -38,7 +38,7 @@ const LocationGrid = styled.div`
   }
 `;
 
-const Step1BasicDetails = ({ onNext, onPrev, data, updateData }) => {
+const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
   const [fullName, setFullName] = useState(data.fullName || '');
   const [profileName, setProfileName] = useState(data.profileName || '');
   const [dob, setDob] = useState(data.dob || '');
@@ -202,4 +202,4 @@ const Step1BasicDetails = ({ onNext, onPrev, data, updateData }) => {
   );
 };
 
-export default Step1BasicDetails;
+export default Step3BasicDetails;

@@ -4,7 +4,7 @@ import WizardCard from '../../components/WizardCard';
 import WizardInput from '../../components/WizardInput';
 import WizardButton, { ButtonWrapper } from '../../components/WizardButton';
 
-const Step3BankDetails = ({ onNext, onPrev, data, updateData }) => {
+const Step5BankDetails = ({ onNext, onPrev, data, updateData }) => {
   const [bankHolderName, setBankHolderName] = useState(data.bankHolderName || '');
   const [bankAccountNumber, setBankAccountNumber] = useState(data.bankAccountNumber || '');
   const [bankIfsc, setBankIfsc] = useState(data.bankIfsc || '');
@@ -66,4 +66,4 @@ const Step3BankDetails = ({ onNext, onPrev, data, updateData }) => {
   );
 };
 
-export default Step3BankDetails;
+export default Step5BankDetails;

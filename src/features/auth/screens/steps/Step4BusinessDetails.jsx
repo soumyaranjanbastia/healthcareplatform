@@ -103,7 +103,7 @@ const AddBranchBtn = styled.button`
   }
 `;
 
-const Step2BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
+const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
   // Business fields
   const [businessName, setBusinessName] = useState(data.businessName || 'HealthFirst Pharmacy');
   const [gstin, setGstin] = useState(data.gstin || '22AAAAA0000A1Z5');
@@ -374,4 +374,4 @@ const Step2BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
   );
 };
 
-export default Step2BusinessDetails;
+export default Step4BusinessDetails;

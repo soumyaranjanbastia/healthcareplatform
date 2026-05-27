@@ -6,10 +6,14 @@ import WizardHeader from '../components/WizardHeader';
 import WizardProgressBar from '../components/WizardProgressBar';
 
 // Import Wizard Steps
-import Step1BasicDetails from './steps/Step1BasicDetails';
-import Step2BusinessDetails from './steps/Step2BusinessDetails';
-import Step3BankDetails from './steps/Step3BankDetails';
-import Step4Documents from './steps/Step4Documents';
+import Step1Verification from './steps/Step1Verification';
+import Step2PartnerType from './steps/Step2PartnerType';
+import Step3BasicDetails from './steps/Step3BasicDetails';
+import Step4BusinessDetails from './steps/Step4BusinessDetails';
+import Step5BankDetails from './steps/Step5BankDetails';
+import Step6Documents from './steps/Step6Documents';
+import Step7ScreenConfig from './steps/Step7ScreenConfig';
+import Step8ReviewSubmit from './steps/Step8ReviewSubmit';
 import StepSuccess from './steps/StepSuccess';
 
 const Container = styled.div`
@@ -28,9 +32,10 @@ const FormContainer = styled.div`
 const Registration = ({ onSignup, onSwitchToLogin }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
+    partnerType: '', // 'hospital' | 'clinic'
     email: 'partner@example.com',
     phone: '9876543210',
-    agreed: true, // Auto-verified/agreed since verification screen is removed
+    agreed: false,
     fullName: '',
     profileName: '',
     dob: '',
@@ -55,7 +60,9 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
     bankAccountNumber: '',
     bankIfsc: '',
     bankUpi: '',
-    uploads: null
+    uploads: null,
+    opdRooms: 1,
+    screens: 1
   });
 
   const handleNextStep = () => {
@@ -85,9 +92,11 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
       },
       clinic: {
         name: formData.businessName || 'HealthFirst Pharmacy',
-        specialties: ['Pharmacy'],
+        specialties: [formData.partnerType === 'hospital' ? 'Hospital Care' : 'Cardiology'],
         address: formData.branches[0]?.address || 'Primary Operating Location',
-        license: formData.gstin || 'GST-88192'
+        license: formData.gstin || 'GST-88192',
+        opdRooms: formData.opdRooms,
+        screens: formData.screens
       }
     });
   };
@@ -96,7 +105,7 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
     switch (step) {
       case 1:
         return (
-          <Step1BasicDetails 
+          <Step1Verification 
             onNext={handleNextStep} 
             onPrev={handlePrevStep}
             data={formData} 
@@ -105,25 +114,25 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
         );
       case 2:
         return (
-          <Step2BusinessDetails 
+          <Step2PartnerType 
             onNext={handleNextStep} 
-            onPrev={handlePrevStep} 
+            onPrev={handlePrevStep}
             data={formData} 
             updateData={updateFormData} 
           />
         );
       case 3:
         return (
-          <Step3BankDetails 
+          <Step3BasicDetails 
             onNext={handleNextStep} 
-            onPrev={handlePrevStep} 
+            onPrev={handlePrevStep}
             data={formData} 
             updateData={updateFormData} 
           />
         );
       case 4:
         return (
-          <Step4Documents 
+          <Step4BusinessDetails 
             onNext={handleNextStep} 
             onPrev={handlePrevStep} 
             data={formData} 
@@ -132,6 +141,41 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
         );
       case 5:
         return (
+          <Step5BankDetails 
+            onNext={handleNextStep} 
+            onPrev={handlePrevStep} 
+            data={formData} 
+            updateData={updateFormData} 
+          />
+        );
+      case 6:
+        return (
+          <Step6Documents 
+            onNext={handleNextStep} 
+            onPrev={handlePrevStep} 
+            data={formData} 
+            updateData={updateFormData} 
+          />
+        );
+      case 7:
+        return (
+          <Step7ScreenConfig 
+            onNext={handleNextStep} 
+            onPrev={handlePrevStep} 
+            data={formData} 
+            updateData={updateFormData} 
+          />
+        );
+      case 8:
+        return (
+          <Step8ReviewSubmit 
+            onNext={handleNextStep} 
+            onPrev={handlePrevStep} 
+            data={formData} 
+          />
+        );
+      case 9:
+        return (
           <StepSuccess 
             onFinish={handleFinish} 
             data={formData} 
@@ -139,7 +183,7 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
         );
       default:
         return (
-          <Step1BasicDetails 
+          <Step1Verification 
             onNext={handleNextStep} 
             onPrev={handlePrevStep}
             data={formData} 
@@ -154,10 +198,10 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
       <WizardHeader 
         onBack={handlePrevStep} 
         title="Registration" 
-        subtitle={step === 5 ? "Your profile has been created" : "Complete your profile to get started"}
+        subtitle={step === 9 ? "Your profile has been created" : "Complete your profile to get started"}
       />
-      {step <= 4 && (
-        <WizardProgressBar currentStep={step} totalSteps={7} />
+      {step <= 8 && (
+        <WizardProgressBar currentStep={step} totalSteps={8} />
       )}
       <FormContainer>
         {renderStep()}
