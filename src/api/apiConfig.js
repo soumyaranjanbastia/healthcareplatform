@@ -10,7 +10,7 @@ const API_METHODS = {
  * @returns {string} The base URL for the API.
  */
 const getBaseUrl = () => {
-    return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/v1/';
+    return import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/v1/';
 };
 
 export { getBaseUrl, API_METHODS };

@@ -3,6 +3,7 @@ import authSaga from '../features/auth/redux/authSaga';
 import bookingSaga from '../features/booking/redux/bookingSaga';
 import dashboardSaga from '../features/dashboard/redux/dashboardSaga';
 import geoDataSaga from '../features/auth/redux/geoDataSaga';
+import sendOtpSaga from '../features/booking/redux/sendOtpSaga';
 
 export default function* rootSaga() {
   yield all([
@@ -10,5 +11,6 @@ export default function* rootSaga() {
     fork(bookingSaga),
     fork(dashboardSaga),
     fork(geoDataSaga),
+    fork(sendOtpSaga),
   ]);
 }

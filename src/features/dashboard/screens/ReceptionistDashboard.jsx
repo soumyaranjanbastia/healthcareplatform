@@ -5,6 +5,7 @@ import RightDrawer from '../../../components/common/RightDrawer';
 import DoctorAvailability from '../components/DoctorAvailability';
 import TodayAppointments from '../components/TodayAppointments';
 import FollowUpQueue from '../components/FollowUpQueue';
+import NewBookingFlow from '../../booking/screens/NewBookingFlow';
 import { 
   Calendar, Users, Search, Bell, Settings, LogOut, Plus, ChevronDown, 
   Phone, UserCheck, ShieldAlert, CalendarPlus
@@ -585,6 +586,9 @@ const ReceptionistDashboard = () => {
   const [activeNav, setActiveNav] = useState('Dashboard');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Multi-step Booking flow state
+  const [showBookingFlow, setShowBookingFlow] = useState(false);
+
   // Right Drawer states
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerTitle, setDrawerTitle] = useState('');
@@ -652,122 +656,123 @@ const ReceptionistDashboard = () => {
       {/* RIGHT MAIN WORKSPACE */}
       <MainWorkspace>
         
-        {/* HEADER */}
-        <HeaderBar>
-          <HeaderTitleSection>
-            <h2>Front Desk Dashboard</h2>
-            <p>Operational command center for patient management.</p>
-          </HeaderTitleSection>
+        {showBookingFlow ? (
+          <NewBookingFlow 
+            onClose={() => setShowBookingFlow(false)} 
+            onComplete={() => setShowBookingFlow(false)} 
+          />
+        ) : (
+          <>
+            {/* HEADER */}
+            <HeaderBar>
+              <HeaderTitleSection>
+                <h2>Front Desk Dashboard</h2>
+                <p>Operational command center for patient management.</p>
+              </HeaderTitleSection>
 
-          <HeaderControls>
-            <SearchBarContainer>
-              <Search size={16} color="#94a3b8" />
-              <input 
-                type="text" 
-                placeholder="Search patients, appointments, invoices..." 
-              />
-            </SearchBarContainer>
+              <HeaderControls>
+                <SearchBarContainer>
+                  <Search size={16} color="#94a3b8" />
+                  <input 
+                    type="text" 
+                    placeholder="Search patients, appointments, invoices..." 
+                  />
+                </SearchBarContainer>
 
-            <DropdownSelect>
-              <span>Clinic 1</span>
-              <ChevronDown size={14} color="#64748b" />
-            </DropdownSelect>
+                <DropdownSelect>
+                  <span>Clinic 1</span>
+                  <ChevronDown size={14} color="#64748b" />
+                </DropdownSelect>
 
-            <CircularBtn>
-              <Bell size={18} />
-              <NotificationBadge />
-            </CircularBtn>
+                <CircularBtn>
+                  <Bell size={18} />
+                  <NotificationBadge />
+                </CircularBtn>
 
-            <UserProfileIcon>U</UserProfileIcon>
-          </HeaderControls>
-        </HeaderBar>
+                <UserProfileIcon>U</UserProfileIcon>
+              </HeaderControls>
+            </HeaderBar>
 
-        {/* QUICK ACTIONS DOCK */}
-        <ActionsRow>
-          <ActionButton type="calendar" onClick={() => alert('Opening OPD Calendar...')}>
-            <Calendar size={16} /> OPD Calendar
-          </ActionButton>
-          <ActionButton type="emergency" onClick={() => alert('Triggering Emergency Intake...')}>
-            <ShieldAlert size={16} /> Emergency Intake
-          </ActionButton>
-          <ActionButton type="new" onClick={() => {
-            setDrawerTitle('Create New Appointment');
-            setDrawerType('new_booking');
-            setDrawerOpen(true);
-          }}>
-            <Plus size={16} /> New Booking
-          </ActionButton>
-          <ActionButton type="slot" onClick={() => {
-            setDrawerTitle('Schedule Booking Slot');
-            setDrawerType('slot_booking');
-            setDrawerOpen(true);
-          }}>
-            <CalendarPlus size={16} /> Slot Booking
-          </ActionButton>
-          <ActionButton type="follow" onClick={() => alert('Opening Follow-Up Records...')}>
-            <Phone size={16} /> Follow-Up
-          </ActionButton>
-        </ActionsRow>
+            {/* QUICK ACTIONS DOCK */}
+            <ActionsRow>
+              <ActionButton type="calendar" onClick={() => alert('Opening OPD Calendar...')}>
+                <Calendar size={16} /> OPD Calendar
+              </ActionButton>
+              <ActionButton type="emergency" onClick={() => alert('Triggering Emergency Intake...')}>
+                <ShieldAlert size={16} /> Emergency Intake
+              </ActionButton>
+              <ActionButton type="new" onClick={() => setShowBookingFlow(true)}>
+                <Plus size={16} /> New Booking
+              </ActionButton>
+              <ActionButton type="slot" onClick={() => setShowBookingFlow(true)}>
+                <CalendarPlus size={16} /> Slot Booking
+              </ActionButton>
+              <ActionButton type="follow" onClick={() => alert('Opening Follow-Up Records...')}>
+                <Phone size={16} /> Follow-Up
+              </ActionButton>
+            </ActionsRow>
 
-        {/* METRICS & QUICK COUNTERS */}
-        <StatsGrid>
-          <StatCard>
-            <StatHeader>
-              <div>
-                <StatTitle>Total Patients Today</StatTitle>
-                <StatValue>47</StatValue>
-              </div>
-              <StatIconBox bg="#e6f4ea" color="#137333">
-                <Users size={20} />
-              </StatIconBox>
-            </StatHeader>
-            <StatFooter>12% vs Yesterday</StatFooter>
-          </StatCard>
+            {/* METRICS & QUICK COUNTERS */}
+            <StatsGrid>
+              <StatCard>
+                <StatHeader>
+                  <div>
+                    <StatTitle>Total Patients Today</StatTitle>
+                    <StatValue>47</StatValue>
+                  </div>
+                  <StatIconBox bg="#e6f4ea" color="#137333">
+                    <Users size={20} />
+                  </StatIconBox>
+                </StatHeader>
+                <StatFooter>12% vs Yesterday</StatFooter>
+              </StatCard>
 
-          <StatCard>
-            <StatHeader>
-              <div>
-                <StatTitle>Follow-Ups</StatTitle>
-                <StatValue>8</StatValue>
-              </div>
-              <StatIconBox bg="#e0f2fe" color="#0369a1">
-                <UserCheck size={20} />
-              </StatIconBox>
-            </StatHeader>
-            <StatFooter>12% vs Yesterday</StatFooter>
-          </StatCard>
+              <StatCard>
+                <StatHeader>
+                  <div>
+                    <StatTitle>Follow-Ups</StatTitle>
+                    <StatValue>8</StatValue>
+                  </div>
+                  <StatIconBox bg="#e0f2fe" color="#0369a1">
+                    <UserCheck size={20} />
+                  </StatIconBox>
+                </StatHeader>
+                <StatFooter>12% vs Yesterday</StatFooter>
+              </StatCard>
 
-          <StatCard>
-            <StatHeader>
-              <div>
-                <StatTitle>Partial Booking</StatTitle>
-                <StatValue>8</StatValue>
-              </div>
-              <StatIconBox bg="#e2fbf4" color="#009688">
-                <Calendar size={20} />
-              </StatIconBox>
-            </StatHeader>
-            <StatFooter>12% vs Yesterday</StatFooter>
-          </StatCard>
-        </StatsGrid>
+              <StatCard>
+                <StatHeader>
+                  <div>
+                    <StatTitle>Partial Booking</StatTitle>
+                    <StatValue>8</StatValue>
+                  </div>
+                  <StatIconBox bg="#e2fbf4" color="#009688">
+                    <Calendar size={20} />
+                  </StatIconBox>
+                </StatHeader>
+                <StatFooter>12% vs Yesterday</StatFooter>
+              </StatCard>
+            </StatsGrid>
 
-        {/* DOCTOR AVAILABILITY SECTOR */}
-        <DoctorAvailability />
+            {/* DOCTOR AVAILABILITY SECTOR */}
+            <DoctorAvailability />
 
-        {/* APPOINTMENTS LOGS */}
-        <TodayAppointments 
-          searchTerm={searchTerm} 
-          setSearchTerm={setSearchTerm} 
-          onReschedule={(patientName) => {
-            setDrawerTitle(`Reschedule Appointment - ${patientName}`);
-            setDrawerType('reschedule');
-            setSelectedPatient(patientName);
-            setDrawerOpen(true);
-          }}
-        />
+            {/* APPOINTMENTS LOGS */}
+            <TodayAppointments 
+              searchTerm={searchTerm} 
+              setSearchTerm={setSearchTerm} 
+              onReschedule={(patientName) => {
+                setDrawerTitle(`Reschedule Appointment - ${patientName}`);
+                setDrawerType('reschedule');
+                setSelectedPatient(patientName);
+                setDrawerOpen(true);
+              }}
+            />
 
-        {/* FOLLOW-UP COORDINATION QUEUE */}
-        <FollowUpQueue />
+            {/* FOLLOW-UP COORDINATION QUEUE */}
+            <FollowUpQueue />
+          </>
+        )}
 
       </MainWorkspace>
 
