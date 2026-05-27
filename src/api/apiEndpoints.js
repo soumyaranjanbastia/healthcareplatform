@@ -1,0 +1,71 @@
+const API_ENDPOINTS = {
+  // GetHealthRecords: "utility/getHealthRecords",
+  getCountryData: 'auth/getCountryData',
+  register: 'auth/register',
+  userExist: "auth/userExist",
+  validate: 'auth/validate',
+  setPin: "auth/setPin",
+  validatePin: 'auth/validatePin',
+  setAuthType: "auth/setAuthType",
+  getCompanyType: "auth/getComapanyType",
+  addCompanyDetails: 'auth/addCompanyDetails',
+  getCertification: 'auth/getCertification',
+  addCertificate: 'auth/addCertificate',
+  getPlans: "auth/getPlans",
+  getAllCoupons: 'auth/getAllCoupons',
+  applyCoupons: 'auth/applyCoupons',
+  paymentDetails: 'auth/paymentDetails',
+  payment: "auth/payment",
+  verifyPayment: "auth/verifyPayment",
+  logout: 'auth/logout',
+  login: "auth/login",
+
+  getTestMetaData: 'dashboard/getTestMetaData',
+  createTest: "dashboard/createTest",
+  getTestData: "dashboard/getTestData",
+  getAllTests: "dashboard/getAllTests",
+  deleteTest: 'dashboard/deleteTest',
+
+  getDistricts: "dashboard/getDistricts",
+  createBranch: "dashboard/createBranch",
+  getBranches: "dashboard/getBranches",
+  deleteBranch: "dashboard/deleteBranch",
+
+  getRole: "dashboard/getRole",
+  createUser: "dashboard/createUser",
+  getUserList: 'dashboard/getUserList',
+  deleteUser: "dashboard/deleteUser",
+
+
+  createTimeSlot: "dashboard/createTimeSlot",
+  getTimeSlots: 'dashboard/getTimeSlots',
+  getAllBranchList: 'dashboard/getAllBranchList',
+  addOrRemoveTestMapping: "dashboard/addOrRemoveTestMapping",
+
+  //LabAssistant
+  validateOtpAndTokens: 'auth/validateOtpAndTokens',
+  getDashboardData: 'auth/getDashboardData',
+  updateTheBookingStatus: 'auth/updateTheBookingStatus',
+  documentUploadByLabassistant: 'auth/documentUploadByLabassistant',
+  getDashboardStats: 'dashboard/getDashboardStats',
+  getLabAdminDashboard: 'dashboard/getLabAdminDashboard',
+  getOrderManagement: 'dashboard/getOrderManagement',
+  getOrderManagementDetails: 'dashboard/getOrderManagementDetails',
+  getSettingData: 'dashboard/getSettingData',
+  getProfession: 'dashboard/getProfession',
+  getDoctorList: 'auth/getDoctorList',
+  updateSettings: 'dashboard/updateSettings',
+  searchPatientByPrescription: 'dashboard/searchPatientByPrescription',
+  sendPatientConsentOtp: 'dashboard/sendPatientConsentOtp',
+  verifyPatientConsentOtp: 'dashboard/verifyPatientConsentOtp',
+  getLabPaymentSummary: 'dashboard/getLabPaymentSummary',
+  confirmLabPayment: 'dashboard/confirmLabPayment',
+
+  // Notifications
+  getAllAdminNotifications: 'dashboard/getAllAdminNotifications',
+  labSelectedFrequency: 'dashboard/labSelectedFrequency',
+  getLabSettlementData: 'dashboard/getLabSettlementData',
+  getLabSelectedFrequency: 'dashboard/getLabSelectedFrequency',
+};
+
+export default API_ENDPOINTS;
