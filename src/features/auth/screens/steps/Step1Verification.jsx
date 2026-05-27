@@ -129,7 +129,7 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
 
       <ButtonWrapper>
         <WizardButton type="submit">
-          Continue <ArrowRight size={16} />
+          Submit <ArrowRight size={16} />
         </WizardButton>
       </ButtonWrapper>
     </form>

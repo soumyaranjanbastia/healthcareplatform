@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ArrowRight } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import WizardCard from '../../components/WizardCard';
 import WizardInput from '../../components/WizardInput';
 import WizardSelect from '../../components/WizardSelect';
 import WizardButton, { ButtonWrapper } from '../../components/WizardButton';
+import { getGeoDataRequest } from '../../redux/geoDataSlice';
 
 const FormRow = styled.div`
   display: grid;
@@ -39,6 +41,9 @@ const LocationGrid = styled.div`
 `;
 
 const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
+  const dispatch = useDispatch();
+  const { geoData } = useSelector((state) => state.geoData);
+
   const [fullName, setFullName] = useState(data.fullName || '');
   const [profileName, setProfileName] = useState(data.profileName || '');
   const [dob, setDob] = useState(data.dob || '');
@@ -53,6 +58,12 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
   const [state, setState] = useState(data.state || 'Maharashtra');
   const [city, setCity] = useState(data.city || '');
 
+  useEffect(() => {
+    if (!geoData) {
+      dispatch(getGeoDataRequest());
+    }
+  }, [dispatch, geoData]);
+
   const handleContinue = (e) => {
     e.preventDefault();
     if (!fullName || !profileName || !dob || !companyName || !contactEmail || !contactPhone || !city) {
@@ -66,6 +77,28 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
     });
     onNext();
   };
+
+  // Derive dropdown options from geoData
+  let countryOptions = [{ value: 'India', label: 'India' }];
+  let stateOptions = [{ value: 'Maharashtra', label: 'Maharashtra' }];
+  let cityOptions = [{ value: '', label: 'Select City' }];
+
+  if (geoData && Array.isArray(geoData)) {
+    countryOptions = geoData.map((c) => ({ value: c.name, label: c.name }));
+
+    const selectedCountry = geoData.find((c) => c.name === country);
+    if (selectedCountry && selectedCountry.states) {
+      stateOptions = selectedCountry.states.map((s) => ({ value: s.name, label: s.name }));
+
+      const selectedState = selectedCountry.states.find((s) => s.name === state);
+      if (selectedState && selectedState.cities) {
+        cityOptions = [
+          { value: '', label: 'Select City' },
+          ...selectedState.cities.map((ct) => ({ value: ct.name, label: ct.name }))
+        ];
+      }
+    }
+  }
 
   return (
     <form onSubmit={handleContinue}>
@@ -161,31 +194,29 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
             label="Country" 
             required 
             value={country} 
-            onChange={e => setCountry(e.target.value)}
-            options={[
-              { value: 'India', label: 'India' },
-              { value: 'USA', label: 'USA' },
-              { value: 'UK', label: 'UK' }
-            ]}
+            onChange={e => {
+              setCountry(e.target.value);
+              setState(''); // Reset state when country changes
+              setCity(''); // Reset city when country changes
+            }}
+            options={countryOptions}
           />
           <WizardSelect 
             label="State" 
             required 
             value={state} 
-            onChange={e => setState(e.target.value)}
-            options={[
-              { value: 'Maharashtra', label: 'Maharashtra' },
-              { value: 'Delhi', label: 'Delhi' },
-              { value: 'Karnataka', label: 'Karnataka' },
-              { value: 'California', label: 'California' }
-            ]}
+            onChange={e => {
+              setState(e.target.value);
+              setCity(''); // Reset city when state changes
+            }}
+            options={stateOptions}
           />
-          <WizardInput 
+          <WizardSelect 
             label="City" 
             required 
-            placeholder="Enter city" 
-            value={city}
+            value={city} 
             onChange={e => setCity(e.target.value)}
+            options={cityOptions}
           />
         </LocationGrid>
       </WizardCard>
