@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { CreditCard, DollarSign, TrendingUp, BarChart2 } from 'lucide-react';
+import { CreditCard, DollarSign, TrendingUp } from 'lucide-react';
 
 const Container = styled.div`
   padding: 24px;

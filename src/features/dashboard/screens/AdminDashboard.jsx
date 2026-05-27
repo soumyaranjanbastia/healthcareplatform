@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Calendar, Users, Clock, Clipboard } from 'lucide-react';
+import { Settings, ShieldCheck, UserCheck } from 'lucide-react';
 
 const Container = styled.div`
   padding: 24px;
@@ -14,7 +14,7 @@ const Container = styled.div`
 const Title = styled.h2`
   font-size: 22px;
   font-weight: 700;
-  color: #10b981;
+  color: #f59e0b;
   margin-bottom: 8px;
 `;
 
@@ -41,13 +41,13 @@ const ToolCard = styled.div`
   transition: all 0.2s ease;
   &:hover {
     transform: translateY(-2px);
-    border-color: rgba(16, 185, 129, 0.2);
+    border-color: rgba(245, 158, 11, 0.2);
   }
 `;
 
 const IconWrapper = styled.div`
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.08);
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
   width: fit-content;
   padding: 10px;
   border-radius: 10px;
@@ -64,30 +64,30 @@ const ToolDesc = styled.p`
   line-height: 1.5;
 `;
 
-const ReceptionistDashboard = () => {
+const AdminDashboard = () => {
   return (
     <Container>
-      <Title>Receptionist Desk</Title>
-      <Subtitle>Welcome to the Front Desk module. Patient triage and registration operations.</Subtitle>
+      <Title>Administrative Node Control</Title>
+      <Subtitle>Administrative panel. Setup clinic rosters, monitor staff shifts, and configure clinic nodes.</Subtitle>
       <Grid>
         <ToolCard>
-          <IconWrapper><Users size={20} /></IconWrapper>
-          <ToolTitle>Patient Check-In</ToolTitle>
-          <ToolDesc>Register walk-ins and verify existing patient profiles instantly.</ToolDesc>
+          <IconWrapper><UserCheck size={20} /></IconWrapper>
+          <ToolTitle>Staff Roster Control</ToolTitle>
+          <ToolDesc>Appoint new doctors/nurses, shift schedules, and manage clinic rotations.</ToolDesc>
         </ToolCard>
         <ToolCard>
-          <IconWrapper><Calendar size={20} /></IconWrapper>
-          <ToolTitle>Appointment Logs</ToolTitle>
-          <ToolDesc>Schedule or modify patient visits, and assign them to doctors.</ToolDesc>
+          <IconWrapper><ShieldCheck size={20} /></IconWrapper>
+          <ToolTitle>Security Logs</ToolTitle>
+          <ToolDesc>Verify clinical EMR audit trails, login tokens, and access permissions.</ToolDesc>
         </ToolCard>
         <ToolCard>
-          <IconWrapper><Clock size={20} /></IconWrapper>
-          <ToolTitle>Queue Manager</ToolTitle>
-          <ToolDesc>Audit real-time queue states and triage waiting rooms.</ToolDesc>
+          <IconWrapper><Settings size={20} /></IconWrapper>
+          <ToolTitle>System Configurations</ToolTitle>
+          <ToolDesc>Modify clinic details, specialties lists, medical licenses, and local databases.</ToolDesc>
         </ToolCard>
       </Grid>
     </Container>
   );
 };
 
-export default ReceptionistDashboard;
+export default AdminDashboard;
