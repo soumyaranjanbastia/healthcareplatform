@@ -6,6 +6,10 @@ import geoDataReducer from "../features/auth/redux/geoDataSlice";
 import sendOtpReducer from "../features/booking/redux/sendOtpSlice";
 import sendHospitalOtpReducer from "../features/auth/redux/sendHospitalOtpSlice";
 import verifyHospitalOtpReducer from "../features/auth/redux/verifyHospitalOtpSlice";
+import registerPatientReducer from "../features/booking/redux/registerPatientSlice";
+import otpValidationReducer from "../features/booking/redux/otpValidationSlice";
+import resendOtpReducer from "../features/booking/redux/resendOtpSlice";
+import saveMedicalInfoReducer from "../features/booking/redux/saveMedicalInfoSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -15,6 +19,10 @@ const rootReducer = combineReducers({
   sendOtp: sendOtpReducer,
   sendHospitalOtp: sendHospitalOtpReducer,
   verifyHospitalOtp: verifyHospitalOtpReducer,
+  registerPatient: registerPatientReducer,
+  otpValidation: otpValidationReducer,
+  resendOtp: resendOtpReducer,
+  saveMedicalInfo: saveMedicalInfoReducer,
 });
 
 export default rootReducer;

@@ -6,6 +6,10 @@ import geoDataSaga from '../features/auth/redux/geoDataSaga';
 import sendOtpSaga from '../features/booking/redux/sendOtpSaga';
 import sendHospitalOtpSaga from '../features/auth/redux/sendHospitalOtpSaga';
 import verifyHospitalOtpSaga from '../features/auth/redux/verifyHospitalOtpSaga';
+import registerPatientSaga from '../features/booking/redux/registerPatientSaga';
+import otpValidationSaga from '../features/booking/redux/otpValidationSaga';
+import resendOtpSaga from '../features/booking/redux/resendOtpSaga';
+import saveMedicalInfoSaga from '../features/booking/redux/saveMedicalInfoSaga';
 
 export default function* rootSaga() {
   yield all([
@@ -16,5 +20,9 @@ export default function* rootSaga() {
     fork(sendOtpSaga),
     fork(sendHospitalOtpSaga),
     fork(verifyHospitalOtpSaga),
+    fork(registerPatientSaga),
+    fork(otpValidationSaga),
+    fork(resendOtpSaga),
+    fork(saveMedicalInfoSaga),
   ]);
 }

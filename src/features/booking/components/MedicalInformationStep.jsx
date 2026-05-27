@@ -109,7 +109,7 @@ const TextArea = styled.textarea`
   }
 `;
 
-const MedicalInformationStep = ({ medicalInfo, setMedicalInfo, onSkip }) => {
+const MedicalInformationStep = ({ medicalInfo, setMedicalInfo, onSkip, isLoading }) => {
   const handleChange = (field, val) => {
     setMedicalInfo(prev => ({
       ...prev,
@@ -123,8 +123,8 @@ const MedicalInformationStep = ({ medicalInfo, setMedicalInfo, onSkip }) => {
       {/* Title with skip button at top-right inside card */}
       <StepTitleRow>
         <StepTitle>Medical & Health Information</StepTitle>
-        <SkipBtn onClick={onSkip}>
-          Skip
+        <SkipBtn onClick={onSkip} disabled={isLoading}>
+          {isLoading ? 'Saving...' : 'Skip'}
         </SkipBtn>
       </StepTitleRow>
 

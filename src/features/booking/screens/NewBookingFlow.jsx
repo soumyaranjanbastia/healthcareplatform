@@ -15,6 +15,10 @@ import ConfirmationStep from '../components/ConfirmationStep';
 
 // Actions
 import { sendOtpRequest, resetSendOtpState } from '../redux/sendOtpSlice';
+import { registerPatientRequest, resetRegisterPatientState } from '../redux/registerPatientSlice';
+import { validateEmailOtpRequest, validatePhoneOtpRequest, resetOtpValidationState } from '../redux/otpValidationSlice';
+import { resendOtpRequest, resetResendOtpState } from '../redux/resendOtpSlice';
+import { saveMedicalInfoRequest, resetSaveMedicalInfoState } from '../redux/saveMedicalInfoSlice';
 
 // --- KEYFRAMES ---
 const fadeIn = keyframes`
@@ -221,6 +225,10 @@ const MOCK_DOCTORS = [
 const NewBookingFlow = ({ onClose, onComplete }) => {
   const dispatch = useDispatch();
   const sendOtpState = useSelector(state => state.sendOtp);
+  const registerPatientState = useSelector(state => state.registerPatient);
+  const otpValidationState = useSelector(state => state.otpValidation);
+  const resendOtpState = useSelector(state => state.resendOtp);
+  const saveMedicalInfoState = useSelector(state => state.saveMedicalInfo);
 
   const [step, setStep] = useState(1);
   const [subStep, setSubStep] = useState(1); // subStep handles Screens under Step 1: 1 = Consultation Type, 2 = Are you Existing vs New Patient, 3 = Search Existing Patient Lookup
@@ -233,6 +241,7 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
   const [otpCode, setOtpCode] = useState('');
   const [isPatientVerified, setIsPatientVerified] = useState(false);
   const [lastConsulted, setLastConsulted] = useState({ doctorName: 'Dr. Anita Sharma', specialty: 'Cardiology' });
+  const [currentEncryptionKey, setCurrentEncryptionKey] = useState(null);
   
   // Registration data
   const [personalDetails, setPersonalDetails] = useState({
@@ -278,6 +287,80 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
       dispatch(resetSendOtpState());
     }
   }, [sendOtpState.isSuccess, sendOtpState.isError, sendOtpState.errorMessage, dispatch, mobileNumber]);
+
+  useEffect(() => {
+    if (registerPatientState.isSuccess) {
+      alert("Patient demographic details registered successfully via API!");
+      console.log('Registered Patient Response:', registerPatientState.patientData);
+      
+      const encKey = registerPatientState.patientData?.encryptionKey || registerPatientState.patientData?.data?.encryptionKey;
+      if (encKey) {
+        setCurrentEncryptionKey(encKey);
+        console.log('Stored initial encryptionKey from signup:', encKey);
+      }
+
+      // Navigate sequentially depending on OTP option
+      if (personalDetails.registerWithOtp === 'Yes') {
+        setStep(3);
+      } else {
+        setStep(5);
+      }
+      
+      dispatch(resetRegisterPatientState());
+    }
+    if (registerPatientState.isError) {
+      alert(`Failed to register patient: ${registerPatientState.errorMessage}`);
+      dispatch(resetRegisterPatientState());
+    }
+  }, [registerPatientState.isSuccess, registerPatientState.isError, registerPatientState.errorMessage, dispatch, personalDetails.registerWithOtp]);
+
+  useEffect(() => {
+    if (otpValidationState.isEmailSuccess) {
+      alert("Email OTP verified successfully!");
+      const nextKey = otpValidationState.emailEncryptionKey;
+      if (nextKey) {
+        setCurrentEncryptionKey(nextKey);
+        console.log('Stored next encryptionKey from Email success:', nextKey);
+      }
+    }
+    if (otpValidationState.isEmailError) {
+      alert(`Email OTP validation failed: ${otpValidationState.emailErrorMessage}`);
+    }
+  }, [otpValidationState.isEmailSuccess, otpValidationState.isEmailError, otpValidationState.emailErrorMessage, otpValidationState.emailEncryptionKey]);
+
+  useEffect(() => {
+    if (otpValidationState.isPhoneSuccess) {
+      alert("Phone OTP verified successfully! Patient identified.");
+      setStep(4);
+      dispatch(resetOtpValidationState());
+    }
+    if (otpValidationState.isPhoneError) {
+      alert(`Phone OTP validation failed: ${otpValidationState.phoneErrorMessage}`);
+    }
+  }, [otpValidationState.isPhoneSuccess, otpValidationState.isPhoneError, otpValidationState.phoneErrorMessage, dispatch]);
+
+  useEffect(() => {
+    if (resendOtpState.isSuccess) {
+      alert("Verification OTP resent successfully!");
+      dispatch(resetResendOtpState());
+    }
+    if (resendOtpState.isError) {
+      alert(`Failed to resend OTP: ${resendOtpState.errorMessage}`);
+      dispatch(resetResendOtpState());
+    }
+  }, [resendOtpState.isSuccess, resendOtpState.isError, resendOtpState.errorMessage, dispatch]);
+
+  useEffect(() => {
+    if (saveMedicalInfoState.isSuccess) {
+      console.log('Medical info saved successfully:', saveMedicalInfoState.data);
+      setStep(5);
+      dispatch(resetSaveMedicalInfoState());
+    }
+    if (saveMedicalInfoState.isError) {
+      alert(`Failed to save medical information: ${saveMedicalInfoState.errorMessage}`);
+      dispatch(resetSaveMedicalInfoState());
+    }
+  }, [saveMedicalInfoState.isSuccess, saveMedicalInfoState.isError, saveMedicalInfoState.errorMessage, dispatch]);
 
   const handleSendOtp = () => {
     if (!mobileNumber) {
@@ -346,17 +429,34 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
         return;
       }
       
-      if (personalDetails.registerWithOtp === 'Yes') {
-        setStep(3); // Go to Step 3: OTP Verification
-      } else {
-        setStep(5); // Skip both Step 3 (OTP Verification) and Step 4 (Medical Info)
-      }
+      const registrationPayload = {
+        fullName: personalDetails.fullName,
+        address: personalDetails.address,
+        gender: personalDetails.gender,
+        age: personalDetails.age ? Number(personalDetails.age) : 0,
+        phone: personalDetails.phone,
+        emailId: personalDetails.email,
+        registrationOtp: personalDetails.registerWithOtp ? personalDetails.registerWithOtp.toLowerCase() : 'no'
+      };
+      
+      // Dispatch API request to register patient demographic details!
+      dispatch(registerPatientRequest(registrationPayload));
     } else if (step === 3) {
       // Step 3 (OTP Verification) goes to Step 4 (Medical Info)
       setStep(4);
     } else if (step === 4) {
-      // Step 4 (Medical Info) goes to Step 5 (Doctor Selection)
-      setStep(5);
+      // Step 4 (Medical Info): dispatch save API, navigate on success via useEffect
+      const medicalPayload = {
+        symptoms: medicalInfo.symptoms || '',
+        medicalHistory: medicalInfo.medicalHistory || '',
+        existingDiseases: medicalInfo.existingDiseases || '',
+        currentMedication: medicalInfo.currentMedication || '',
+        allergies: medicalInfo.allergies || '',
+        chronicConditions: medicalInfo.chronicConditionsString
+          ? medicalInfo.chronicConditionsString.split(',').map(s => s.trim()).filter(Boolean)
+          : [],
+      };
+      dispatch(saveMedicalInfoRequest(medicalPayload));
     } else {
       setStep(prev => Math.min(prev + 1, 8));
     }
@@ -482,6 +582,9 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
             <OtpVerificationStep 
               phone={personalDetails.phone}
               email={personalDetails.email}
+              currentEncryptionKey={currentEncryptionKey}
+              otpValidationState={otpValidationState}
+              resendOtpState={resendOtpState}
               onSkipVerification={() => setStep(4)}
               onVerifyLater={() => setStep(4)}
             />
@@ -493,6 +596,7 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
               medicalInfo={medicalInfo}
               setMedicalInfo={setMedicalInfo}
               onSkip={() => setStep(5)}
+              isLoading={saveMedicalInfoState.isLoading}
             />
           )}
 
@@ -555,8 +659,11 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
                 </CancelBtn>
               )}
               
-              <NextBtn onClick={handleNext}>
-                Next <span style={{ fontSize: 12 }}>➜</span>
+              <NextBtn 
+                onClick={handleNext}
+                disabled={registerPatientState.isLoading || sendOtpState.isLoading || saveMedicalInfoState.isLoading}
+              >
+                {registerPatientState.isLoading ? 'Registering...' : saveMedicalInfoState.isLoading ? 'Saving...' : 'Next'} <span style={{ fontSize: 12 }}>➜</span>
               </NextBtn>
             </div>
           </WizardFooter>
