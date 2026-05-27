@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Mail, Lock, Key, Phone, HelpCircle, ArrowRight, Shield } from 'lucide-react';
-import authIllustration from '../assets/auth_design.png';
+import authIllustration from '../../assets/auth_design.png';
 
 // --- ANIMATIONS ---
 const floatAnimation = keyframes`
@@ -20,7 +20,7 @@ const PageContainer = styled.div`
   display: flex;
   min-height: 100vh;
   width: 100%;
-  background-color: #ffffff;
+  background-color: #410909ff;
   font-family: 'Inter', sans-serif;
   overflow: hidden;
 `;
@@ -56,8 +56,8 @@ const BrandBadge = styled.div`
 
 const HeartLogoSvg = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path 
-      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
+    <path
+      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
       fill="url(#heartGradient)"
     />
     <defs>
@@ -388,7 +388,7 @@ const LegalLinks = styled.div`
 
 const Auth = ({ onLogin }) => {
   const [activeTab, setActiveTab] = useState('password'); // 'password' or 'otp'
-  
+
   // PASSWORD STATES
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -462,7 +462,7 @@ const Auth = ({ onLogin }) => {
 
   return (
     <PageContainer>
-      
+
       {/* LEFT SIDE PANEL (MARKETING & ILLUSTRATION) */}
       <LeftPanel>
         <BrandBadge>
@@ -473,7 +473,7 @@ const Auth = ({ onLogin }) => {
         <LeftContent>
           <Tagline>Keep track of every detail.</Tagline>
           <SubTagline>From appointments to everyday hospital tasks.</SubTagline>
-          
+
           <GraphicWrapper>
             <img src={authIllustration} alt="Secure Portal" />
           </GraphicWrapper>
@@ -492,8 +492,8 @@ const Auth = ({ onLogin }) => {
 
           {/* TAB BUTTONS FOR SWITCHING MODE */}
           <TabContainer>
-            <TabButton 
-              active={activeTab === 'password'} 
+            <TabButton
+              active={activeTab === 'password'}
               onClick={() => {
                 setActiveTab('password');
                 resetOtpFlow();
@@ -502,8 +502,8 @@ const Auth = ({ onLogin }) => {
               <Lock size={15} />
               Password
             </TabButton>
-            <TabButton 
-              active={activeTab === 'otp'} 
+            <TabButton
+              active={activeTab === 'otp'}
               onClick={() => setActiveTab('otp')}
             >
               <Key size={15} />
@@ -520,10 +520,10 @@ const Auth = ({ onLogin }) => {
                   <InputIcon>
                     <Mail size={16} />
                   </InputIcon>
-                  <InputField 
-                    id="pass-email" 
-                    type="email" 
-                    placeholder="you@hospital.com" 
+                  <InputField
+                    id="pass-email"
+                    type="email"
+                    placeholder="you@hospital.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -539,10 +539,10 @@ const Auth = ({ onLogin }) => {
                   <InputIcon>
                     <Lock size={16} />
                   </InputIcon>
-                  <InputField 
-                    id="pass-secret" 
-                    type="password" 
-                    placeholder="Enter your password" 
+                  <InputField
+                    id="pass-secret"
+                    type="password"
+                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -568,10 +568,10 @@ const Auth = ({ onLogin }) => {
                       <InputIcon>
                         <Mail size={16} />
                       </InputIcon>
-                      <InputField 
-                        id="otp-target" 
-                        type="text" 
-                        placeholder="Abc@example .com" 
+                      <InputField
+                        id="otp-target"
+                        type="text"
+                        placeholder="Abc@example .com"
                         value={otpTarget}
                         onChange={(e) => setOtpTarget(e.target.value)}
                       />
@@ -592,11 +592,11 @@ const Auth = ({ onLogin }) => {
                       <InputIcon>
                         <Mail size={16} />
                       </InputIcon>
-                      <InputField 
-                        id="otp-read" 
-                        type="text" 
-                        value={otpTarget} 
-                        readOnly 
+                      <InputField
+                        id="otp-read"
+                        type="text"
+                        value={otpTarget}
+                        readOnly
                         style={{ backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' }}
                       />
                     </InputWrapper>
@@ -608,17 +608,17 @@ const Auth = ({ onLogin }) => {
                       <InputIcon>
                         <Key size={16} />
                       </InputIcon>
-                      <InputField 
-                        id="otp-code" 
-                        type="text" 
-                        placeholder="6-digit OTP" 
+                      <InputField
+                        id="otp-code"
+                        type="text"
+                        placeholder="6-digit OTP"
                         value={otpCode}
                         maxLength={6}
                         onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                       />
                     </InputWrapper>
                     {otpError && <ErrorMsg>{otpError}</ErrorMsg>}
-                    
+
                     <SendOtpStatusRow>
                       <StatusNote>OTP sent to {otpTarget || 'device'}.</StatusNote>
                       <ResendButton type="button" onClick={() => alert('OTP resent successfully!')}>
@@ -644,7 +644,7 @@ const Auth = ({ onLogin }) => {
           {/* FOOTER METRICS AND HELPDESK */}
           <FooterContainer>
             <SupportText>
-              Need help? 
+              Need help?
               <a href="#support" onClick={(e) => { e.preventDefault(); alert('Redirecting to Mindcys Swastyam Supportdesk...'); }}>
                 Contact Support
               </a>
