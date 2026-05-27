@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Mail, ArrowRight } from 'lucide-react';
+import { Mail, ArrowRight, CheckCircle } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import WizardCard from '../../components/WizardCard';
 import WizardInput from '../../components/WizardInput';
 import WizardButton, { ButtonWrapper } from '../../components/WizardButton';
+import { sendHospitalOtpRequest, resetSendHospitalOtpState } from '../../redux/sendHospitalOtpSlice';
+import { verifyHospitalOtpRequest, resetVerifyHospitalOtpState } from '../../redux/verifyHospitalOtpSlice';
 
 const StyledCheckboxLabel = styled.label`
   display: flex;
@@ -44,20 +47,105 @@ const SendOtpBtn = styled.button`
   &:hover {
     background-color: #d1fae5;
   }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorText = styled.div`
+  color: #ef4444;
+  font-size: 13px;
+  margin-bottom: 12px;
+  text-align: center;
+`;
+
+const SuccessText = styled.div`
+  color: #10b981;
+  font-size: 13px;
+  margin-bottom: 12px;
+  text-align: center;
+`;
+
+// Simple Modal Styles
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+`;
+
+const ModalTitle = styled.h3`
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px;
+  color: #1e293b;
+  margin: 16px 0 8px;
+`;
+
+const ModalText = styled.p`
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 24px;
 `;
 
 const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
+  const dispatch = useDispatch();
+  const { isLoading, isSuccess, isError, errorMessage, successMessage, emailKey, phoneKey } = useSelector((state) => state.sendHospitalOtp);
+  const { 
+    isLoading: isVerifyLoading, 
+    isSuccess: isVerifySuccess, 
+    isError: isVerifyError, 
+    errorMessage: verifyErrorMessage, 
+    successMessage: verifySuccessMessage 
+  } = useSelector((state) => state.verifyHospitalOtp);
+
   const [otpSent, setOtpSent] = useState(false);
   const [email, setEmail] = useState(data.email || 'partner@example.com');
   const [phone, setPhone] = useState(data.phone || '9876543210');
   const [emailOtp, setEmailOtp] = useState('');
   const [phoneOtp, setPhoneOtp] = useState('');
   const [agreed, setAgreed] = useState(data.agreed || false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  useEffect(() => {
+    if (isSuccess) {
+      setOtpSent(true);
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (isVerifySuccess) {
+      setShowSuccessModal(true);
+    }
+  }, [isVerifySuccess]);
+
+  // Clean up on unmount or reset if needed
+  useEffect(() => {
+    return () => {
+      dispatch(resetSendHospitalOtpState());
+      dispatch(resetVerifyHospitalOtpState());
+    };
+  }, [dispatch]);
 
   const handleSendOtp = () => {
     if (!email || !phone) return alert('Please enter both Email and Phone.');
-    setOtpSent(true);
-    alert('Simulated: Verification codes sent to your Email & Phone!');
+    dispatch(sendHospitalOtpRequest({ email, phone }));
   };
 
   const handleContinue = (e) => {
@@ -67,72 +155,96 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
     if (!otpSent) return alert('Please click "Send OTP" to receive and enter verification codes.');
     if (!emailOtp || !phoneOtp) return alert('Please enter the OTP codes.');
 
-    updateData({ email, phone, agreed });
+    dispatch(verifyHospitalOtpRequest({ emailOtp, emailKey, phoneOtp, phoneKey }));
+  };
+
+  const handleModalContinue = () => {
+    setShowSuccessModal(false);
+    updateData({ email, phone, agreed, emailKey, phoneKey, emailOtp, phoneOtp });
     onNext();
   };
 
   return (
-    <form onSubmit={handleContinue}>
-      <WizardCard title="Email & Mobile Verification" icon={<Mail size={20} />}>
-        <WizardInput 
-          label="Email Address" 
-          required 
-          type="email" 
-          placeholder="partner@example.com" 
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-        />
-        <WizardInput 
-          label="Mobile Number" 
-          required 
-          type="tel" 
-          placeholder="9876543210" 
-          value={phone}
-          maxLength={10}
-          onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
-        />
-
-        <SendOtpBtn type="button" onClick={handleSendOtp}>
-          {otpSent ? 'Resend OTP' : 'Send OTP'}
-        </SendOtpBtn>
-
-        {otpSent && (
-          <>
-            <WizardInput 
-              label="Enter Email OTP" 
-              required 
-              placeholder="6-digit OTP" 
-              value={emailOtp}
-              maxLength={6}
-              onChange={e => setEmailOtp(e.target.value.replace(/\D/g, ''))}
-            />
-            <WizardInput 
-              label="Enter Phone OTP" 
-              required 
-              placeholder="6-digit OTP" 
-              value={phoneOtp}
-              maxLength={6}
-              onChange={e => setPhoneOtp(e.target.value.replace(/\D/g, ''))}
-            />
-          </>
-        )}
-
-        <StyledCheckboxLabel>
-          <input 
-            type="checkbox" 
-            checked={agreed} 
-            onChange={e => setAgreed(e.target.checked)} 
+    <>
+      <form onSubmit={handleContinue}>
+        <WizardCard title="Email & Mobile Verification" icon={<Mail size={20} />}>
+          <WizardInput 
+            label="Email Address" 
+            required 
+            type="email" 
+            placeholder="partner@example.com" 
+            value={email}
+            onChange={e => setEmail(e.target.value)}
           />
-          I agree to our Terms of Service and Privacy Policy
-        </StyledCheckboxLabel>
-      </WizardCard>
+          <WizardInput 
+            label="Mobile Number" 
+            required 
+            type="tel" 
+            placeholder="9876543210" 
+            value={phone}
+            maxLength={10}
+            onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
+          />
 
-      <ButtonWrapper>
-        <WizardButton type="submit">
-          Submit <ArrowRight size={16} />
-        </WizardButton>
-      </ButtonWrapper>
-    </form>
+          {isError && <ErrorText>{errorMessage}</ErrorText>}
+          {isSuccess && <SuccessText>{successMessage}</SuccessText>}
+
+          <SendOtpBtn type="button" onClick={handleSendOtp} disabled={isLoading}>
+            {isLoading ? 'Sending...' : otpSent ? 'Resend OTP' : 'Send OTP'}
+          </SendOtpBtn>
+
+          {otpSent && (
+            <>
+              <WizardInput 
+                label="Enter Email OTP" 
+                required 
+                placeholder="6-digit OTP" 
+                value={emailOtp}
+                maxLength={6}
+                onChange={e => setEmailOtp(e.target.value.replace(/\D/g, ''))}
+              />
+              <WizardInput 
+                label="Enter Phone OTP" 
+                required 
+                placeholder="6-digit OTP" 
+                value={phoneOtp}
+                maxLength={6}
+                onChange={e => setPhoneOtp(e.target.value.replace(/\D/g, ''))}
+              />
+              {isVerifyError && <ErrorText>{verifyErrorMessage}</ErrorText>}
+            </>
+          )}
+
+          <StyledCheckboxLabel>
+            <input 
+              type="checkbox" 
+              checked={agreed} 
+              onChange={e => setAgreed(e.target.checked)} 
+            />
+            I agree to our Terms of Service and Privacy Policy
+          </StyledCheckboxLabel>
+        </WizardCard>
+
+        <ButtonWrapper>
+          <WizardButton type="submit" disabled={isVerifyLoading}>
+            {isVerifyLoading ? 'Verifying...' : 'Submit'} <ArrowRight size={16} />
+          </WizardButton>
+        </ButtonWrapper>
+      </form>
+
+      {showSuccessModal && (
+        <ModalOverlay>
+          <ModalContent>
+            <CheckCircle size={64} color="#10b981" style={{ margin: '0 auto' }} />
+            <ModalTitle>Verification Successful</ModalTitle>
+            <ModalText>{verifySuccessMessage || 'Your email and phone number have been successfully verified.'}</ModalText>
+            <WizardButton type="button" onClick={handleModalContinue} style={{ width: '100%' }}>
+              Continue
+            </WizardButton>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+    </>
   );
 };
 

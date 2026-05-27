@@ -4,6 +4,8 @@ import dashboardReducer from "../features/dashboard/redux/dashboardReducer";
 import bookingReducer from "../features/booking/redux/bookingReducer";
 import geoDataReducer from "../features/auth/redux/geoDataSlice";
 import sendOtpReducer from "../features/booking/redux/sendOtpSlice";
+import sendHospitalOtpReducer from "../features/auth/redux/sendHospitalOtpSlice";
+import verifyHospitalOtpReducer from "../features/auth/redux/verifyHospitalOtpSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -11,6 +13,8 @@ const rootReducer = combineReducers({
   booking: bookingReducer,
   geoData: geoDataReducer,
   sendOtp: sendOtpReducer,
+  sendHospitalOtp: sendHospitalOtpReducer,
+  verifyHospitalOtp: verifyHospitalOtpReducer,
 });
 
 export default rootReducer;
