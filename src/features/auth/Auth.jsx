@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { Mail, Lock, Key, Phone, HelpCircle, ArrowRight, Shield, ShieldCheck } from 'lucide-react';
-import authIllustration from '../../assets/auth_design.png';
+import { Mail, Lock, Key, Phone, HelpCircle, ArrowRight, Shield } from 'lucide-react';
+import authIllustration from '../assets/auth_design.png';
 
 // --- ANIMATIONS ---
 const floatAnimation = keyframes`
@@ -332,11 +331,8 @@ const SubmitButton = styled.button`
     box-shadow: 0 6px 18px rgba(0, 150, 136, 0.3);
   }
 
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+  &:active {
+    transform: translateY(0);
   }
 `;
 
@@ -390,48 +386,9 @@ const LegalLinks = styled.div`
   }
 `;
 
-const OTPTooltip = styled.div`
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px dashed rgba(16, 185, 129, 0.3);
-  padding: 12px 16px;
-  border-radius: 12px;
-  color: #10b981;
-  font-size: 12px;
-  font-weight: 500;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  animation: ${fadeIn} 0.3s ease-out;
-`;
-
-const SignupPromptText = styled.p`
-  text-align: center;
-  font-size: 13px;
-  color: #64748b;
-  margin-top: 24px;
-
-  button {
-    background: none;
-    border: none;
-    color: #009688;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0;
-    margin-left: 4px;
-    font-family: inherit;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-`;
-
-const LoginScreen = ({ onNavigateToSignUp }) => {
-  const dispatch = useDispatch();
+const Auth = ({ onLogin }) => {
   const [activeTab, setActiveTab] = useState('password'); // 'password' or 'otp'
-  const [loading, setLoading] = useState(false);
-
+  
   // PASSWORD STATES
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -442,38 +399,6 @@ const LoginScreen = ({ onNavigateToSignUp }) => {
   const [otpCode, setOtpCode] = useState('');
   const [otpStep, setOtpStep] = useState(1); // 1 = Send OTP input, 2 = Verify code input
   const [otpError, setOtpError] = useState('');
-  const [timer, setTimer] = useState(30);
-
-  useEffect(() => {
-    let interval;
-    if (activeTab === 'otp' && otpStep === 2 && timer > 0) {
-      interval = setInterval(() => {
-        setTimer(t => t - 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [activeTab, otpStep, timer]);
-
-  const dispatchLoginSuccess = (userEmail, userPhone) => {
-    dispatch({
-      type: 'LOGIN_SUCCESS',
-      payload: {
-        user: {
-          name: "Dr. Aditya Vardhan",
-          email: userEmail || "aditya.vardhan@swastyam.com",
-          phone: userPhone || "9988776655",
-          role: "Admin",
-          designation: "Chief Medical Director"
-        },
-        clinic: {
-          name: "Swastyam General Hospital",
-          specialties: ["Cardiology", "Neurology", "Pediatrics"],
-          address: "Building B-4, Medical District, Sector 62",
-          license: "LIC-7788192"
-        }
-      }
-    });
-  };
 
   const handlePasswordLogin = (e) => {
     e.preventDefault();
@@ -488,16 +413,14 @@ const LoginScreen = ({ onNavigateToSignUp }) => {
       return;
     }
 
+    // Mock validation check
     if (!email.includes('@')) {
       setPasswordError('Please enter a valid email address.');
       return;
     }
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      dispatchLoginSuccess(email, null);
-    }, 1200);
+    // Authenticate
+    onLogin();
   };
 
   const handleSendOtp = (e) => {
@@ -509,12 +432,8 @@ const LoginScreen = ({ onNavigateToSignUp }) => {
       return;
     }
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setOtpStep(2);
-      setTimer(30);
-    }, 1000);
+    // Move to verification screen
+    setOtpStep(2);
   };
 
   const handleVerifyOtp = (e) => {
@@ -526,23 +445,13 @@ const LoginScreen = ({ onNavigateToSignUp }) => {
       return;
     }
 
-    if (otpCode !== '123456') {
-      setOtpError('Invalid OTP. Please enter mock OTP: 123456');
+    if (otpCode.length < 4) {
+      setOtpError('OTP must be at least 4 digits.');
       return;
     }
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      const isEmail = otpTarget.includes('@');
-      dispatchLoginSuccess(isEmail ? otpTarget : null, isEmail ? null : otpTarget);
-    }, 1200);
-  };
-
-  const handleResendOtp = () => {
-    if (timer > 0) return;
-    setTimer(30);
-    alert('OTP resent successfully!');
+    // Authenticate
+    onLogin();
   };
 
   const resetOtpFlow = () => {
@@ -641,8 +550,8 @@ const LoginScreen = ({ onNavigateToSignUp }) => {
                 {passwordError && <ErrorMsg>{passwordError}</ErrorMsg>}
               </FormGroup>
 
-              <SubmitButton type="submit" disabled={loading}>
-                {loading ? 'Signing In...' : 'Sign In'}
+              <SubmitButton type="submit">
+                Sign In
               </SubmitButton>
             </form>
           )}
@@ -670,18 +579,13 @@ const LoginScreen = ({ onNavigateToSignUp }) => {
                     {otpError && <ErrorMsg>{otpError}</ErrorMsg>}
                   </FormGroup>
 
-                  <SubmitButton type="submit" disabled={loading}>
-                    {loading ? 'Sending OTP...' : 'Send OTP'}
+                  <SubmitButton type="submit">
+                    Send OTP
                   </SubmitButton>
                 </form>
               ) : (
                 /* STEP 2: Enter code received */
                 <form onSubmit={handleVerifyOtp}>
-                  <OTPTooltip>
-                    <ShieldCheck size={20} />
-                    <span>Simulated environment active. Enter mock OTP <strong>123456</strong>.</span>
-                  </OTPTooltip>
-
                   <FormGroup>
                     <Label htmlFor="otp-read">Phone Number / Email</Label>
                     <InputWrapper>
@@ -717,19 +621,14 @@ const LoginScreen = ({ onNavigateToSignUp }) => {
                     
                     <SendOtpStatusRow>
                       <StatusNote>OTP sent to {otpTarget || 'device'}.</StatusNote>
-                      
-                      {timer > 0 ? (
-                        <StatusNote style={{ color: '#94a3b8' }}>Resend in {timer}s</StatusNote>
-                      ) : (
-                        <ResendButton type="button" onClick={handleResendOtp}>
-                          Resend OTP
-                        </ResendButton>
-                      )}
+                      <ResendButton type="button" onClick={() => alert('OTP resent successfully!')}>
+                        Resend OTP
+                      </ResendButton>
                     </SendOtpStatusRow>
                   </FormGroup>
 
-                  <SubmitButton type="submit" disabled={loading}>
-                    {loading ? 'Verifying...' : 'Sign In'}
+                  <SubmitButton type="submit">
+                    Sign In
                   </SubmitButton>
 
                   <div style={{ textAlign: 'center', marginTop: '16px' }}>
@@ -741,12 +640,6 @@ const LoginScreen = ({ onNavigateToSignUp }) => {
               )}
             </>
           )}
-
-          {/* SIGNUP NAVIGATION OPTION */}
-          <SignupPromptText>
-            New Medical Partner?
-            <button type="button" onClick={onNavigateToSignUp}>Create Clinic Account</button>
-          </SignupPromptText>
 
           {/* FOOTER METRICS AND HELPDESK */}
           <FooterContainer>
@@ -770,4 +663,4 @@ const LoginScreen = ({ onNavigateToSignUp }) => {
   );
 };
 
-export default LoginScreen;
+export default Auth;
