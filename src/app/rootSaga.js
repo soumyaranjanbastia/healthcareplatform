@@ -10,6 +10,8 @@ import registerPatientSaga from '../features/booking/redux/registerPatientSaga';
 import otpValidationSaga from '../features/booking/redux/otpValidationSaga';
 import resendOtpSaga from '../features/booking/redux/resendOtpSaga';
 import saveMedicalInfoSaga from '../features/booking/redux/saveMedicalInfoSaga';
+import resendHospitalOtpSaga from '../features/auth/redux/resendHospitalOtpSaga';
+import { watchRegisterDoctorSaga } from '../features/auth/redux/registerDoctorSaga';
 
 export default function* rootSaga() {
   yield all([
@@ -24,5 +26,7 @@ export default function* rootSaga() {
     fork(otpValidationSaga),
     fork(resendOtpSaga),
     fork(saveMedicalInfoSaga),
+    fork(resendHospitalOtpSaga),
+    fork(watchRegisterDoctorSaga),
   ]);
 }

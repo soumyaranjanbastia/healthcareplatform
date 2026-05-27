@@ -158,16 +158,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
 
   const handleContinue = (e) => {
     e.preventDefault();
-    if (!businessName || !pan || !repName || !repPhone || !repEmail || !repDesignation) {
-      return alert('Please fill in all required Representative and Business fields.');
-    }
-    
-    // Check branch validation
-    for (let i = 0; i < branches.length; i++) {
-      if (!branches[i].name || !branches[i].address || !branches[i].city || !branches[i].pincode) {
-        return alert(`Please fill in all required fields for Branch #${i + 1}.`);
-      }
-    }
 
     updateData({
       businessName, gstin, pan,
@@ -183,7 +173,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
       <WizardCard title="Business Details" icon={<Briefcase size={20} />}>
         <WizardInput 
           label="Business Name" 
-          required 
           placeholder="HealthFirst Pharmacy" 
           value={businessName}
           onChange={e => setBusinessName(e.target.value)}
@@ -197,7 +186,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
           />
           <WizardInput 
             label="PAN" 
-            required 
             placeholder="e.g. ABCDE1234F" 
             value={pan}
             maxLength={10}
@@ -221,14 +209,12 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
           <FormRow>
             <WizardInput 
               label="Authorized User Name" 
-              required 
               placeholder="Full legal name" 
               value={repName}
               onChange={e => setRepName(e.target.value)}
             />
             <WizardInput 
               label="Authorized Phone Number" 
-              required 
               placeholder="+91 XXXXX XXXXX" 
               value={repPhone}
               onChange={e => setRepPhone(e.target.value)}
@@ -237,7 +223,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
           <FormRow>
             <WizardInput 
               label="Authorized Email ID" 
-              required 
               type="email" 
               placeholder="auth@company.com" 
               value={repEmail}
@@ -245,7 +230,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
             />
             <WizardInput 
               label="Designation" 
-              required 
               placeholder="e.g. Director" 
               value={repDesignation}
               onChange={e => setRepDesignation(e.target.value)}
@@ -288,14 +272,12 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
             <FormRow>
               <WizardInput 
                 label="Branch Name" 
-                required 
                 placeholder="Enter branch name" 
                 value={branch.name}
                 onChange={e => handleBranchChange(index, 'name', e.target.value)}
               />
               <WizardSelect 
                 label="Branch Type" 
-                required 
                 value={branch.type} 
                 onChange={e => handleBranchChange(index, 'type', e.target.value)}
                 options={[
@@ -308,7 +290,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
 
             <WizardInput 
               label="Address" 
-              required 
               placeholder="Enter branch address" 
               value={branch.address}
               onChange={e => handleBranchChange(index, 'address', e.target.value)}
@@ -317,14 +298,12 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
             <FormRow>
               <WizardInput 
                 label="City" 
-                required 
                 placeholder="Enter city" 
                 value={branch.city}
                 onChange={e => handleBranchChange(index, 'city', e.target.value)}
               />
               <WizardSelect 
                 label="State" 
-                required 
                 value={branch.state} 
                 onChange={e => handleBranchChange(index, 'state', e.target.value)}
                 options={[
@@ -338,7 +317,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
             <FormRow>
               <WizardInput 
                 label="Pincode" 
-                required 
                 placeholder="Enter pincode" 
                 value={branch.pincode}
                 maxLength={6}

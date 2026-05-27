@@ -6,7 +6,6 @@ const API_ENDPOINTS = {
   sendOtp: 'assisted/send-otp',
   sendHospitalOtp: 'hospital/send-hospital-registration-otp',
   verifyHospitalOtp: 'hospital/verify-hospital-registration-otp',
-
   // Register Patient
   registerPatient: 'hospital/signup',
 
@@ -18,6 +17,9 @@ const API_ENDPOINTS = {
 
   // Save Medical Details
   saveMedicalInfo: 'hospital/medicalDetails',
+
+  resendHospitalOtp: 'hospital/resend-hospital-registration-otp',
+  registerDoctor: 'hospital/register-doctor',
 };
 
 export default API_ENDPOINTS;

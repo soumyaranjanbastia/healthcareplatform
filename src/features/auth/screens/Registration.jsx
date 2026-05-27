@@ -169,7 +169,7 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
       case 8:
         return (
           <Step8ReviewSubmit 
-            onNext={handleNextStep} 
+            onNext={handleFinish} 
             onPrev={handlePrevStep} 
             data={formData} 
           />

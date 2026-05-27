@@ -7,6 +7,7 @@ import WizardInput from '../../components/WizardInput';
 import WizardButton, { ButtonWrapper } from '../../components/WizardButton';
 import { sendHospitalOtpRequest, resetSendHospitalOtpState } from '../../redux/sendHospitalOtpSlice';
 import { verifyHospitalOtpRequest, resetVerifyHospitalOtpState } from '../../redux/verifyHospitalOtpSlice';
+import { resendHospitalOtpRequest, resetResendHospitalOtpState } from '../../redux/resendHospitalOtpSlice';
 
 const StyledCheckboxLabel = styled.label`
   display: flex;
@@ -106,7 +107,10 @@ const ModalText = styled.p`
 
 const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
   const dispatch = useDispatch();
+  
+  // States from Redux
   const { isLoading, isSuccess, isError, errorMessage, successMessage, emailKey, phoneKey } = useSelector((state) => state.sendHospitalOtp);
+  
   const { 
     isLoading: isVerifyLoading, 
     isSuccess: isVerifySuccess, 
@@ -114,6 +118,16 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
     errorMessage: verifyErrorMessage, 
     successMessage: verifySuccessMessage 
   } = useSelector((state) => state.verifyHospitalOtp);
+
+  const {
+    isLoading: isResendLoading,
+    isSuccess: isResendSuccess,
+    isError: isResendError,
+    errorMessage: resendErrorMessage,
+    successMessage: resendSuccessMessage,
+    emailKey: resendEmailKey,
+    phoneKey: resendPhoneKey
+  } = useSelector((state) => state.resendHospitalOtp);
 
   const [otpSent, setOtpSent] = useState(false);
   const [email, setEmail] = useState(data.email || 'partner@example.com');
@@ -123,11 +137,20 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
   const [agreed, setAgreed] = useState(data.agreed || false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  // Active Keys Logic: Prioritize the keys from the Resend API if available
+  const activeEmailKey = resendEmailKey || emailKey;
+  const activePhoneKey = resendPhoneKey || phoneKey;
+
+  // Active Messages Logic
+  const displayErrorMsg = isVerifyError ? verifyErrorMessage : (isResendError ? resendErrorMessage : (isError ? errorMessage : ''));
+  const displaySuccessMsg = isResendSuccess ? resendSuccessMessage : (isSuccess ? successMessage : '');
+  const isAnyLoading = isLoading || isResendLoading;
+
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess || isResendSuccess) {
       setOtpSent(true);
     }
-  }, [isSuccess]);
+  }, [isSuccess, isResendSuccess]);
 
   useEffect(() => {
     if (isVerifySuccess) {
@@ -140,12 +163,17 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
     return () => {
       dispatch(resetSendHospitalOtpState());
       dispatch(resetVerifyHospitalOtpState());
+      dispatch(resetResendHospitalOtpState());
     };
   }, [dispatch]);
 
   const handleSendOtp = () => {
     if (!email || !phone) return alert('Please enter both Email and Phone.');
-    dispatch(sendHospitalOtpRequest({ email, phone }));
+    if (otpSent) {
+      dispatch(resendHospitalOtpRequest({ email, phone }));
+    } else {
+      dispatch(sendHospitalOtpRequest({ email, phone }));
+    }
   };
 
   const handleContinue = (e) => {
@@ -155,12 +183,25 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
     if (!otpSent) return alert('Please click "Send OTP" to receive and enter verification codes.');
     if (!emailOtp || !phoneOtp) return alert('Please enter the OTP codes.');
 
-    dispatch(verifyHospitalOtpRequest({ emailOtp, emailKey, phoneOtp, phoneKey }));
+    dispatch(verifyHospitalOtpRequest({ 
+      emailOtp, 
+      emailKey: activeEmailKey, 
+      phoneOtp, 
+      phoneKey: activePhoneKey 
+    }));
   };
 
   const handleModalContinue = () => {
     setShowSuccessModal(false);
-    updateData({ email, phone, agreed, emailKey, phoneKey, emailOtp, phoneOtp });
+    updateData({ 
+      email, 
+      phone, 
+      agreed, 
+      emailKey: activeEmailKey, 
+      phoneKey: activePhoneKey, 
+      emailOtp, 
+      phoneOtp 
+    });
     onNext();
   };
 
@@ -186,11 +227,11 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
             onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
           />
 
-          {isError && <ErrorText>{errorMessage}</ErrorText>}
-          {isSuccess && <SuccessText>{successMessage}</SuccessText>}
+          {displayErrorMsg && <ErrorText>{displayErrorMsg}</ErrorText>}
+          {displaySuccessMsg && <SuccessText>{displaySuccessMsg}</SuccessText>}
 
-          <SendOtpBtn type="button" onClick={handleSendOtp} disabled={isLoading}>
-            {isLoading ? 'Sending...' : otpSent ? 'Resend OTP' : 'Send OTP'}
+          <SendOtpBtn type="button" onClick={handleSendOtp} disabled={isAnyLoading}>
+            {isAnyLoading ? 'Sending...' : otpSent ? 'Resend OTP' : 'Send OTP'}
           </SendOtpBtn>
 
           {otpSent && (
@@ -211,7 +252,6 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
                 maxLength={6}
                 onChange={e => setPhoneOtp(e.target.value.replace(/\D/g, ''))}
               />
-              {isVerifyError && <ErrorText>{verifyErrorMessage}</ErrorText>}
             </>
           )}
 

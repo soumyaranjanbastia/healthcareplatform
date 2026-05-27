@@ -75,24 +75,22 @@ const Step6Documents = ({ onNext, onPrev, data, updateData }) => {
     clinicalEst: false
   });
 
-  const handleDocClick = (key, label) => {
-    setUploads(prev => {
-      const updated = { ...prev, [key]: !prev[key] };
-      if (updated[key]) {
-        alert(`Simulated: ${label} uploaded successfully!`);
-      }
-      return updated;
-    });
+  const handleFileChange = (e, key, label) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Simulate creating a URL or uploading to a server
+      const fileUrl = `https://mock-storage.com/documents/${file.name}`;
+      
+      setUploads(prev => ({
+        ...prev,
+        [key]: fileUrl
+      }));
+      console.log(`Document selected: ${file.name}, Simulated URL: ${fileUrl}`);
+    }
   };
 
   const handleContinue = (e) => {
     e.preventDefault();
-    
-    // Check if at least some critical documents are uploaded
-    if (!uploads.shopPhoto || !uploads.hospitalReg || !uploads.panCard) {
-      return alert('Please upload at least the Shop Photo, Hospital Registration, and PAN Card to continue.');
-    }
-
     updateData({ uploads });
     onNext();
   };
@@ -112,26 +110,30 @@ const Step6Documents = ({ onNext, onPrev, data, updateData }) => {
           {docList.map(doc => {
             const isUploaded = uploads[doc.key];
             return (
-              <DocRow 
-                key={doc.key} 
-                uploaded={isUploaded} 
-                onClick={() => handleDocClick(doc.key, doc.label)}
-              >
-                <DocInfo>
-                  <DocIcon uploaded={isUploaded}>
-                    <FileText size={18} />
-                  </DocIcon>
-                  <DocMeta>
-                    <DocTitle>{doc.label}</DocTitle>
-                    <DocStatus uploaded={isUploaded}>
-                      {isUploaded ? 'Document verified' : 'Tap to upload or scan'}
-                    </DocStatus>
-                  </DocMeta>
-                </DocInfo>
-                <UploadAction uploaded={isUploaded}>
-                  {isUploaded ? <CheckCircle2 size={18} /> : <UploadCloud size={18} />}
-                </UploadAction>
-              </DocRow>
+              <label key={doc.key} style={{ display: 'block', margin: 0, padding: 0 }}>
+                <input 
+                  type="file" 
+                  accept="image/*,application/pdf" 
+                  style={{ display: 'none' }} 
+                  onChange={(e) => handleFileChange(e, doc.key, doc.label)} 
+                />
+                <DocRow uploaded={isUploaded}>
+                  <DocInfo>
+                    <DocIcon uploaded={isUploaded}>
+                      <FileText size={18} />
+                    </DocIcon>
+                    <DocMeta>
+                      <DocTitle>{doc.label}</DocTitle>
+                      <DocStatus uploaded={isUploaded}>
+                        {isUploaded ? 'Document verified' : 'Tap to upload or scan'}
+                      </DocStatus>
+                    </DocMeta>
+                  </DocInfo>
+                  <UploadAction uploaded={isUploaded}>
+                    {isUploaded ? <CheckCircle2 size={18} /> : <UploadCloud size={18} />}
+                  </UploadAction>
+                </DocRow>
+              </label>
             );
           })}
         </div>

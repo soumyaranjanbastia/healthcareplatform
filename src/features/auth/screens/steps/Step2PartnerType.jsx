@@ -83,10 +83,6 @@ const Step2PartnerType = ({ onNext, onPrev, data, updateData }) => {
 
   const handleContinue = (e) => {
     e.preventDefault();
-    if (!partnerType) {
-      return alert('Please select a Partner Type to continue.');
-    }
-
     updateData({ partnerType });
     onNext();
   };
@@ -133,7 +129,7 @@ const Step2PartnerType = ({ onNext, onPrev, data, updateData }) => {
         <WizardButton variant="secondary" onClick={onPrev}>
           Previous
         </WizardButton>
-        <WizardButton type="submit" disabled={!partnerType}>
+        <WizardButton type="submit">
           Continue <ArrowRight size={16} />
         </WizardButton>
       </ButtonWrapper>

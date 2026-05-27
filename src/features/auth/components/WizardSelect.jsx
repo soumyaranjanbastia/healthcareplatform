@@ -50,8 +50,8 @@ const WizardSelect = ({ label, required = false, id, value, onChange, options = 
         </Label>
       )}
       <SelectField id={id} value={value} onChange={onChange}>
-        {options.map(option => (
-          <option key={option.value} value={option.value}>
+        {options.map((option, index) => (
+          <option key={`${option.value}-${index}`} value={option.value}>
             {option.label}
           </option>
         ))}

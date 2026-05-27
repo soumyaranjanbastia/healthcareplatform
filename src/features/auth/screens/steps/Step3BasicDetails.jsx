@@ -66,9 +66,6 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
 
   const handleContinue = (e) => {
     e.preventDefault();
-    if (!fullName || !profileName || !dob || !companyName || !contactEmail || !contactPhone || !city) {
-      return alert('Please fill in all required fields.');
-    }
 
     updateData({
       fullName, profileName, dob, companyName,
@@ -107,14 +104,12 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
         <FormRow>
           <WizardInput 
             label="Full Name" 
-            required 
             placeholder="Enter your full name" 
             value={fullName}
             onChange={e => setFullName(e.target.value)}
           />
           <WizardInput 
             label="Profile Name" 
-            required 
             placeholder="Display name on platform" 
             helper="This will be visible to patients"
             value={profileName}
@@ -124,14 +119,12 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
         <FormRow>
           <WizardInput 
             label="Date of Birth" 
-            required 
             type="date" 
             value={dob}
             onChange={e => setDob(e.target.value)}
           />
           <WizardInput 
             label="Company Name" 
-            required 
             placeholder="Registered company name" 
             value={companyName}
             onChange={e => setCompanyName(e.target.value)}
@@ -144,7 +137,6 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
         <FormRow>
           <WizardInput 
             label="Email" 
-            required 
             type="email" 
             placeholder="you@company.com" 
             value={contactEmail}
@@ -161,7 +153,7 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
         
         <div>
           <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px', display: 'block' }}>
-            Phone Number <span style={{ color: '#ef4444' }}>*</span>
+            Phone Number
           </label>
           <CountryPhoneRow>
             <PrefixWrapper>
@@ -192,7 +184,6 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
         <LocationGrid>
           <WizardSelect 
             label="Country" 
-            required 
             value={country} 
             onChange={e => {
               setCountry(e.target.value);
@@ -203,7 +194,6 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
           />
           <WizardSelect 
             label="State" 
-            required 
             value={state} 
             onChange={e => {
               setState(e.target.value);
@@ -213,7 +203,6 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
           />
           <WizardSelect 
             label="City" 
-            required 
             value={city} 
             onChange={e => setCity(e.target.value)}
             options={cityOptions}

@@ -12,9 +12,6 @@ const Step5BankDetails = ({ onNext, onPrev, data, updateData }) => {
 
   const handleContinue = (e) => {
     e.preventDefault();
-    if (!bankHolderName || !bankAccountNumber || !bankIfsc) {
-      return alert('Please fill in all required bank fields.');
-    }
 
     updateData({
       bankHolderName, bankAccountNumber, bankIfsc, bankUpi
@@ -27,21 +24,18 @@ const Step5BankDetails = ({ onNext, onPrev, data, updateData }) => {
       <WizardCard title="Bank Details" icon={<CreditCard size={20} />}>
         <WizardInput 
           label="Account Holder Name" 
-          required 
           placeholder="As per bank account" 
           value={bankHolderName}
           onChange={e => setBankHolderName(e.target.value)}
         />
         <WizardInput 
           label="Account Number" 
-          required 
           placeholder="Enter account number" 
           value={bankAccountNumber}
           onChange={e => setBankAccountNumber(e.target.value.replace(/\D/g, ''))}
         />
         <WizardInput 
           label="IFSC Code" 
-          required 
           placeholder="Enter IFSC code" 
           value={bankIfsc}
           onChange={e => setBankIfsc(e.target.value.toUpperCase())}
