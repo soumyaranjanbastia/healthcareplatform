@@ -19,7 +19,14 @@ function* handleRegisterDoctor(action) {
       payload
     );
 
-    yield put(registerDoctorSuccess(response.data || response));
+    const responseData = response.data || response;
+    
+    // Store companyId in localStorage for subsequent API calls
+    if (responseData?.user?.companyId) {
+      localStorage.setItem('companyId', responseData.user.companyId);
+    }
+
+    yield put(registerDoctorSuccess(responseData));
   } catch (error) {
     yield put(registerDoctorFailure(error.message || 'Failed to register doctor. Please try again.'));
   }

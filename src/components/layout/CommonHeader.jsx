@@ -67,6 +67,12 @@ const UserInfo = styled.div`
   align-items: flex-end;
 `;
 
+const UserNameWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
 const UserName = styled.span`
   font-family: 'Inter', sans-serif;
   font-weight: 600;
@@ -74,13 +80,26 @@ const UserName = styled.span`
   color: #1e293b;
 `;
 
-const UserRole = styled.span`
+const RoleBadge = styled.span`
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const UserEmail = styled.span`
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   color: #64748b;
+  margin-top: 2px;
 `;
 
-const CommonHeader = ({ userName, userRole, onMenuClick }) => {
+const CommonHeader = ({ userName, userRole, userEmail, onMenuClick }) => {
   return (
     <HeaderContainer>
       <HeaderLeft>
@@ -93,8 +112,11 @@ const CommonHeader = ({ userName, userRole, onMenuClick }) => {
         {userName && (
           <ProfileSection>
             <UserInfo>
-              <UserName>{userName}</UserName>
-              <UserRole>{userRole}</UserRole>
+              <UserNameWrapper>
+                <UserName>{userName}</UserName>
+                {userRole && <RoleBadge>{userRole}</RoleBadge>}
+              </UserNameWrapper>
+              {userEmail && <UserEmail>{userEmail}</UserEmail>}
             </UserInfo>
             <Avatar><User size={18} /></Avatar>
           </ProfileSection>

@@ -14,6 +14,9 @@ import resendHospitalOtpReducer from "../features/auth/redux/resendHospitalOtpSl
 import registerDoctorReducer from "../features/auth/redux/registerDoctorSlice";
 import getExistingUserReducer from "../features/booking/redux/getExistingUserSlice";
 import verifyExistingPatientOtpReducer from "../features/booking/redux/verifyExistingPatientOtpSlice";
+import dashboardOverviewReducer from "../features/dashboard/redux/dashboardOverviewSlice";
+import sendLoginOtpReducer from "../features/auth/redux/sendLoginOtpSlice";
+import verifyLoginOtpReducer from "../features/auth/redux/verifyLoginOtpSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -31,6 +34,9 @@ const rootReducer = combineReducers({
   registerDoctor: registerDoctorReducer,
   getExistingUser: getExistingUserReducer,
   verifyExistingPatientOtp: verifyExistingPatientOtpReducer,
+  dashboardOverview: dashboardOverviewReducer,
+  sendLoginOtp: sendLoginOtpReducer,
+  verifyLoginOtp: verifyLoginOtpReducer,
 });
 
 export default rootReducer;

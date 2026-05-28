@@ -33,6 +33,22 @@ const HelperText = styled.span`
   margin-top: 2px;
 `;
 
+const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
+
+const IconWrapper = styled.div`
+  position: absolute;
+  right: 14px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+`;
+
 const InputField = styled.input`
   width: 100%;
   padding: 12px 14px;
@@ -59,6 +75,19 @@ const InputField = styled.input`
     color: #64748b;
     cursor: not-allowed;
   }
+
+  ${props => props.$hasIcon && 'padding-right: 40px;'}
+
+  &[type="date"]::-webkit-calendar-picker-indicator,
+  &[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 0; /* Hide native icon so custom one shows, but keep functionality */
+    width: 24px;
+    height: 100%;
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    z-index: 2;
+  }
 `;
 
 const WizardInput = ({ 
@@ -71,7 +100,8 @@ const WizardInput = ({
   value, 
   onChange, 
   disabled = false,
-  maxLength
+  maxLength,
+  icon
 }) => {
   return (
     <FormGroup>
@@ -83,16 +113,20 @@ const WizardInput = ({
           </Label>
         )}
       </LabelRow>
-      <InputField 
-        id={id} 
-        type={type} 
-        placeholder={placeholder} 
-        value={value} 
-        onChange={onChange}
-        disabled={disabled}
-        maxLength={maxLength}
-        autoComplete="off"
-      />
+      <InputWrapper>
+        <InputField 
+          id={id} 
+          type={type} 
+          placeholder={placeholder} 
+          value={value} 
+          onChange={onChange}
+          disabled={disabled}
+          maxLength={maxLength}
+          autoComplete="off"
+          $hasIcon={!!icon}
+        />
+        {icon && <IconWrapper>{icon}</IconWrapper>}
+      </InputWrapper>
       {helper && <HelperText>{helper}</HelperText>}
     </FormGroup>
   );

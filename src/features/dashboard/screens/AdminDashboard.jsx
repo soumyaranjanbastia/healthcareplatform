@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
+import { dashboardOverviewRequest } from '../redux/dashboardOverviewSlice';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import AdminHeader from '../components/AdminHeader';
 import AdminMetrics from '../components/AdminMetrics';
@@ -16,11 +18,19 @@ const ContentWrapper = styled.div`
 `;
 
 const AdminDashboard = () => {
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector(state => state.auth);
+
+  useEffect(() => {
+    const companyId = currentUser?.companyId;
+    if (companyId) {
+      dispatch(dashboardOverviewRequest({ companyId }));
+    }
+  }, [dispatch, currentUser]);
+
   return (
     <DashboardLayout 
       activeSidebarLabel="Dashboard"
-      userName="Admin User"
-      userRole="Super Admin"
     >
       <ContentWrapper>
         <AdminHeader />

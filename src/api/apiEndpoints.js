@@ -26,6 +26,9 @@ const API_ENDPOINTS = {
 
   resendHospitalOtp: 'hospital/resend-hospital-registration-otp',
   registerDoctor: 'hospital/register-doctor',
+  dashboardOverview: 'hospital/dashboardOverview',
+  sendLoginOtp: 'hospital/send-login-otp',
+  verifyLoginOtp: 'hospital/verify-login-otp',
 };
 
 export default API_ENDPOINTS;

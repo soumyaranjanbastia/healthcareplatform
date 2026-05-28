@@ -38,6 +38,10 @@ const ModalCard = styled.div`
   animation: ${scaleIn} 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   position: relative;
   font-family: 'Outfit', 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 `;
 
 const CloseButton = styled.button`

@@ -130,8 +130,8 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
   } = useSelector((state) => state.resendHospitalOtp);
 
   const [otpSent, setOtpSent] = useState(false);
-  const [email, setEmail] = useState(data.email || 'partner@example.com');
-  const [phone, setPhone] = useState(data.phone || '9876543210');
+  const [email, setEmail] = useState(data.email || '');
+  const [phone, setPhone] = useState(data.phone || '');
   const [emailOtp, setEmailOtp] = useState('');
   const [phoneOtp, setPhoneOtp] = useState('');
   const [agreed, setAgreed] = useState(data.agreed || false);
@@ -278,9 +278,11 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
             <CheckCircle size={64} color="#10b981" style={{ margin: '0 auto' }} />
             <ModalTitle>Verification Successful</ModalTitle>
             <ModalText>{verifySuccessMessage || 'Your email and phone number have been successfully verified.'}</ModalText>
-            <WizardButton type="button" onClick={handleModalContinue} style={{ width: '100%' }}>
-              Continue
-            </WizardButton>
+            <ButtonWrapper>
+              <WizardButton type="button" onClick={handleModalContinue}>
+                Continue
+              </WizardButton>
+            </ButtonWrapper>
           </ModalContent>
         </ModalOverlay>
       )}

@@ -68,7 +68,7 @@ const UploadAction = styled.div`
 
 const Step6Documents = ({ onNext, onPrev, data, updateData }) => {
   const [uploads, setUploads] = useState(data.uploads || {
-    shopPhoto: false,
+    hospitalPhoto: false,
     hospitalReg: false,
     gstCert: false,
     panCard: false,
@@ -96,7 +96,7 @@ const Step6Documents = ({ onNext, onPrev, data, updateData }) => {
   };
 
   const docList = [
-    { key: 'shopPhoto', label: 'Shop Photo' },
+    { key: 'hospitalPhoto', label: 'Hospital Photo' },
     { key: 'hospitalReg', label: 'Hospital Registration Certificate' },
     { key: 'gstCert', label: 'GST Certificate' },
     { key: 'panCard', label: 'PAN Card' },

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { Mail, Lock, Key, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Key, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { sendLoginOtpRequest, resetSendLoginOtp } from '../redux/sendLoginOtpSlice';
+import { verifyLoginOtpRequest, resetVerifyLoginOtp } from '../redux/verifyLoginOtpSlice';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -9,6 +12,16 @@ const fadeIn = keyframes`
 
 const FormContainer = styled.div`
   animation: ${fadeIn} 0.5s ease-out;
+`;
+
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`;
+
+const Spinner = styled(Loader2)`
+  animation: ${spin} 1s linear infinite;
+  margin-left: 8px;
 `;
 
 const FormHeader = styled.div`
@@ -27,36 +40,7 @@ const FormHeader = styled.div`
   }
 `;
 
-const TabContainer = styled.div`
-  display: flex;
-  background-color: #f8fafc;
-  padding: 5px;
-  border-radius: 12px;
-  margin-bottom: 24px;
-  border: 1px solid #f1f5f9;
-`;
 
-const TabButton = styled.button`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border: none;
-  background-color: ${props => props.active ? '#ffffff' : 'transparent'};
-  color: ${props => props.active ? '#0f172a' : '#64748b'};
-  font-size: 13px;
-  font-weight: ${props => props.active ? '600' : '500'};
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: ${props => props.active ? '0 4px 10px rgba(15, 23, 42, 0.04)' : 'none'};
-
-  &:hover {
-    color: #0f172a;
-  }
-`;
 
 const FormGroup = styled.div`
   display: flex;
@@ -120,6 +104,21 @@ const ErrorMsg = styled.span`
   margin-top: 4px;
 `;
 
+const SuccessMsg = styled.div`
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: ${fadeIn} 0.3s ease-out;
+`;
+
 const SubmitButton = styled.button`
   width: 100%;
   padding: 14px;
@@ -162,39 +161,60 @@ const SwitchLink = styled.span`
 `;
 
 const Login = ({ onLogin, onSwitchToSignup }) => {
-  const [activeTab, setActiveTab] = useState('password'); // password | otp
+  const dispatch = useDispatch();
+  const { loading: sendLoading, success: sendSuccess, data: sendData, error: sendError } = useSelector((state) => state.sendLoginOtp);
+  const { loading: verifyLoading, success: verifySuccess, data: verifyData, error: verifyError } = useSelector((state) => state.verifyLoginOtp);
+
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [otpTarget, setOtpTarget] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpStep, setOtpStep] = useState(1); // 1 = input target, 2 = verify otp
   const [error, setError] = useState('');
 
-  const handlePasswordLogin = (e) => {
+  React.useEffect(() => {
+    if (sendSuccess && otpStep === 1) {
+      if (sendData?.isRegistered !== false) {
+        setOtpStep(2);
+      }
+    }
+  }, [sendSuccess, otpStep, sendData]);
+
+  React.useEffect(() => {
+    if (verifySuccess && verifyData) {
+      window.alert(verifyData.message || "Login successful.");
+      
+      const rawRole = verifyData.user?.role || 'Receptionist';
+      let formattedRole = rawRole;
+      if (rawRole.toUpperCase() === 'SUPER ADMIN' || rawRole.toUpperCase() === 'ADMIN') {
+        formattedRole = 'Admin';
+      } else {
+        formattedRole = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
+      }
+      
+      onLogin({
+        ...verifyData,
+        user: {
+          ...verifyData.user,
+          role: formattedRole
+        }
+      });
+      dispatch(resetVerifyLoginOtp());
+    }
+  }, [verifySuccess, verifyData, onLogin, dispatch]);
+
+  const handleSendOtp = (e) => {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
-      setError('Please fill in all fields.');
+    if (!email) {
+      setError('Please enter your email.');
       return;
     }
     if (!email.includes('@')) {
       setError('Please enter a valid email address.');
       return;
     }
-
-    onLogin();
-  };
-
-  const handleSendOtp = (e) => {
-    e.preventDefault();
-    setError('');
-
-    if (!otpTarget) {
-      setError('Please enter your email or phone number.');
-      return;
-    }
-    setOtpStep(2);
+    
+    dispatch(sendLoginOtpRequest({ email }));
   };
 
   const handleVerifyOtp = (e) => {
@@ -205,7 +225,14 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
       setError('Please enter the OTP code.');
       return;
     }
-    onLogin();
+    
+    const encryptionKey = sendData?.encryptionKey;
+    if (!encryptionKey) {
+      setError('Session expired. Please send OTP again.');
+      return;
+    }
+
+    dispatch(verifyLoginOtpRequest({ otp: otpCode, encryptionKey }));
   };
 
   return (
@@ -215,23 +242,13 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
         <p>Sign in to access your dashboard</p>
       </FormHeader>
 
-      <TabContainer>
-        <TabButton 
-          active={activeTab === 'password'} 
-          onClick={() => { setActiveTab('password'); setError(''); setOtpStep(1); }}
-        >
-          <Lock size={14} /> Password
-        </TabButton>
-        <TabButton 
-          active={activeTab === 'otp'} 
-          onClick={() => { setActiveTab('otp'); setError(''); }}
-        >
-          <Key size={14} /> OTP
-        </TabButton>
-      </TabContainer>
-
-      {activeTab === 'password' ? (
-        <form onSubmit={handlePasswordLogin}>
+      {otpStep === 1 ? (
+        <form onSubmit={handleSendOtp}>
+          {sendData?.message && sendData?.isRegistered === false && (
+            <SuccessMsg>
+              <CheckCircle2 size={16} /> {sendData.message}
+            </SuccessMsg>
+          )}
           <FormGroup>
             <Label htmlFor="login-email">Email</Label>
             <InputWrapper>
@@ -244,74 +261,46 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
                 onChange={e => setEmail(e.target.value)}
               />
             </InputWrapper>
+            {(error || sendError) && <ErrorMsg>{error || sendError}</ErrorMsg>}
           </FormGroup>
-
-          <FormGroup>
-            <LabelRow>
-              <Label htmlFor="login-password">Password</Label>
-            </LabelRow>
-            <InputWrapper>
-              <InputIcon><Lock size={15} /></InputIcon>
-              <InputField 
-                id="login-password" 
-                type="password" 
-                placeholder="Enter password" 
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-              />
-            </InputWrapper>
-            {error && <ErrorMsg>{error}</ErrorMsg>}
-          </FormGroup>
-
-          <SubmitButton type="submit">
-            Sign In <ArrowRight size={15} />
+          <SubmitButton type="submit" disabled={sendLoading}>
+            {sendLoading ? (
+              <>Sending <Spinner size={16} /></>
+            ) : (
+              'Send OTP'
+            )}
           </SubmitButton>
         </form>
       ) : (
-        <>
-          {otpStep === 1 ? (
-            <form onSubmit={handleSendOtp}>
-              <FormGroup>
-                <Label htmlFor="login-otp-target">Email / Phone</Label>
-                <InputWrapper>
-                  <InputIcon><Mail size={15} /></InputIcon>
-                  <InputField 
-                    id="login-otp-target" 
-                    type="text" 
-                    placeholder="Enter email or phone number" 
-                    value={otpTarget}
-                    onChange={e => setOtpTarget(e.target.value)}
-                  />
-                </InputWrapper>
-                {error && <ErrorMsg>{error}</ErrorMsg>}
-              </FormGroup>
-              <SubmitButton type="submit">
-                Send OTP
-              </SubmitButton>
-            </form>
-          ) : (
-            <form onSubmit={handleVerifyOtp}>
-              <FormGroup>
-                <Label htmlFor="login-otp-code">Enter OTP Code</Label>
-                <InputWrapper>
-                  <InputIcon><Key size={15} /></InputIcon>
-                  <InputField 
-                    id="login-otp-code" 
-                    type="text" 
-                    placeholder="6-digit OTP" 
-                    value={otpCode}
-                    maxLength={6}
-                    onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                  />
-                </InputWrapper>
-                {error && <ErrorMsg>{error}</ErrorMsg>}
-              </FormGroup>
-              <SubmitButton type="submit">
-                Verify & Sign In <ArrowRight size={15} />
-              </SubmitButton>
-            </form>
+        <form onSubmit={handleVerifyOtp}>
+          {sendData?.message && (
+            <SuccessMsg>
+              <CheckCircle2 size={16} /> {sendData.message}
+            </SuccessMsg>
           )}
-        </>
+          <FormGroup>
+            <Label htmlFor="login-otp-code">Enter OTP Code</Label>
+            <InputWrapper>
+              <InputIcon><Key size={15} /></InputIcon>
+              <InputField 
+                id="login-otp-code" 
+                type="text" 
+                placeholder="6-digit OTP" 
+                value={otpCode}
+                maxLength={6}
+                onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))}
+              />
+            </InputWrapper>
+            {(error || verifyError) && <ErrorMsg>{error || verifyError}</ErrorMsg>}
+          </FormGroup>
+          <SubmitButton type="submit" disabled={verifyLoading}>
+            {verifyLoading ? (
+              <>Verifying <Spinner size={16} /></>
+            ) : (
+              <>Verify & Sign In <ArrowRight size={15} /></>
+            )}
+          </SubmitButton>
+        </form>
       )}
 
       <FooterText>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Sidebar from './Sidebar';
 import CommonHeader from './CommonHeader';
+import { useSelector } from 'react-redux';
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -48,6 +49,7 @@ const Overlay = styled.div`
 
 const DashboardLayout = ({ children, activeSidebarLabel, userName, userRole }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default to closed as per user preference
+  const { currentUser } = useSelector(state => state.auth);
 
   return (
     <LayoutContainer>
@@ -61,8 +63,9 @@ const DashboardLayout = ({ children, activeSidebarLabel, userName, userRole }) =
       <MainContentWrapper>
         <HeaderWrapper>
           <CommonHeader 
-            userName={userName}
-            userRole={userRole}
+            userName={currentUser?.fullName || userName || 'User'}
+            userRole={currentUser?.role || userRole || 'Admin'}
+            userEmail={currentUser?.email || 'user@example.com'}
             onMenuClick={() => setIsSidebarOpen(true)}
           />
         </HeaderWrapper>

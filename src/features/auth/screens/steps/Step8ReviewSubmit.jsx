@@ -7,21 +7,26 @@ import WizardCard from '../../components/WizardCard';
 import WizardButton, { ButtonWrapper } from '../../components/WizardButton';
 
 const ReviewList = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   width: 100%;
   margin-top: 10px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const ReviewRow = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   background-color: #f8fafc;
   border: 1px solid #f1f5f9;
   border-radius: 10px;
-  padding: 14px 18px;
+  padding: 12px 14px;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
 `;
@@ -29,12 +34,30 @@ const ReviewRow = styled.div`
 const RowLabel = styled.span`
   color: #64748b;
   font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 const RowValue = styled.span`
   color: #0f172a;
   font-weight: 600;
-  text-align: right;
+  text-align: left;
+  word-break: break-word;
+  max-width: 100%;
+  font-size: 14px;
+`;
+
+const SectionHeader = styled.div`
+  grid-column: 1 / -1;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #009688;
+  margin-top: 16px;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed #cbd5e1;
 `;
 
 const ConsentBox = styled.div`
@@ -172,28 +195,95 @@ const Step8ReviewSubmit = ({ onNext, onPrev, data }) => {
       <form onSubmit={handleFormSubmit}>
         <WizardCard title="Review & Submit" icon={<CheckCircle size={20} color="#009688" />}>
           <ReviewList>
-            <ReviewRow>
-              <RowLabel>Email</RowLabel>
-              <RowValue>{data.contactEmail || 'Not provided'}</RowValue>
-            </ReviewRow>
-            <ReviewRow>
-              <RowLabel>Mobile</RowLabel>
-              <RowValue>{data.contactPhone ? `${data.phonePrefix} ${data.contactPhone}` : 'Not provided'}</RowValue>
-            </ReviewRow>
+            <SectionHeader>Personal Details</SectionHeader>
             <ReviewRow>
               <RowLabel>Name</RowLabel>
               <RowValue>{data.fullName || 'Not provided'}</RowValue>
             </ReviewRow>
             <ReviewRow>
-              <RowLabel>Business</RowLabel>
-              <RowValue>{data.businessName || 'Not provided'}</RowValue>
+              <RowLabel>Profile Name</RowLabel>
+              <RowValue>{data.profileName || 'Not provided'}</RowValue>
             </ReviewRow>
             <ReviewRow>
-              <RowLabel>City</RowLabel>
-              <RowValue>{data.city || 'Not provided'}</RowValue>
+              <RowLabel>Date of Birth</RowLabel>
+              <RowValue>{data.dob || 'Not provided'}</RowValue>
             </ReviewRow>
             <ReviewRow>
-              <RowLabel>Screens</RowLabel>
+              <RowLabel>Contact Email</RowLabel>
+              <RowValue>{data.contactEmail || 'Not provided'}</RowValue>
+            </ReviewRow>
+            {data.alternateEmail && (
+              <ReviewRow>
+                <RowLabel>Alt Email</RowLabel>
+                <RowValue>{data.alternateEmail}</RowValue>
+              </ReviewRow>
+            )}
+            <ReviewRow>
+              <RowLabel>Mobile</RowLabel>
+              <RowValue>{data.contactPhone ? `${data.phonePrefix} ${data.contactPhone}` : 'Not provided'}</RowValue>
+            </ReviewRow>
+
+            <SectionHeader>Company Details</SectionHeader>
+            <ReviewRow>
+              <RowLabel>Company Name</RowLabel>
+              <RowValue>{data.companyName || 'Not provided'}</RowValue>
+            </ReviewRow>
+            <ReviewRow>
+              <RowLabel>Partner Type</RowLabel>
+              <RowValue>{data.partnerType || 'Not provided'}</RowValue>
+            </ReviewRow>
+            <ReviewRow>
+              <RowLabel>GSTIN</RowLabel>
+              <RowValue>{data.gstin || 'Not provided'}</RowValue>
+            </ReviewRow>
+            <ReviewRow>
+              <RowLabel>PAN</RowLabel>
+              <RowValue>{data.pan || 'Not provided'}</RowValue>
+            </ReviewRow>
+            <ReviewRow>
+              <RowLabel>Location</RowLabel>
+              <RowValue>{[data.city, data.state, data.country].filter(Boolean).join(', ') || 'Not provided'}</RowValue>
+            </ReviewRow>
+            <ReviewRow>
+              <RowLabel>Timings</RowLabel>
+              <RowValue>
+                {data.startTime && data.endTime 
+                  ? `${data.startTime} ${data.startAmPm} - ${data.endTime} ${data.endAmPm}` 
+                  : 'Not provided'}
+              </RowValue>
+            </ReviewRow>
+            <ReviewRow>
+              <RowLabel>Total Branches</RowLabel>
+              <RowValue>{data.branches?.length || 0}</RowValue>
+            </ReviewRow>
+
+            <SectionHeader>Bank Details</SectionHeader>
+            <ReviewRow>
+              <RowLabel>A/c Holder Name</RowLabel>
+              <RowValue>{data.bankHolderName || 'Not provided'}</RowValue>
+            </ReviewRow>
+            <ReviewRow>
+              <RowLabel>Account No.</RowLabel>
+              <RowValue>{data.bankAccountNumber || 'Not provided'}</RowValue>
+            </ReviewRow>
+            <ReviewRow>
+              <RowLabel>IFSC</RowLabel>
+              <RowValue>{data.bankIfsc || 'Not provided'}</RowValue>
+            </ReviewRow>
+            {data.bankUpi && (
+              <ReviewRow>
+                <RowLabel>UPI ID</RowLabel>
+                <RowValue>{data.bankUpi}</RowValue>
+              </ReviewRow>
+            )}
+
+            <SectionHeader>Setup Config</SectionHeader>
+            <ReviewRow>
+              <RowLabel>OPD Rooms</RowLabel>
+              <RowValue>{data.opdRooms || '1'}</RowValue>
+            </ReviewRow>
+            <ReviewRow>
+              <RowLabel>Screens Required</RowLabel>
               <RowValue>{data.screens || '1'}</RowValue>
             </ReviewRow>
           </ReviewList>

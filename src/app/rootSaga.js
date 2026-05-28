@@ -14,6 +14,9 @@ import resendHospitalOtpSaga from '../features/auth/redux/resendHospitalOtpSaga'
 import { watchRegisterDoctorSaga } from '../features/auth/redux/registerDoctorSaga';
 import getExistingUserSaga from '../features/booking/redux/getExistingUserSaga';
 import verifyExistingPatientOtpSaga from '../features/booking/redux/verifyExistingPatientOtpSaga';
+import { watchDashboardOverviewSaga } from '../features/dashboard/redux/dashboardOverviewSaga';
+import { watchSendLoginOtpSaga } from '../features/auth/redux/sendLoginOtpSaga';
+import { watchVerifyLoginOtpSaga } from '../features/auth/redux/verifyLoginOtpSaga';
 
 export default function* rootSaga() {
   yield all([
@@ -32,5 +35,8 @@ export default function* rootSaga() {
     fork(watchRegisterDoctorSaga),
     fork(getExistingUserSaga),
     fork(verifyExistingPatientOtpSaga),
+    fork(watchDashboardOverviewSaga),
+    fork(watchSendLoginOtpSaga),
+    fork(watchVerifyLoginOtpSaga),
   ]);
 }

@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { ArrowRight, Briefcase, Plus, Trash2, ChevronUp } from 'lucide-react';
+import { ArrowRight, Briefcase, Plus, Trash2, ChevronUp, Clock } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import WizardCard from '../../components/WizardCard';
 import WizardInput from '../../components/WizardInput';
 import WizardSelect from '../../components/WizardSelect';
 import WizardButton, { ButtonWrapper } from '../../components/WizardButton';
+import { getGeoDataRequest } from '../../redux/geoDataSlice';
 
 const FormRow = styled.div`
   display: grid;
@@ -17,7 +19,6 @@ const FormRow = styled.div`
 
 const WarningBox = styled.div`
   background-color: #fffaf0;
-  border: 1px solid #feebc8;
   border-radius: 10px;
   padding: 14px 16px;
   font-family: 'Inter', sans-serif;
@@ -28,12 +29,27 @@ const WarningBox = styled.div`
   line-height: 1.4;
 `;
 
-const RepresentativeCard = styled.div`
-  background-color: #fafafa;
-  border: 1px solid #f1f5f9;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
+const LocationGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1.2fr 1.2fr 1.6fr;
+  gap: 16px;
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const TimeRow = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const TimeInputWrap = styled.div`
+  flex: 1;
+`;
+
+const AmPmWrap = styled.div`
+  width: 80px;
+  padding-top: 25px; /* Aligns the select with the input below the label */
 `;
 
 const BranchCardHeader = styled.div`
@@ -104,44 +120,53 @@ const AddBranchBtn = styled.button`
 `;
 
 const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
+  const dispatch = useDispatch();
+  const { geoData } = useSelector((state) => state.geoData);
+
   // Business fields
-  const [businessName, setBusinessName] = useState(data.businessName || 'HealthFirst Pharmacy');
+  const [companyName, setCompanyName] = useState(data.companyName || 'HealthFirst Pharmacy');
   const [gstin, setGstin] = useState(data.gstin || '22AAAAA0000A1Z5');
   const [pan, setPan] = useState(data.pan || 'ABCDE1234F');
   
-  // Authorized rep fields
-  const [repName, setRepName] = useState(data.repName || '');
-  const [repPhone, setRepPhone] = useState(data.repPhone || '');
-  const [repEmail, setRepEmail] = useState(data.repEmail || '');
-  const [repDesignation, setRepDesignation] = useState(data.repDesignation || '');
+  // Location fields
+  const [country, setCountry] = useState(data.country || 'India');
+  const [state, setState] = useState(data.state || 'Maharashtra');
+  const [city, setCity] = useState(data.city || '');
   
   // Working hours
-  const [workingHours, setWorkingHours] = useState(data.workingHours || 'Mon – Fri, 9:00 AM – 6:00 PM');
+  const [startTime, setStartTime] = useState(data.startTime || '09:00');
+  const [startAmPm, setStartAmPm] = useState(data.startAmPm || 'AM');
+  const [endTime, setEndTime] = useState(data.endTime || '06:00');
+  const [endAmPm, setEndAmPm] = useState(data.endAmPm || 'PM');
 
   // Branch details (State array)
   const [branches, setBranches] = useState(data.branches || [
     {
       name: '',
-      type: 'Pharmacy',
-      address: '',
+      country: 'India',
       city: '',
       state: 'Maharashtra',
       pincode: '',
       radius: '10',
-      hours: 'Mon – Fri, 9:00 AM – 6:00 PM'
+      startTime: '09:00',
+      startAmPm: 'AM',
+      endTime: '06:00',
+      endAmPm: 'PM'
     }
   ]);
 
   const handleAddBranch = () => {
     setBranches([...branches, {
       name: '',
-      type: 'Clinic',
-      address: '',
+      country: 'India',
       city: '',
       state: 'Maharashtra',
       pincode: '',
       radius: '5',
-      hours: 'Mon – Fri, 9:00 AM – 6:00 PM'
+      startTime: '09:00',
+      startAmPm: 'AM',
+      endTime: '06:00',
+      endAmPm: 'PM'
     }]);
   };
 
@@ -156,26 +181,66 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
     setBranches(updated);
   };
 
+  const handleBranchCountryChange = (index, value) => {
+    const updated = [...branches];
+    updated[index] = { ...updated[index], country: value, state: '', city: '' };
+    setBranches(updated);
+  };
+
+  const handleBranchStateChange = (index, value) => {
+    const updated = [...branches];
+    updated[index] = { ...updated[index], state: value, city: '' };
+    setBranches(updated);
+  };
+
+  useEffect(() => {
+    if (!geoData) {
+      dispatch(getGeoDataRequest());
+    }
+  }, [dispatch, geoData]);
+
   const handleContinue = (e) => {
     e.preventDefault();
 
     updateData({
-      businessName, gstin, pan,
-      repName, repPhone, repEmail, repDesignation,
-      workingHours, branches
+      companyName, gstin, pan,
+      country, state, city,
+      startTime, startAmPm, endTime, endAmPm, branches
     });
     onNext();
   };
 
+  // Derive dropdown options from geoData
+  let countryOptions = [{ value: 'India', label: 'India' }];
+  let stateOptions = [{ value: 'Maharashtra', label: 'Maharashtra' }];
+  let cityOptions = [{ value: '', label: 'Select City' }];
+
+  if (geoData && Array.isArray(geoData)) {
+    countryOptions = geoData.map((c) => ({ value: c.name, label: c.name }));
+
+    const selectedCountry = geoData.find((c) => c.name === country);
+    if (selectedCountry && selectedCountry.states) {
+      stateOptions = selectedCountry.states.map((s) => ({ value: s.name, label: s.name }));
+
+      const selectedState = selectedCountry.states.find((s) => s.name === state);
+      if (selectedState && selectedState.cities) {
+        cityOptions = [
+          { value: '', label: 'Select City' },
+          ...selectedState.cities.map((ct) => ({ value: ct.name, label: ct.name }))
+        ];
+      }
+    }
+  }
+
   return (
     <form onSubmit={handleContinue}>
-      {/* Business details */}
-      <WizardCard title="Business Details" icon={<Briefcase size={20} />}>
+      {/* Company details */}
+      <WizardCard title="Company Details" icon={<Briefcase size={20} />}>
         <WizardInput 
-          label="Business Name" 
+          label="Company Name" 
           placeholder="HealthFirst Pharmacy" 
-          value={businessName}
-          onChange={e => setBusinessName(e.target.value)}
+          value={companyName}
+          onChange={e => setCompanyName(e.target.value)}
         />
         <FormRow>
           <WizardInput 
@@ -193,56 +258,76 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
           />
         </FormRow>
 
-        {/* Rep Subcard */}
-        <RepresentativeCard>
-          <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b', marginBottom: '12px' }}>
-            Authorized Representative
-          </h3>
-          <p style={{ fontSize: '11px', color: '#64748b', marginBottom: '16px', marginTop: '-8px' }}>
-            Legal contact for compliance and communications
-          </p>
-          
-          <WarningBox>
-            This person will be the primary legal contact for regulatory and compliance matters.
-          </WarningBox>
+        <WizardCard title="Primary Office Location" subtitle="Primary operating location" style={{ padding: 0, border: 'none', boxShadow: 'none', marginBottom: '0' }}>
+          <LocationGrid>
+            <WizardSelect 
+              label="Country" 
+              value={country} 
+              onChange={e => {
+                setCountry(e.target.value);
+                setState(''); // Reset state when country changes
+                setCity(''); // Reset city when country changes
+              }}
+              options={countryOptions}
+            />
+            <WizardSelect 
+              label="State" 
+              value={state} 
+              onChange={e => {
+                setState(e.target.value);
+                setCity(''); // Reset city when state changes
+              }}
+              options={stateOptions}
+            />
+            <WizardSelect 
+              label="City" 
+              value={city} 
+              onChange={e => setCity(e.target.value)}
+              options={cityOptions}
+            />
+          </LocationGrid>
+        </WizardCard>
 
-          <FormRow>
-            <WizardInput 
-              label="Authorized User Name" 
-              placeholder="Full legal name" 
-              value={repName}
-              onChange={e => setRepName(e.target.value)}
-            />
-            <WizardInput 
-              label="Authorized Phone Number" 
-              placeholder="+91 XXXXX XXXXX" 
-              value={repPhone}
-              onChange={e => setRepPhone(e.target.value)}
-            />
-          </FormRow>
-          <FormRow>
-            <WizardInput 
-              label="Authorized Email ID" 
-              type="email" 
-              placeholder="auth@company.com" 
-              value={repEmail}
-              onChange={e => setRepEmail(e.target.value)}
-            />
-            <WizardInput 
-              label="Designation" 
-              placeholder="e.g. Director" 
-              value={repDesignation}
-              onChange={e => setRepDesignation(e.target.value)}
-            />
-          </FormRow>
-        </RepresentativeCard>
-
-        <WizardInput 
-          label="Working Hours" 
-          placeholder="Mon – Fri, 9:00 AM – 6:00 PM" 
-          value={workingHours}
-          onChange={e => setWorkingHours(e.target.value)}
-        />
+        <FormRow>
+          <TimeRow>
+            <TimeInputWrap>
+              <WizardInput 
+                label="Start Time" 
+                type="time"
+                placeholder="HH:MM"
+                value={startTime}
+                onChange={e => setStartTime(e.target.value)}
+                icon={<Clock size={18} />}
+              />
+            </TimeInputWrap>
+            <AmPmWrap>
+              <WizardSelect 
+                value={startAmPm} 
+                onChange={e => setStartAmPm(e.target.value)}
+                options={[{value:'AM', label:'AM'}, {value:'PM', label:'PM'}]} 
+              />
+            </AmPmWrap>
+          </TimeRow>
+          <TimeRow>
+            <TimeInputWrap>
+              <WizardInput 
+                label="End Time" 
+                type="time"
+                placeholder="HH:MM"
+                value={endTime}
+                onChange={e => setEndTime(e.target.value)}
+                icon={<Clock size={18} />}
+              />
+            </TimeInputWrap>
+            <AmPmWrap>
+              <WizardSelect 
+                value={endAmPm} 
+                onChange={e => setEndAmPm(e.target.value)}
+                options={[{value:'AM', label:'AM'}, {value:'PM', label:'PM'}]} 
+              />
+            </AmPmWrap>
+          </TimeRow>
+        </FormRow>
       </WizardCard>
 
       {/* Center / Branch card */}
@@ -251,8 +336,30 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
           <Plus size={16} /> Add Branch
         </AddBranchBtn>
 
-        {branches.map((branch, index) => (
-          <div key={index} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', marginBottom: '20px', backgroundColor: '#ffffff' }}>
+        {branches.map((branch, index) => {
+          let bCountryOptions = [{ value: 'India', label: 'India' }];
+          let bStateOptions = [{ value: 'Maharashtra', label: 'Maharashtra' }];
+          let bCityOptions = [{ value: '', label: 'Select City' }];
+
+          if (geoData && Array.isArray(geoData)) {
+            bCountryOptions = geoData.map((c) => ({ value: c.name, label: c.name }));
+
+            const selectedCountry = geoData.find((c) => c.name === branch.country);
+            if (selectedCountry && selectedCountry.states) {
+              bStateOptions = selectedCountry.states.map((s) => ({ value: s.name, label: s.name }));
+
+              const selectedState = selectedCountry.states.find((s) => s.name === branch.state);
+              if (selectedState && selectedState.cities) {
+                bCityOptions = [
+                  { value: '', label: 'Select City' },
+                  ...selectedState.cities.map((ct) => ({ value: ct.name, label: ct.name }))
+                ];
+              }
+            }
+          }
+
+          return (
+            <div key={index} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', marginBottom: '20px', backgroundColor: '#ffffff' }}>
             <BranchCardHeader>
               <BranchTitle>
                 <span style={{ backgroundColor: '#009688', color: '#ffffff', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold' }}>
@@ -269,50 +376,33 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
               </div>
             </BranchCardHeader>
 
-            <FormRow>
-              <WizardInput 
-                label="Branch Name" 
-                placeholder="Enter branch name" 
-                value={branch.name}
-                onChange={e => handleBranchChange(index, 'name', e.target.value)}
-              />
-              <WizardSelect 
-                label="Branch Type" 
-                value={branch.type} 
-                onChange={e => handleBranchChange(index, 'type', e.target.value)}
-                options={[
-                  { value: 'Pharmacy', label: 'Pharmacy' },
-                  { value: 'Clinic', label: 'Clinic' },
-                  { value: 'Diagnostic Center', label: 'Diagnostic Center' }
-                ]}
-              />
-            </FormRow>
-
             <WizardInput 
-              label="Address" 
-              placeholder="Enter branch address" 
-              value={branch.address}
-              onChange={e => handleBranchChange(index, 'address', e.target.value)}
+              label="Branch Name" 
+              placeholder="Enter branch name" 
+              value={branch.name}
+              onChange={e => handleBranchChange(index, 'name', e.target.value)}
             />
 
-            <FormRow>
-              <WizardInput 
-                label="City" 
-                placeholder="Enter city" 
-                value={branch.city}
-                onChange={e => handleBranchChange(index, 'city', e.target.value)}
+            <LocationGrid>
+              <WizardSelect 
+                label="Country" 
+                value={branch.country || ''} 
+                onChange={e => handleBranchCountryChange(index, e.target.value)}
+                options={bCountryOptions}
               />
               <WizardSelect 
                 label="State" 
-                value={branch.state} 
-                onChange={e => handleBranchChange(index, 'state', e.target.value)}
-                options={[
-                  { value: 'Maharashtra', label: 'Maharashtra' },
-                  { value: 'Delhi', label: 'Delhi' },
-                  { value: 'Karnataka', label: 'Karnataka' }
-                ]}
+                value={branch.state || ''} 
+                onChange={e => handleBranchStateChange(index, e.target.value)}
+                options={bStateOptions}
               />
-            </FormRow>
+              <WizardSelect 
+                label="City" 
+                value={branch.city || ''} 
+                onChange={e => handleBranchChange(index, 'city', e.target.value)}
+                options={bCityOptions}
+              />
+            </LocationGrid>
 
             <FormRow>
               <WizardInput 
@@ -330,14 +420,49 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
               />
             </FormRow>
 
-            <WizardInput 
-              label="Working Hours" 
-              placeholder="Mon – Fri, 9:00 AM – 6:00 PM" 
-              value={branch.hours}
-              onChange={e => handleBranchChange(index, 'hours', e.target.value)}
-            />
+            <FormRow>
+              <TimeRow>
+                <TimeInputWrap>
+                  <WizardInput 
+                    label="Start Time" 
+                    type="time"
+                    placeholder="HH:MM"
+                    value={branch.startTime}
+                    onChange={e => handleBranchChange(index, 'startTime', e.target.value)}
+                    icon={<Clock size={18} />}
+                  />
+                </TimeInputWrap>
+                <AmPmWrap>
+                  <WizardSelect 
+                    value={branch.startAmPm} 
+                    onChange={e => handleBranchChange(index, 'startAmPm', e.target.value)}
+                    options={[{value:'AM', label:'AM'}, {value:'PM', label:'PM'}]} 
+                  />
+                </AmPmWrap>
+              </TimeRow>
+              <TimeRow>
+                <TimeInputWrap>
+                  <WizardInput 
+                    label="End Time" 
+                    type="time"
+                    placeholder="HH:MM"
+                    value={branch.endTime}
+                    onChange={e => handleBranchChange(index, 'endTime', e.target.value)}
+                    icon={<Clock size={18} />}
+                  />
+                </TimeInputWrap>
+                <AmPmWrap>
+                  <WizardSelect 
+                    value={branch.endAmPm} 
+                    onChange={e => handleBranchChange(index, 'endAmPm', e.target.value)}
+                    options={[{value:'AM', label:'AM'}, {value:'PM', label:'PM'}]} 
+                  />
+                </AmPmWrap>
+              </TimeRow>
+            </FormRow>
           </div>
-        ))}
+          );
+        })}
       </WizardCard>
 
       <ButtonWrapper>
