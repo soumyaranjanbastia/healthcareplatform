@@ -35,7 +35,7 @@ const App = () => {
         ...MOCK_LOGIN_PAYLOAD,
         user: {
           ...MOCK_LOGIN_PAYLOAD.user,
-          role: 'Receptionist' // Set to Receptionist so the new dashboard mounts automatically
+          role: 'Admin' // Set to Receptionist so the new dashboard mounts automatically
         }
       }
     });

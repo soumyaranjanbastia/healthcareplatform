@@ -10,9 +10,10 @@ import PatientList from '../../patients/screens/PatientList';
 import PatientDetails from '../../patients/screens/PatientDetails';
 import PatientConsultationDetails from '../../patients/screens/PatientConsultationDetails';
 import AlertModal from '../../../components/Alertmodal';
+import StaffManagement from '../../staff/screens/StaffManagement';
 import { 
   Calendar, Users, Search, Bell, Settings, LogOut, Plus, ChevronDown, 
-  Phone, UserCheck, ShieldAlert, CalendarPlus, Menu, X
+  Phone, UserCheck, ShieldAlert, CalendarPlus, Menu, X, UserCog
 } from 'lucide-react';
 
 
@@ -683,6 +684,10 @@ const ReceptionistDashboard = () => {
             <Bell size={16} />
             <span>Notifications</span>
           </NavLink>
+          <NavLink active={activeNav === 'Staff'} onClick={() => { setActiveNav('Staff'); setIsSidebarOpen(false); }}>
+            <UserCog size={16} />
+            <span>Staff</span>
+          </NavLink>
           <NavLink active={activeNav === 'Settings'} onClick={() => { setActiveNav('Settings'); setIsSidebarOpen(false); }}>
             <Settings size={16} />
             <span>Settings</span>
@@ -745,6 +750,8 @@ const ReceptionistDashboard = () => {
               />
             )}
           </>
+        ) : activeNav === 'Staff' ? (
+          <StaffManagement />
         ) : (
           <>
             {/* HEADER */}
