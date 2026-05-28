@@ -9,9 +9,10 @@ import NewBookingFlow from '../../booking/screens/NewBookingFlow';
 import PatientList from '../../patients/screens/PatientList';
 import PatientDetails from '../../patients/screens/PatientDetails';
 import PatientConsultationDetails from '../../patients/screens/PatientConsultationDetails';
+import AlertModal from '../../../components/Alertmodal';
 import { 
   Calendar, Users, Search, Bell, Settings, LogOut, Plus, ChevronDown, 
-  Phone, UserCheck, ShieldAlert, CalendarPlus
+  Phone, UserCheck, ShieldAlert, CalendarPlus, Menu, X
 } from 'lucide-react';
 
 
@@ -46,25 +47,23 @@ const SidebarContainer = styled.aside`
   padding: 24px;
   position: fixed;
   height: 100vh;
-  z-index: 100;
+  z-index: 1000;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   @media (max-width: 1024px) {
-    width: 80px;
-    padding: 16px 12px;
+    transform: ${props => props.isOpen ? 'translateX(0)' : 'translateX(-100%)'};
+    box-shadow: ${props => props.isOpen ? '4px 0 25px rgba(0, 0, 0, 0.15)' : 'none'};
   }
 `;
 
 const SidebarLogoWrapper = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
   margin-bottom: 24px;
   padding-left: 8px;
-
-  @media (max-width: 1024px) {
-    justify-content: center;
-    padding-left: 0;
-  }
+  width: 100%;
 `;
 
 const HeartLogoSvg = () => (
@@ -89,10 +88,6 @@ const LogoText = styled.h1`
   font-size: 16px;
   font-weight: 700;
   color: #1e293b;
-
-  @media (max-width: 1024px) {
-    display: none;
-  }
 `;
 
 const HospitalTag = styled.div`
@@ -115,10 +110,6 @@ const HospitalTag = styled.div`
     font-size: 13px;
     font-weight: 700;
     color: #009688;
-  }
-
-  @media (max-width: 1024px) {
-    display: none;
   }
 `;
 
@@ -149,14 +140,6 @@ const NavLink = styled.button`
     background-color: ${props => props.active ? '#009688' : '#f1f5f9'};
     color: ${props => props.active ? '#ffffff' : '#1e293b'};
   }
-
-  @media (max-width: 1024px) {
-    justify-content: center;
-    padding: 12px;
-    span {
-      display: none;
-    }
-  }
 `;
 
 const SidebarFooter = styled.div`
@@ -166,10 +149,6 @@ const SidebarFooter = styled.div`
   gap: 12px;
   border-top: 1px solid #f1f5f9;
   padding-top: 16px;
-
-  @media (max-width: 1024px) {
-    align-items: center;
-  }
 `;
 
 const OnlineBadge = styled.div`
@@ -191,20 +170,6 @@ const OnlineBadge = styled.div`
     border-radius: 50%;
     background-color: #10b981;
   }
-
-  @media (max-width: 1024px) {
-    width: 20px;
-    height: 20px;
-    padding: 0;
-    border-radius: 50%;
-    justify-content: center;
-    &::before {
-      margin: 0;
-    }
-    span {
-      display: none;
-    }
-  }
 `;
 
 const SignOutBtn = styled.button`
@@ -225,15 +190,77 @@ const SignOutBtn = styled.button`
   &:hover {
     background-color: #fef2f2;
   }
+`;
 
+const SidebarBackdrop = styled.div`
+  display: none;
   @media (max-width: 1024px) {
+    display: ${props => props.isOpen ? 'block' : 'none'};
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 998;
+  }
+`;
+
+const CloseSidebarBtn = styled.button`
+  display: none;
+  @media (max-width: 1024px) {
+    display: flex;
+    align-items: center;
     justify-content: center;
-    padding: 12px;
-    span {
-      display: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+
+    &:hover {
+      background-color: #f8fafc;
+      color: #ef4444;
+      border-color: #fca5a5;
     }
   }
 `;
+
+const HeaderTitleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
+
+const MobileMenuBtn = styled.button`
+  display: none;
+  @media (max-width: 1024px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f8fafc;
+      color: #009688;
+      border-color: #b2f5ea;
+    }
+  }
+`;
+
+
 
 // MAIN WORKSPACE LAYOUT
 const MainWorkspace = styled.main`
@@ -246,8 +273,8 @@ const MainWorkspace = styled.main`
   max-width: calc(100% - 260px);
 
   @media (max-width: 1024px) {
-    margin-left: 80px;
-    max-width: calc(100% - 80px);
+    margin-left: 0;
+    max-width: 100%;
   }
 
   @media (max-width: 768px) {
@@ -588,6 +615,7 @@ const ReceptionistDashboard = () => {
   const dispatch = useDispatch();
   const [activeNav, setActiveNav] = useState('Dashboard');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Multi-step Booking flow state
   const [showBookingFlow, setShowBookingFlow] = useState(false);
@@ -606,20 +634,31 @@ const ReceptionistDashboard = () => {
   // Dynamic selector
   const { currentUser, clinicDetails } = useSelector(state => state.auth);
 
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+
   const handleSignOut = () => {
-    if (confirm("Are you sure you want to sign out of Swastyam connect?")) {
-      dispatch({ type: 'LOGOUT' });
-    }
+    setShowSignOutConfirm(true);
+  };
+
+  const confirmSignOut = () => {
+    setShowSignOutConfirm(false);
+    dispatch({ type: 'LOGOUT' });
   };
 
   return (
     <DashboardLayout>
+      <SidebarBackdrop isOpen={isSidebarOpen} onClick={() => setIsSidebarOpen(false)} />
       
-      {/* LEFT STATIC SIDEBAR */}
-      <SidebarContainer>
+      {/* LEFT COLLAPSIBLE SIDEBAR */}
+      <SidebarContainer isOpen={isSidebarOpen}>
         <SidebarLogoWrapper>
-          <HeartLogoSvg />
-          <LogoText>Swastyam connect</LogoText>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <HeartLogoSvg />
+            <LogoText>Swastyam connect</LogoText>
+          </div>
+          <CloseSidebarBtn onClick={() => setIsSidebarOpen(false)} aria-label="Close sidebar">
+            <X size={18} />
+          </CloseSidebarBtn>
         </SidebarLogoWrapper>
 
         <HospitalTag>
@@ -628,23 +667,23 @@ const ReceptionistDashboard = () => {
         </HospitalTag>
 
         <NavList>
-          <NavLink active={activeNav === 'Dashboard'} onClick={() => setActiveNav('Dashboard')}>
+          <NavLink active={activeNav === 'Dashboard'} onClick={() => { setActiveNav('Dashboard'); setIsSidebarOpen(false); }}>
             <Users size={16} />
             <span>Dashboard</span>
           </NavLink>
-          <NavLink active={activeNav === 'Patients'} onClick={() => { setActiveNav('Patients'); setPatientView('LIST'); }}>
+          <NavLink active={activeNav === 'Patients'} onClick={() => { setActiveNav('Patients'); setPatientView('LIST'); setIsSidebarOpen(false); }}>
             <Users size={16} />
             <span>Patients</span>
           </NavLink>
-          <NavLink active={activeNav === 'Billing'} onClick={() => setActiveNav('Billing')}>
+          <NavLink active={activeNav === 'Billing'} onClick={() => { setActiveNav('Billing'); setIsSidebarOpen(false); }}>
             <Calendar size={16} />
             <span>Billing & Finance</span>
           </NavLink>
-          <NavLink active={activeNav === 'Notifications'} onClick={() => setActiveNav('Notifications')}>
+          <NavLink active={activeNav === 'Notifications'} onClick={() => { setActiveNav('Notifications'); setIsSidebarOpen(false); }}>
             <Bell size={16} />
             <span>Notifications</span>
           </NavLink>
-          <NavLink active={activeNav === 'Settings'} onClick={() => setActiveNav('Settings')}>
+          <NavLink active={activeNav === 'Settings'} onClick={() => { setActiveNav('Settings'); setIsSidebarOpen(false); }}>
             <Settings size={16} />
             <span>Settings</span>
           </NavLink>
@@ -654,7 +693,7 @@ const ReceptionistDashboard = () => {
           <OnlineBadge>
             <span>System Online</span>
           </OnlineBadge>
-          <SignOutBtn onClick={handleSignOut}>
+          <SignOutBtn onClick={() => { setIsSidebarOpen(false); handleSignOut(); }}>
             <LogOut size={16} />
             <span>Sign Out</span>
           </SignOutBtn>
@@ -710,10 +749,15 @@ const ReceptionistDashboard = () => {
           <>
             {/* HEADER */}
             <HeaderBar>
-              <HeaderTitleSection>
-                <h2>Front Desk Dashboard</h2>
-                <p>Operational command center for patient management.</p>
-              </HeaderTitleSection>
+              <HeaderTitleWrapper>
+                <MobileMenuBtn onClick={() => setIsSidebarOpen(true)} aria-label="Open menu">
+                  <Menu size={20} />
+                </MobileMenuBtn>
+                <HeaderTitleSection>
+                  <h2>Front Desk Dashboard</h2>
+                  <p>Operational command center for patient management.</p>
+                </HeaderTitleSection>
+              </HeaderTitleWrapper>
 
               <HeaderControls>
                 <SearchBarContainer>
@@ -911,6 +955,16 @@ const ReceptionistDashboard = () => {
           </DrawerForm>
         )}
       </RightDrawer>
+
+      <AlertModal
+        isOpen={showSignOutConfirm}
+        message="Are you sure you want to sign out of Swastyam connect?"
+        title="Sign Out"
+        confirmText="Yes, Sign Out"
+        cancelText="Cancel"
+        onClose={() => setShowSignOutConfirm(false)}
+        onConfirm={confirmSignOut}
+      />
 
     </DashboardLayout>
   );

@@ -35,6 +35,11 @@ const LeftPanel = styled.div`
   box-shadow: 15px 0 30px rgba(0, 0, 0, 0.02);
 
   @media (max-width: 1024px) {
+    padding: 30px 24px;
+    border-radius: 0 50px 50px 0;
+  }
+
+  @media (max-width: 640px) {
     display: none;
   }
 `;
@@ -92,6 +97,10 @@ const Tagline = styled.h2`
   color: #00796b;
   margin-bottom: 8px;
   line-height: 1.3;
+
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
 `;
 
 const SubTagline = styled.p`
@@ -99,6 +108,11 @@ const SubTagline = styled.p`
   color: #009688;
   font-weight: 500;
   margin-bottom: 30px;
+
+  @media (max-width: 1024px) {
+    font-size: 12px;
+    margin-bottom: 20px;
+  }
 `;
 
 const GraphicWrapper = styled.div`
@@ -133,6 +147,10 @@ const RightPanel = styled.div`
   padding: 40px;
   background-color: #ffffff;
   position: relative;
+
+  @media (max-width: 1024px) {
+    padding: 30px 24px;
+  }
 
   @media (max-width: 640px) {
     padding: 24px;

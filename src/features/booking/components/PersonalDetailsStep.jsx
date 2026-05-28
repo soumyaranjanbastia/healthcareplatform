@@ -24,15 +24,11 @@ const StepSubtitle = styled.p`
 
 const FormGrid = styled.div`
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 40px;
+  grid-template-columns: 1fr;
+  gap: 20px;
   width: 100%;
-  max-width: 900px;
+  max-width: 600px;
   animation: ${scaleUp} 0.3s ease-out;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
 `;
 
 const FormFields = styled.div`
@@ -117,27 +113,46 @@ const Input = styled.input`
     border-color: #009688;
     box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.08);
   }
+
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  &[type=number] {
+    -moz-appearance: textfield;
+  }
 `;
 
 const CheckboxGroup = styled.div`
   display: flex;
-  gap: 16px;
-  margin-top: 4px;
+  gap: 20px;
+  margin-top: 6px;
 `;
 
 const CheckboxLabel = styled.label`
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: #475569;
   cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #009688;
+  }
 `;
 
 const RadioInput = styled.input`
   cursor: pointer;
   accent-color: #009688;
+  width: 16px;
+  height: 16px;
 `;
 
 const PersonalDetailsStep = ({ personalDetails, setPersonalDetails, patientId, fileNo }) => {
@@ -168,7 +183,7 @@ const PersonalDetailsStep = ({ personalDetails, setPersonalDetails, patientId, f
           <InputGroup>
             <Label>Gender</Label>
             <select 
-              style={{ padding: 12, borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', fontWeight: 600, backgroundColor: '#ffffff', color: '#1e293b' }}
+              style={{ padding: 12, borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', fontWeight: 600, backgroundColor: '#ffffff', color: '#1e293b', width: '100%' }}
               value={personalDetails.gender}
               onChange={e => handleChange('gender', e.target.value)}
             >
@@ -242,18 +257,6 @@ const PersonalDetailsStep = ({ personalDetails, setPersonalDetails, patientId, f
             </CheckboxGroup>
           </InputGroup>
         </FormFields>
-
-        <HelperPanel>
-          <AutoGenerateHeader>Auto-generated on save:</AutoGenerateHeader>
-          <AutoFieldBox>
-            <span>Patient ID</span>
-            <span>{patientId}</span>
-          </AutoFieldBox>
-          <AutoFieldBox>
-            <span>File No</span>
-            <span>{fileNo}</span>
-          </AutoFieldBox>
-        </HelperPanel>
       </FormGrid>
     </div>
   );

@@ -113,15 +113,73 @@ const Button = styled.button`
   }
 `;
 
-const AlertModal = ({ isOpen, message, onClose }) => {
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 12px;
+  width: 100%;
+`;
+
+const SecondaryButton = styled.button`
+  flex: 1;
+  padding: 14px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f8fafc;
+    color: #1e293b;
+  }
+`;
+
+const PrimaryButton = styled.button`
+  flex: 1;
+  padding: 14px;
+  background: ${props => props.isDanger ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #009688 0%, #00796b 100%)'};
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: ${props => props.isDanger ? '0 4px 12px rgba(239, 68, 68, 0.2)' : '0 4px 12px rgba(0, 150, 136, 0.2)'};
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: ${props => props.isDanger ? '0 6px 20px rgba(239, 68, 68, 0.3)' : '0 6px 20px rgba(0, 150, 136, 0.3)'};
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+const AlertModal = ({ 
+  isOpen, 
+  message, 
+  onClose, 
+  title: customTitle, 
+  type: customType, 
+  onConfirm, 
+  confirmText = 'Okay', 
+  cancelText = 'Cancel' 
+}) => {
   if (!isOpen) return null;
 
-  // Dynamically determine icon type based on message text
+  // Dynamically determine icon type based on message text or customType
   const lowerMsg = message.toLowerCase();
-  const isSuccess = lowerMsg.includes('success') || lowerMsg.includes('complete') || lowerMsg.includes('verified');
-  const isError = lowerMsg.includes('fail') || lowerMsg.includes('error') || lowerMsg.includes('invalid') || lowerMsg.includes('please upload') || lowerMsg.includes('please fill') || lowerMsg.includes('agree') || lowerMsg.includes('sent');
+  
+  const isWarning = customType === 'warning' || lowerMsg.includes('sign out') || lowerMsg.includes('logout') || lowerMsg.includes('delete') || lowerMsg.includes('remove') || lowerMsg.includes('cancel');
+  const isSuccess = !isWarning && (customType === 'success' || lowerMsg.includes('success') || lowerMsg.includes('complete') || lowerMsg.includes('verified'));
+  const isError = !isWarning && !isSuccess && (customType === 'error' || lowerMsg.includes('fail') || lowerMsg.includes('error') || lowerMsg.includes('invalid') || lowerMsg.includes('please upload') || lowerMsg.includes('please fill') || lowerMsg.includes('agree') || lowerMsg.includes('sent'));
 
-  const title = isSuccess ? 'Success' : isError ? 'Attention' : 'Alert';
+  const title = customTitle || (isSuccess ? 'Success' : isWarning ? 'Confirmation' : isError ? 'Attention' : 'Alert');
 
   return (
     <Overlay onClick={onClose}>
@@ -130,16 +188,27 @@ const AlertModal = ({ isOpen, message, onClose }) => {
           <X size={18} />
         </CloseButton>
 
-        <IconContainer isSuccess={isSuccess} isError={isError}>
-          {isSuccess ? <CheckCircle size={28} /> : isError ? <AlertCircle size={28} /> : <Info size={28} />}
+        <IconContainer isSuccess={isSuccess} isError={isError || isWarning}>
+          {isSuccess ? <CheckCircle size={28} /> : (isError || isWarning) ? <AlertCircle size={28} /> : <Info size={28} />}
         </IconContainer>
 
         <Title>{title}</Title>
         <Message>{message}</Message>
 
-        <Button onClick={onClose}>
-          Okay
-        </Button>
+        {onConfirm ? (
+          <ButtonGroup>
+            <SecondaryButton onClick={onClose}>
+              {cancelText}
+            </SecondaryButton>
+            <PrimaryButton isDanger={isWarning} onClick={onConfirm}>
+              {confirmText}
+            </PrimaryButton>
+          </ButtonGroup>
+        ) : (
+          <Button onClick={onClose}>
+            {confirmText}
+          </Button>
+        )}
       </ModalCard>
     </Overlay>
   );

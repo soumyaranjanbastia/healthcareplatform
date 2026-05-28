@@ -91,16 +91,33 @@ const WizardCard = styled.div`
 `;
 
 // STEP PERSTYLE
+const StepperOuter = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 16px;
+  background-color: #ffffff;
+
+  @media (min-width: 641px) {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+`;
+
 const StepperContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px;
+  padding: 24px 24px 8px 24px;
   background-color: #ffffff;
-  border-bottom: 1px solid #f1f5f9;
-  flex-wrap: wrap;
-  gap: 16px;
-  overflow-x: auto;
+  width: 100%;
+  flex-wrap: nowrap;
+
+  @media (max-width: 640px) {
+    padding: 16px 16px 4px 16px;
+    gap: 0;
+  }
 `;
 
 const StepItem = styled.div`
@@ -110,6 +127,10 @@ const StepItem = styled.div`
   position: relative;
   opacity: ${props => props.active || props.completed ? 1 : 0.5};
   transition: opacity 0.3s ease;
+
+  @media (max-width: 640px) {
+    gap: 0;
+  }
 `;
 
 const StepCircle = styled.div`
@@ -129,6 +150,7 @@ const StepCircle = styled.div`
   font-weight: 700;
   transition: all 0.3s ease;
   border: 2px solid ${props => props.active ? '#009688' : 'transparent'};
+  flex-shrink: 0;
 `;
 
 const StepText = styled.span`
@@ -136,6 +158,11 @@ const StepText = styled.span`
   font-weight: 600;
   color: ${props => props.active ? '#009688' : '#1e293b'};
   white-space: nowrap;
+  display: ${props => props.active ? 'inline' : 'none'};
+
+  @media (max-width: 640px) {
+    display: none;
+  }
 `;
 
 const StepDivider = styled.div`
@@ -146,8 +173,29 @@ const StepDivider = styled.div`
   max-width: 60px;
   transition: background-color 0.3s ease;
 
-  @media (max-width: 1024px) {
-    display: none;
+  @media (max-width: 640px) {
+    min-width: 8px;
+    max-width: none;
+  }
+`;
+
+const ActiveStepLabelMobile = styled.div`
+  display: none;
+  @media (max-width: 640px) {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #009688;
+    margin-top: 8px;
+    background-color: #e6f9f3;
+    padding: 6px 14px;
+    border-radius: 20px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 2px 8px rgba(0, 150, 136, 0.05);
+    animation: ${fadeIn} 0.3s ease-out;
   }
 `;
 
@@ -671,24 +719,29 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
       <WizardCard>
 
         {/* STEP PROGRESS BAR */}
-        <StepperContainer>
-          {stepNames.map((name, i) => {
-            const stepNum = i + 1;
-            const active = step === stepNum;
-            const completed = step > stepNum;
-            return (
-              <React.Fragment key={name}>
-                <StepItem active={active} completed={completed}>
-                  <StepCircle active={active} completed={completed}>
-                    {completed ? <Check size={14} /> : stepNum}
-                  </StepCircle>
-                  <StepText active={active}>{name}</StepText>
-                </StepItem>
-                {i < stepNames.length - 1 && <StepDivider completed={completed} />}
-              </React.Fragment>
-            );
-          })}
-        </StepperContainer>
+        <StepperOuter>
+          <StepperContainer>
+            {stepNames.map((name, i) => {
+              const stepNum = i + 1;
+              const active = step === stepNum;
+              const completed = step > stepNum;
+              return (
+                <React.Fragment key={name}>
+                  <StepItem active={active} completed={completed}>
+                    <StepCircle active={active} completed={completed}>
+                      {completed ? <Check size={14} /> : stepNum}
+                    </StepCircle>
+                    <StepText active={active}>{name}</StepText>
+                  </StepItem>
+                  {i < stepNames.length - 1 && <StepDivider completed={completed} />}
+                </React.Fragment>
+              );
+            })}
+          </StepperContainer>
+          <ActiveStepLabelMobile>
+            Step {step}: {stepNames[step - 1]}
+          </ActiveStepLabelMobile>
+        </StepperOuter>
 
         {/* STEP BODY */}
         <WizardBody>
