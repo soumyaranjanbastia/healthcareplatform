@@ -23,6 +23,7 @@ import resendDoctorOtpSaga from '../features/doctors/redux/resendDoctorOtpSaga';
 import watchDoctorRegisterFeatureSaga from '../features/doctors/redux/registerDoctorSaga';
 import professionalDetailsSaga from '../features/doctors/redux/professionalDetailsSaga';
 import branchesSaga from '../features/doctors/redux/branchesSaga';
+import doctorListSaga from '../features/doctors/redux/doctorListSaga';
 import { watchLogout } from '../features/auth/redux/logoutSaga';
 
 export default function* rootSaga() {
@@ -51,6 +52,7 @@ export default function* rootSaga() {
     fork(watchDoctorRegisterFeatureSaga),
     fork(professionalDetailsSaga),
     fork(branchesSaga),
+    fork(doctorListSaga),
     fork(watchLogout),
   ]);
 }

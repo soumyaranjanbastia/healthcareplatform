@@ -24,6 +24,7 @@ import resendDoctorOtpReducer from "../features/doctors/redux/resendDoctorOtpSli
 import registerDoctorFeatureReducer from "../features/doctors/redux/registerDoctorSlice";
 import professionalDetailsReducer from "../features/doctors/redux/professionalDetailsSlice";
 import branchesReducer from "../features/doctors/redux/branchesSlice";
+import doctorListReducer from "../features/doctors/redux/doctorListSlice";
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -51,6 +52,7 @@ const appReducer = combineReducers({
   registerDoctorFeature: registerDoctorFeatureReducer,
   professionalDetails: professionalDetailsReducer,
   branches: branchesReducer,
+  doctorList: doctorListReducer,
 });
 
 const rootReducer = (state, action) => {

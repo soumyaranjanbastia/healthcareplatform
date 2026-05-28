@@ -19,6 +19,7 @@ import AddDoctorFlow from '../../doctors/screens/AddDoctorFlow';
 import BranchManagementView from '../../doctors/components/BranchManagementView';
 import { MOCK_DOCTORS } from '../../doctors/data/mockDoctors';
 import { getBranchesRequest, deleteBranchRequest, clearDeleteState } from '../../doctors/redux/branchesSlice';
+import { getDoctorListRequest } from '../../doctors/redux/doctorListSlice';
 
 const ContentWrapper = styled.div`
   max-width: 1440px;
@@ -174,7 +175,16 @@ const AdminDashboard = () => {
   const [doctorView, setDoctorView] = useState('LIST'); // 'LIST' | 'DETAILS' | 'ADD_NEW'
   const [doctorsTab, setDoctorsTab] = useState('DIRECTORY'); // 'DIRECTORY' | 'BRANCHES'
   const [activeDoctor, setActiveDoctor] = useState(null);
+
+  // Redux selector for doctor list
+  const { doctors: reduxDoctors = [] } = useSelector(state => state.doctorList);
   const [doctors, setDoctors] = useState(MOCK_DOCTORS);
+
+  useEffect(() => {
+    if (reduxDoctors && reduxDoctors.length > 0) {
+      setDoctors(reduxDoctors);
+    }
+  }, [reduxDoctors]);
 
   // Branches states from Redux
   const {
@@ -221,9 +231,10 @@ const AdminDashboard = () => {
         dispatch(dashboardOverviewRequest({ companyId }));
       }
     }
-    // Fetch branches when on Doctors view
+    // Fetch branches and doctors when on Doctors view
     if (currentView === 'Doctors') {
       fetchBranches();
+      dispatch(getDoctorListRequest({}));
     }
   }, [dispatch, currentUser, currentView]);
 
@@ -249,6 +260,7 @@ const AdminDashboard = () => {
       setActiveDoctor(null);
       setDoctorsTab('DIRECTORY');
       fetchBranches();
+      dispatch(getDoctorListRequest({}));
     }
     if (label !== 'Patients') {
       setSelectedPatientId(null);
@@ -265,6 +277,7 @@ const AdminDashboard = () => {
 
   const handleDoctorAdded = (newDoctor) => {
     setDoctors(prev => [newDoctor, ...prev]);
+    dispatch(getDoctorListRequest({}));
     setDoctorView('LIST');
   };
 
