@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Search, Filter, Phone, Mail, Eye, Edit2, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import EmployeeRegistrationModal from '../components/EmployeeRegistrationModal';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(12px); }
@@ -458,7 +459,6 @@ const MOCK_STAFF = [
     experience: '10 years',
     shift: 'Morning',
     phone: '(555) 888-9999',
-    email: 'david.anderson@hospital.co'
   }
 ];
 
@@ -466,6 +466,7 @@ const StaffManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('All');
   const [selectedDept, setSelectedDept] = useState('All');
+  const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
 
   // Filter Logic
   const filteredStaff = MOCK_STAFF.filter(member => {
@@ -487,8 +488,8 @@ const StaffManagement = () => {
           <h2>Staff Management</h2>
           <p>Manage hospital staff and personnel</p>
         </HeaderText>
-        <AddDoctorBtn onClick={() => alert('Add New Staff window coming soon!')}>
-          <Plus size={16} /> Add New Doctor
+        <AddDoctorBtn onClick={() => setIsAddStaffModalOpen(true)}>
+          <Plus size={16} /> Add Staff
         </AddDoctorBtn>
       </HeaderRow>
 
@@ -616,6 +617,10 @@ const StaffManagement = () => {
         </PaginationGroup>
       </FooterPagination>
 
+      <EmployeeRegistrationModal 
+        isOpen={isAddStaffModalOpen} 
+        onClose={() => setIsAddStaffModalOpen(false)} 
+      />
     </Container>
   );
 };

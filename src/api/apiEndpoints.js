@@ -37,6 +37,7 @@ const API_ENDPOINTS = {
   getBranches: 'hospital/getBranches',
   deleteBranch: 'hospital/deleteBranch',
   getDoctorList: 'hospital/getDoctorList',
+  patientManagement: 'hospital/patient-management',
 };
 
 export default API_ENDPOINTS;

@@ -24,6 +24,7 @@ import watchDoctorRegisterFeatureSaga from '../features/doctors/redux/registerDo
 import professionalDetailsSaga from '../features/doctors/redux/professionalDetailsSaga';
 import branchesSaga from '../features/doctors/redux/branchesSaga';
 import doctorListSaga from '../features/doctors/redux/doctorListSaga';
+import patientManagementSaga from '../features/patients/redux/patientManagementSaga';
 import { watchLogout } from '../features/auth/redux/logoutSaga';
 
 export default function* rootSaga() {
@@ -53,6 +54,7 @@ export default function* rootSaga() {
     fork(professionalDetailsSaga),
     fork(branchesSaga),
     fork(doctorListSaga),
+    fork(patientManagementSaga),
     fork(watchLogout),
   ]);
 }

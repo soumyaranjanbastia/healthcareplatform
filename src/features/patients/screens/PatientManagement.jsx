@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPatientsRequest } from '../redux/patientManagementSlice';
 import { Search, Filter, Plus, Eye, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { MOCK_PATIENTS } from '../../../data/mockPatients';
 
@@ -287,6 +289,12 @@ const PageControls = styled.div`
 
 const PatientManagement = ({ onViewDetails }) => {
   const [activeTab, setActiveTab] = useState('All Patients');
+  const dispatch = useDispatch();
+  const { data: patientsList, loading, error } = useSelector(state => state.patientManagement);
+
+  useEffect(() => {
+    dispatch(fetchPatientsRequest({}));
+  }, [dispatch]);
 
   return (
     <Container>
@@ -358,34 +366,48 @@ const PatientManagement = ({ onViewDetails }) => {
             </tr>
           </thead>
           <tbody>
-            {MOCK_PATIENTS.map((patient) => (
-              <tr key={patient.id}>
-                <Td>
-                  <PatientId>
-                    <span className="id">{patient.id}</span>
-                    <span className="file">{patient.fileNo}</span>
-                  </PatientId>
-                </Td>
-                <Td>
-                  <PatientInfo>
-                    <span className="name">{patient.name}</span>
-                    <span className="meta">{patient.age}Y • {patient.gender}</span>
-                  </PatientInfo>
-                </Td>
-                <Td>{patient.phone}</Td>
-                <Td>{patient.doctor}</Td>
-                <Td>{patient.lastVisit}</Td>
-                <Td><StatusPill type={patient.paymentStatus}>{patient.paymentStatus}</StatusPill></Td>
-                <Td>{patient.type}</Td>
-                <Td><StatusPill type={patient.status}>{patient.status}</StatusPill></Td>
-                <Td>
-                  <Actions>
-                    <Eye size={18} onClick={() => onViewDetails(patient.id)} />
-                    <FileText size={18} color="#64748b" />
-                  </Actions>
-                </Td>
+            {loading ? (
+              <tr>
+                <Td colSpan="9" style={{ textAlign: 'center', padding: '40px' }}>Loading patients...</Td>
               </tr>
-            ))}
+            ) : error ? (
+              <tr>
+                <Td colSpan="9" style={{ textAlign: 'center', padding: '40px', color: '#ef4444' }}>{error}</Td>
+              </tr>
+            ) : patientsList && patientsList.length > 0 ? (
+              patientsList.map((patient) => (
+                <tr key={patient.id || patient._id}>
+                  <Td>
+                    <PatientId>
+                      <span className="id">{patient.id || patient.patientId || patient._id}</span>
+                      <span className="file">{patient.fileNo || 'N/A'}</span>
+                    </PatientId>
+                  </Td>
+                  <Td>
+                    <PatientInfo>
+                      <span className="name">{patient.name || patient.fullName || 'Unknown'}</span>
+                      <span className="meta">{patient.age || 'N/A'}Y • {patient.gender || 'N/A'}</span>
+                    </PatientInfo>
+                  </Td>
+                  <Td>{patient.phone || patient.contactNumber || 'N/A'}</Td>
+                  <Td>{patient.doctor || patient.assignedDoctor || 'Unassigned'}</Td>
+                  <Td>{patient.lastVisit || 'N/A'}</Td>
+                  <Td><StatusPill type={patient.paymentStatus || 'Pending'}>{patient.paymentStatus || 'Pending'}</StatusPill></Td>
+                  <Td>{patient.type || 'General'}</Td>
+                  <Td><StatusPill type={patient.status || 'Waiting'}>{patient.status || 'Waiting'}</StatusPill></Td>
+                  <Td>
+                    <Actions>
+                      <Eye size={18} onClick={() => onViewDetails(patient.id || patient._id)} />
+                      <FileText size={18} color="#64748b" />
+                    </Actions>
+                  </Td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <Td colSpan="9" style={{ textAlign: 'center', padding: '40px' }}>No patients found.</Td>
+              </tr>
+            )}
           </tbody>
         </Table>
         
