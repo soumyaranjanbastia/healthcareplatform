@@ -283,6 +283,13 @@ const UserAvatar = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const PatientMeta = styled.div`
@@ -428,7 +435,11 @@ const RegistrationTypeStep = ({
         <PatientCard>
           <PatientHeader>
             <UserAvatar>
-              <User size={24} />
+              {personalDetails.profileImageUrl ? (
+                <img src={personalDetails.profileImageUrl} alt="Patient Avatar" />
+              ) : (
+                <User size={24} />
+              )}
             </UserAvatar>
             <PatientMeta>
               <h4>{personalDetails.fullName || 'Rajesh Kumar'}</h4>

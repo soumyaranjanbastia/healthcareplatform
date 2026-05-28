@@ -4,7 +4,7 @@ import { CreditCard, DollarSign, TrendingUp } from 'lucide-react';
 
 const Container = styled.div`
   padding: 24px;
-  background: #0f1624;
+  background: #0f1824ff;
   border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 20px;
   font-family: 'Outfit', sans-serif;

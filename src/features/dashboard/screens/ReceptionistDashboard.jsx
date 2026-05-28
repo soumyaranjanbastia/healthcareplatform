@@ -6,6 +6,9 @@ import DoctorAvailability from '../components/DoctorAvailability';
 import TodayAppointments from '../components/TodayAppointments';
 import FollowUpQueue from '../components/FollowUpQueue';
 import NewBookingFlow from '../../booking/screens/NewBookingFlow';
+import PatientList from '../../patients/screens/PatientList';
+import PatientDetails from '../../patients/screens/PatientDetails';
+import PatientConsultationDetails from '../../patients/screens/PatientConsultationDetails';
 import { 
   Calendar, Users, Search, Bell, Settings, LogOut, Plus, ChevronDown, 
   Phone, UserCheck, ShieldAlert, CalendarPlus
@@ -589,6 +592,11 @@ const ReceptionistDashboard = () => {
   // Multi-step Booking flow state
   const [showBookingFlow, setShowBookingFlow] = useState(false);
 
+  // Patients navigation states managed directly
+  const [patientView, setPatientView] = useState('LIST'); // 'LIST' | 'DETAILS' | 'CONSULTATION'
+  const [activePatient, setActivePatient] = useState(null);
+  const [activeVisit, setActiveVisit] = useState(null);
+
   // Right Drawer states
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerTitle, setDrawerTitle] = useState('');
@@ -624,7 +632,7 @@ const ReceptionistDashboard = () => {
             <Users size={16} />
             <span>Dashboard</span>
           </NavLink>
-          <NavLink active={activeNav === 'Patients'} onClick={() => setActiveNav('Patients')}>
+          <NavLink active={activeNav === 'Patients'} onClick={() => { setActiveNav('Patients'); setPatientView('LIST'); }}>
             <Users size={16} />
             <span>Patients</span>
           </NavLink>
@@ -661,6 +669,43 @@ const ReceptionistDashboard = () => {
             onClose={() => setShowBookingFlow(false)} 
             onComplete={() => setShowBookingFlow(false)} 
           />
+        ) : activeNav === 'Patients' ? (
+          <>
+            {patientView === 'LIST' && (
+              <PatientList 
+                onSelectPatient={(patient) => {
+                  setActivePatient(patient);
+                  setPatientView('DETAILS');
+                }}
+                onSelectConsultation={(patient, visit) => {
+                  setActivePatient(patient);
+                  setActiveVisit(visit);
+                  setPatientView('CONSULTATION');
+                }}
+                onNewBooking={() => setShowBookingFlow(true)}
+              />
+            )}
+
+            {patientView === 'DETAILS' && activePatient && (
+              <PatientDetails 
+                patient={activePatient}
+                onBack={() => setPatientView('LIST')}
+                onSelectConsultation={(patient, visit) => {
+                  setActivePatient(patient);
+                  setActiveVisit(visit);
+                  setPatientView('CONSULTATION');
+                }}
+              />
+            )}
+
+            {patientView === 'CONSULTATION' && activePatient && activeVisit && (
+              <PatientConsultationDetails 
+                patient={activePatient}
+                visit={activeVisit}
+                onBack={() => setPatientView('DETAILS')}
+              />
+            )}
+          </>
         ) : (
           <>
             {/* HEADER */}

@@ -19,6 +19,8 @@ import { registerPatientRequest, resetRegisterPatientState } from '../redux/regi
 import { validateEmailOtpRequest, validatePhoneOtpRequest, resetOtpValidationState } from '../redux/otpValidationSlice';
 import { resendOtpRequest, resetResendOtpState } from '../redux/resendOtpSlice';
 import { saveMedicalInfoRequest, resetSaveMedicalInfoState } from '../redux/saveMedicalInfoSlice';
+import { getExistingUserRequest, resetGetExistingUserState } from '../redux/getExistingUserSlice';
+import { verifyExistingPatientOtpRequest, resetVerifyExistingPatientOtpState } from '../redux/verifyExistingPatientOtpSlice';
 
 // --- KEYFRAMES ---
 const fadeIn = keyframes`
@@ -237,6 +239,8 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
   const otpValidationState = useSelector(state => state.otpValidation);
   const resendOtpState = useSelector(state => state.resendOtp);
   const saveMedicalInfoState = useSelector(state => state.saveMedicalInfo);
+  const getExistingUserState = useSelector(state => state.getExistingUser);
+  const verifyExistingPatientOtpState = useSelector(state => state.verifyExistingPatientOtp);
 
   const [step, setStep] = useState(1);
   const [subStep, setSubStep] = useState(1); // subStep handles Screens under Step 1: 1 = Consultation Type, 2 = Are you Existing vs New Patient, 3 = Search Existing Patient Lookup
@@ -250,6 +254,7 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
   const [isPatientVerified, setIsPatientVerified] = useState(false);
   const [lastConsulted, setLastConsulted] = useState({ doctorName: 'Dr. Anita Sharma', specialty: 'Cardiology' });
   const [currentEncryptionKey, setCurrentEncryptionKey] = useState(null);
+  const [registeredUserId, setRegisteredUserId] = useState(null);
 
   // Registration data
   const [personalDetails, setPersonalDetails] = useState({
@@ -287,6 +292,11 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
   useEffect(() => {
     if (sendOtpState.isSuccess) {
       setOtpSent(true);
+      const encryptionKey = sendOtpState.data?.encryptionKey || sendOtpState.data?.data?.encryptionKey || sendOtpState.data?.key || sendOtpState.data?.data?.key;
+      if (encryptionKey) {
+        setCurrentEncryptionKey(encryptionKey);
+        console.log('Stored OTP encryption key:', encryptionKey);
+      }
       alert(`OTP sent successfully to: ${mobileNumber}!`);
       dispatch(resetSendOtpState());
     }
@@ -305,6 +315,12 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
       if (encKey) {
         setCurrentEncryptionKey(encKey);
         console.log('Stored initial encryptionKey from signup:', encKey);
+      }
+
+      const userId = registerPatientState.patientData?.userId || registerPatientState.patientData?.data?.userId;
+      if (userId) {
+        setRegisteredUserId(userId);
+        console.log('Stored userId from signup:', userId);
       }
 
       // Navigate sequentially depending on OTP option
@@ -370,6 +386,86 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
     }
   }, [saveMedicalInfoState.isSuccess, saveMedicalInfoState.isError, saveMedicalInfoState.errorMessage, dispatch, isExistingPatient]);
 
+  useEffect(() => {
+    if (getExistingUserState.isSuccess) {
+      const user = getExistingUserState.userData?.data || getExistingUserState.userData;
+      console.log('get existing user saga response processed:', user);
+      if (user) {
+        // Calculate age dynamically from dob if dob exists
+        let calculatedAge = '42';
+        if (user.dob) {
+          try {
+            const birthDate = new Date(user.dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+              age--;
+            }
+            calculatedAge = age.toString();
+          } catch (e) {
+            console.error('Error calculating age from dob:', e);
+          }
+        } else if (user.age) {
+          calculatedAge = user.age.toString();
+        }
+
+         setPersonalDetails({
+          fullName: user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'Rajesh Kumar',
+          address: user.address || 'Sector 5, Salt Lake, Kolkata',
+          phone: user.phone || mobileNumber || '+91 98765 41234',
+          email: user.email || 'rajesh.kumar@example.com',
+          gender: user.gender || 'Male',
+          age: calculatedAge,
+          registerWithOtp: 'Yes',
+          profileImageUrl: user.profileImageUrl || ''
+        });
+
+        // Crucial: Store the identifier/userId for medical info submissions
+        const uId = user.id || user.userId;
+        if (uId) {
+          setRegisteredUserId(uId.toString());
+          console.log('Stored existing patient userId:', uId);
+        }
+
+        setIsExistingPatient('Existing');
+        setIsPatientVerified(true);
+
+        if (user.lastConsultedDoctor) {
+          setLastConsulted({
+            doctorName: `${user.lastConsultedDoctor.salutation || 'Dr.'} ${user.lastConsultedDoctor.firstName} ${user.lastConsultedDoctor.lastName || ''}`.trim(),
+            specialty: user.lastConsultedDoctor.specialty || 'General Medicine'
+          });
+        } else {
+          setLastConsulted({
+            doctorName: 'Dr. Anita Sharma',
+            specialty: 'Cardiology'
+          });
+        }
+      } else {
+        alert("Patient identified but details could not be retrieved.");
+      }
+      dispatch(resetGetExistingUserState());
+    }
+    if (getExistingUserState.isError) {
+      alert(`Failed to fetch patient details: ${getExistingUserState.errorMessage}`);
+      dispatch(resetGetExistingUserState());
+    }
+  }, [getExistingUserState.isSuccess, getExistingUserState.isError, getExistingUserState.userData, getExistingUserState.errorMessage, dispatch, mobileNumber]);
+
+  useEffect(() => {
+    if (verifyExistingPatientOtpState.isSuccess) {
+      alert("OTP verified successfully!");
+      // Automatically load the patient details now that OTP validation is successful
+      dispatch(getExistingUserRequest({ identifier: mobileNumber }));
+      dispatch(resetVerifyExistingPatientOtpState());
+    }
+    if (verifyExistingPatientOtpState.isError) {
+      alert(`OTP verification failed: ${verifyExistingPatientOtpState.errorMessage}`);
+      dispatch(resetVerifyExistingPatientOtpState());
+    }
+  }, [verifyExistingPatientOtpState.isSuccess, verifyExistingPatientOtpState.isError, verifyExistingPatientOtpState.errorMessage, dispatch, mobileNumber]);
+
   const handleSendOtp = () => {
     if (!mobileNumber) {
       alert("Please enter a valid mobile number or email ID!");
@@ -379,25 +475,30 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
   };
 
   const handleSearchPatient = () => {
-    // Check if searching Case Number or Mobile OTP with our demo queries
-    if (caseNumber === 'CASE-2026-00452' || caseNumber === 'PT-2028-00452' || mobileNumber === '9876543210' || otpCode === '123456') {
-      setPersonalDetails({
-        fullName: 'Rajesh Kumar',
-        address: 'Sector 5, Salt Lake, Kolkata',
-        phone: '+91 98765 41234',
-        email: 'rajesh.kumar@example.com',
-        gender: 'Male',
-        age: '42',
-        registerWithOtp: 'Yes'
-      });
-      setIsExistingPatient('Existing');
-      setIsPatientVerified(true);
-      setLastConsulted({
-        doctorName: 'Dr. Anita Sharma',
-        specialty: 'Cardiology'
-      });
+    if (searchMethod === 'CaseNumber') {
+      if (!caseNumber) {
+        alert("Please enter a valid Case Number!");
+        return;
+      }
+      dispatch(getExistingUserRequest({ identifier: caseNumber }));
     } else {
-      alert("No patient records found. Try using Case Number 'CASE-2026-00452' or OTP hint '123456'.");
+      if (!mobileNumber) {
+        alert("Please enter a valid Mobile number/Email!");
+        return;
+      }
+      if (!otpSent) {
+        alert("Please send OTP first!");
+        return;
+      }
+      if (!otpCode) {
+        alert("Please enter the OTP code sent to your phone/email!");
+        return;
+      }
+      dispatch(verifyExistingPatientOtpRequest({
+        identifier: mobileNumber,
+        code: otpCode,
+        key: currentEncryptionKey
+      }));
     }
   };
 
@@ -435,6 +536,7 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
       } else if (step === 3) {
         // Step 3 is Medical Information for Existing Patient. Save it to API.
         const medicalPayload = {
+          userId: registeredUserId,
           symptoms: medicalInfo.symptoms || '',
           medicalHistory: medicalInfo.medicalHistory || '',
           existingDiseases: medicalInfo.existingDiseases || '',
@@ -484,6 +586,7 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
       } else if (step === 4) {
         // [INCOMING CHANGE]: Dispatch Save Medical Info API
         const medicalPayload = {
+          userId: registeredUserId,
           symptoms: medicalInfo.symptoms || '',
           medicalHistory: medicalInfo.medicalHistory || '',
           existingDiseases: medicalInfo.existingDiseases || '',

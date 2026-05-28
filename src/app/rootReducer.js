@@ -12,6 +12,8 @@ import resendOtpReducer from "../features/booking/redux/resendOtpSlice";
 import saveMedicalInfoReducer from "../features/booking/redux/saveMedicalInfoSlice";
 import resendHospitalOtpReducer from "../features/auth/redux/resendHospitalOtpSlice";
 import registerDoctorReducer from "../features/auth/redux/registerDoctorSlice";
+import getExistingUserReducer from "../features/booking/redux/getExistingUserSlice";
+import verifyExistingPatientOtpReducer from "../features/booking/redux/verifyExistingPatientOtpSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -27,6 +29,8 @@ const rootReducer = combineReducers({
   saveMedicalInfo: saveMedicalInfoReducer,
   resendHospitalOtp: resendHospitalOtpReducer,
   registerDoctor: registerDoctorReducer,
+  getExistingUser: getExistingUserReducer,
+  verifyExistingPatientOtp: verifyExistingPatientOtpReducer,
 });
 
 export default rootReducer;

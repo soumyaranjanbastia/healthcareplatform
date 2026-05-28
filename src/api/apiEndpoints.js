@@ -16,7 +16,13 @@ const API_ENDPOINTS = {
   resendOtp: 'hospital/resendOtp',
 
   // Save Medical Details
-  saveMedicalInfo: 'hospital/medicalDetails',
+  saveMedicalInfo: 'hospital/addMedicalDetails',
+
+  // Get Existing User
+  getExistingUser: 'hospital/getExistingUser',
+
+  // Verify Existing Patient OTP
+  verifyExistingPatientOtp: 'assisted/verify-otp',
 
   resendHospitalOtp: 'hospital/resend-hospital-registration-otp',
   registerDoctor: 'hospital/register-doctor',
