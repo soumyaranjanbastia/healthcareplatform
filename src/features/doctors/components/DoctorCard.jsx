@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Phone, Mail, Eye, Edit } from 'lucide-react';
+import { Phone, Mail, Eye, Edit, MapPin } from 'lucide-react';
 
 const Card = styled.div`
   background: #ffffff;
@@ -163,7 +163,7 @@ const EditBtn = styled.button`
   }
 `;
 
-const DoctorCard = ({ doctor, onView }) => {
+const DoctorCard = ({ doctor, onView, onMapBranch }) => {
   return (
     <Card>
       <CardHeader>
@@ -194,6 +194,12 @@ const DoctorCard = ({ doctor, onView }) => {
           <DetailLabel>Shift:</DetailLabel>
           <DetailValue>{doctor.shift.split(' ')[0]}</DetailValue>
         </DetailRow>
+        <DetailRow>
+          <DetailLabel>Mapped Branch:</DetailLabel>
+          <DetailValue style={{ color: doctor.branchName === 'Not Mapped' ? '#ef4444' : '#009688' }}>
+            {doctor.branchName || 'Not Mapped'}
+          </DetailValue>
+        </DetailRow>
       </DetailsGrid>
 
       <ContactSection>
@@ -211,6 +217,11 @@ const DoctorCard = ({ doctor, onView }) => {
         <ViewBtn onClick={() => onView(doctor)}>
           <Eye size={14} /> View
         </ViewBtn>
+        {onMapBranch && (
+          <EditBtn title="Map to Branch" onClick={() => onMapBranch(doctor)}>
+            <MapPin size={14} />
+          </EditBtn>
+        )}
         <EditBtn onClick={() => alert(`Opening Edit Profile for ${doctor.name}...`)}>
           <Edit size={14} />
         </EditBtn>

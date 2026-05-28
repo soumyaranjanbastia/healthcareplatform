@@ -23,6 +23,7 @@ import verifyDoctorOtpReducer from "../features/doctors/redux/verifyDoctorOtpSli
 import resendDoctorOtpReducer from "../features/doctors/redux/resendDoctorOtpSlice";
 import registerDoctorFeatureReducer from "../features/doctors/redux/registerDoctorSlice";
 import professionalDetailsReducer from "../features/doctors/redux/professionalDetailsSlice";
+import branchesReducer from "../features/doctors/redux/branchesSlice";
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -49,6 +50,7 @@ const appReducer = combineReducers({
   resendDoctorOtp: resendDoctorOtpReducer,
   registerDoctorFeature: registerDoctorFeatureReducer,
   professionalDetails: professionalDetailsReducer,
+  branches: branchesReducer,
 });
 
 const rootReducer = (state, action) => {

@@ -34,6 +34,8 @@ const API_ENDPOINTS = {
   verifyAuthOtp: 'auth/verify',
   resendAuthOtp: 'auth/resend',
   logout: 'hospital/logout',
+  getBranches: 'hospital/getBranches',
+  deleteBranch: 'hospital/deleteBranch',
 };
 
 export default API_ENDPOINTS;

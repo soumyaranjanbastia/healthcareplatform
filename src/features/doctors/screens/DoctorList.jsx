@@ -152,7 +152,7 @@ const DoctorsGrid = styled.div`
   }
 `;
 
-const DoctorList = ({ doctors = MOCK_DOCTORS, onViewDoctor, onAddNewDoctor }) => {
+const DoctorList = ({ doctors = MOCK_DOCTORS, onViewDoctor, onAddNewDoctor, onMapBranch }) => {
   const [search, setSearch] = useState('');
   const [role, setRole] = useState('All');
   const [dept, setDept] = useState('All');
@@ -212,7 +212,7 @@ const DoctorList = ({ doctors = MOCK_DOCTORS, onViewDoctor, onAddNewDoctor }) =>
       <DoctorsGrid>
         {filteredDoctors.length > 0 ? (
           filteredDoctors.map((doc) => (
-            <DoctorCard key={doc.id} doctor={doc} onView={onViewDoctor} />
+            <DoctorCard key={doc.id} doctor={doc} onView={onViewDoctor} onMapBranch={onMapBranch} />
           ))
         ) : (
           <div style={{ gridColumn: 'span 3', textAlign: 'center', padding: '40px', color: '#64748b', fontStyle: 'italic' }}>
