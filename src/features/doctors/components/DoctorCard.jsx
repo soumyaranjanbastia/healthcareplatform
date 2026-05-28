@@ -163,15 +163,30 @@ const EditBtn = styled.button`
   }
 `;
 
+const getInitials = (name) => {
+  if (!name) return 'DR';
+  const parts = name.replace(/^Dr\.\s+/i, '').split(' ');
+  return parts.map(p => p[0]).join('').substring(0, 2).toUpperCase();
+};
+
 const DoctorCard = ({ doctor, onView, onMapBranch }) => {
+  const doctorName = doctor.fullName || doctor.name || 'Unknown Doctor';
+  const displayAvatar = doctor.avatar || getInitials(doctorName);
+  const displayShift = typeof doctor.shift === 'string' && doctor.shift.trim() 
+    ? doctor.shift.split(' ')[0] 
+    : 'N/A';
+  const displayDepartment = doctor.department || doctor.currentPosition || 'General';
+  const displaySpecialization = doctor.specialization || (Array.isArray(doctor.qualification) ? doctor.qualification.join(', ') : doctor.qualification) || 'N/A';
+  const displayExperience = doctor.experience ? `${doctor.experience} years` : 'N/A';
+
   return (
     <Card>
       <CardHeader>
         <ProfileSection>
-          <Avatar>{doctor.avatar}</Avatar>
+          <Avatar>{displayAvatar}</Avatar>
           <InfoMeta>
-            <h3>{doctor.name}</h3>
-            <span>{doctor.id}</span>
+            <h3>{doctorName}</h3>
+            <span>ID: {doctor.id}</span>
           </InfoMeta>
         </ProfileSection>
         <RoleBadge>Doctor</RoleBadge>
@@ -180,19 +195,19 @@ const DoctorCard = ({ doctor, onView, onMapBranch }) => {
       <DetailsGrid>
         <DetailRow>
           <DetailLabel>Department:</DetailLabel>
-          <DetailValue>{doctor.department}</DetailValue>
+          <DetailValue>{displayDepartment}</DetailValue>
         </DetailRow>
         <DetailRow>
           <DetailLabel>Specialization:</DetailLabel>
-          <DetailValue>{doctor.specialization}</DetailValue>
+          <DetailValue>{displaySpecialization}</DetailValue>
         </DetailRow>
         <DetailRow>
           <DetailLabel>Experience:</DetailLabel>
-          <DetailValue>{doctor.experience} years</DetailValue>
+          <DetailValue>{displayExperience}</DetailValue>
         </DetailRow>
         <DetailRow>
           <DetailLabel>Shift:</DetailLabel>
-          <DetailValue>{doctor.shift.split(' ')[0]}</DetailValue>
+          <DetailValue>{displayShift}</DetailValue>
         </DetailRow>
         <DetailRow>
           <DetailLabel>Mapped Branch:</DetailLabel>

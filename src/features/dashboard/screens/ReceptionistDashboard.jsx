@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { keyframes } from 'styled-components';
 import RightDrawer from '../../../components/common/RightDrawer';
@@ -12,7 +12,7 @@ import PatientConsultationDetails from '../../patients/screens/PatientConsultati
 import DoctorList from '../../doctors/screens/DoctorList';
 import DoctorDetails from '../../doctors/screens/DoctorDetails';
 import AddDoctorFlow from '../../doctors/screens/AddDoctorFlow';
-import { MOCK_DOCTORS } from '../../doctors/data/mockDoctors';
+import { getDoctorListRequest } from '../../doctors/redux/doctorListSlice';
 import AlertModal from '../../../components/Alertmodal';
 import StaffManagement from '../../staff/screens/StaffManagement';
 import {
@@ -633,7 +633,44 @@ const ReceptionistDashboard = () => {
   // Doctors navigation states managed directly
   const [doctorView, setDoctorView] = useState('LIST'); // 'LIST' | 'DETAILS' | 'ADD_NEW'
   const [activeDoctor, setActiveDoctor] = useState(null);
-  const [doctors, setDoctors] = useState(MOCK_DOCTORS);
+  const [doctors, setDoctors] = useState([]);
+
+  // Redux selector for doctor list
+  const { doctors: reduxDoctors = [] } = useSelector(state => state.doctorList);
+
+  const getArrayData = (val) => {
+    if (Array.isArray(val)) return val;
+    if (val && typeof val === 'object') {
+      if (val.serviceProviders && Array.isArray(val.serviceProviders.list)) {
+        return val.serviceProviders.list;
+      }
+      if (Array.isArray(val.doctors)) return val.doctors;
+      if (Array.isArray(val.list)) return val.list;
+      if (Array.isArray(val.data)) return val.data;
+      
+      const firstArrayProp = Object.values(val).find(prop => Array.isArray(prop));
+      if (firstArrayProp) return firstArrayProp;
+
+      for (const key of Object.keys(val)) {
+        if (val[key] && typeof val[key] === 'object' && Array.isArray(val[key].list)) {
+          return val[key].list;
+        }
+      }
+    }
+    return [];
+  };
+
+  useEffect(() => {
+    if (reduxDoctors) {
+      setDoctors(getArrayData(reduxDoctors));
+    }
+  }, [reduxDoctors]);
+
+  useEffect(() => {
+    if (activeNav === 'Doctors') {
+      dispatch(getDoctorListRequest({}));
+    }
+  }, [dispatch, activeNav]);
 
   // Right Drawer states
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -788,6 +825,7 @@ const ReceptionistDashboard = () => {
                 onClose={() => setDoctorView('LIST')}
                 onComplete={(newDoc) => {
                   setDoctors(prev => [...prev, newDoc]);
+                  dispatch(getDoctorListRequest({}));
                   setDoctorView('LIST');
                 }}
               />

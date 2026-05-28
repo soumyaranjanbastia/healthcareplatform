@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Search, Plus, Filter } from 'lucide-react';
-import { MOCK_DOCTORS } from '../data/mockDoctors';
 import DoctorCard from '../components/DoctorCard';
 
 const Container = styled.div`
@@ -152,20 +151,26 @@ const DoctorsGrid = styled.div`
   }
 `;
 
-const DoctorList = ({ doctors = MOCK_DOCTORS, onViewDoctor, onAddNewDoctor, onMapBranch }) => {
+const DoctorList = ({ doctors = [], onViewDoctor, onAddNewDoctor, onMapBranch }) => {
   const [search, setSearch] = useState('');
   const [role, setRole] = useState('All');
   const [dept, setDept] = useState('All');
 
   const deptsList = ['All', 'Cardiology', 'Neurology', 'Orthopedics', 'Pediatrics'];
 
-  const filteredDoctors = doctors.filter((doctor) => {
-    const matchesSearch =
-      doctor.name.toLowerCase().includes(search.toLowerCase()) ||
-      doctor.id.toLowerCase().includes(search.toLowerCase()) ||
-      doctor.email.toLowerCase().includes(search.toLowerCase());
+  const filteredDoctors = (Array.isArray(doctors) ? doctors : []).filter((doctor) => {
+    if (!doctor) return false;
+    const name = doctor.fullName || doctor.name || '';
+    const id = String(doctor.id || '');
+    const email = doctor.email || '';
+    const department = doctor.department || doctor.currentPosition || 'General';
 
-    const matchesDept = dept === 'All' || doctor.department === dept;
+    const matchesSearch =
+      name.toLowerCase().includes(search.toLowerCase()) ||
+      id.toLowerCase().includes(search.toLowerCase()) ||
+      email.toLowerCase().includes(search.toLowerCase());
+
+    const matchesDept = dept === 'All' || department.toLowerCase() === dept.toLowerCase();
 
     return matchesSearch && matchesDept;
   });

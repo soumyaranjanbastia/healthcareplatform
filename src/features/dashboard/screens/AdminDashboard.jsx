@@ -17,7 +17,6 @@ import DoctorList from '../../doctors/screens/DoctorList';
 import DoctorDetails from '../../doctors/screens/DoctorDetails';
 import AddDoctorFlow from '../../doctors/screens/AddDoctorFlow';
 import BranchManagementView from '../../doctors/components/BranchManagementView';
-import { MOCK_DOCTORS } from '../../doctors/data/mockDoctors';
 import { getBranchesRequest, deleteBranchRequest, clearDeleteState } from '../../doctors/redux/branchesSlice';
 import { getDoctorListRequest } from '../../doctors/redux/doctorListSlice';
 
@@ -178,11 +177,33 @@ const AdminDashboard = () => {
 
   // Redux selector for doctor list
   const { doctors: reduxDoctors = [] } = useSelector(state => state.doctorList);
-  const [doctors, setDoctors] = useState(MOCK_DOCTORS);
+  const [doctors, setDoctors] = useState([]);
+
+  const getArrayData = (val) => {
+    if (Array.isArray(val)) return val;
+    if (val && typeof val === 'object') {
+      if (val.serviceProviders && Array.isArray(val.serviceProviders.list)) {
+        return val.serviceProviders.list;
+      }
+      if (Array.isArray(val.doctors)) return val.doctors;
+      if (Array.isArray(val.list)) return val.list;
+      if (Array.isArray(val.data)) return val.data;
+      
+      const firstArrayProp = Object.values(val).find(prop => Array.isArray(prop));
+      if (firstArrayProp) return firstArrayProp;
+
+      for (const key of Object.keys(val)) {
+        if (val[key] && typeof val[key] === 'object' && Array.isArray(val[key].list)) {
+          return val[key].list;
+        }
+      }
+    }
+    return [];
+  };
 
   useEffect(() => {
-    if (reduxDoctors && reduxDoctors.length > 0) {
-      setDoctors(reduxDoctors);
+    if (reduxDoctors) {
+      setDoctors(getArrayData(reduxDoctors));
     }
   }, [reduxDoctors]);
 
@@ -326,7 +347,7 @@ const AdminDashboard = () => {
 
             {doctorsTab === 'DIRECTORY' ? (
               <DoctorList
-                doctors={doctors.map(doc => {
+                doctors={(Array.isArray(doctors) ? doctors : []).map(doc => {
                   const mappedBranch = branches.find(b => b.id === doc.branchId);
                   return {
                     ...doc,
@@ -346,7 +367,7 @@ const AdminDashboard = () => {
             ) : (
               <BranchManagementView 
                 branches={branches}
-                doctors={doctors}
+                doctors={Array.isArray(doctors) ? doctors : []}
                 isLoading={branchesLoading}
                 error={branchesError}
                 onDeleteBranch={handleDeleteBranch}
