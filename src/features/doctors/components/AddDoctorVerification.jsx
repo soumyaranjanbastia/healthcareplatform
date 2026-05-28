@@ -1,0 +1,213 @@
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import styled, { keyframes } from 'styled-components';
+import { sendDoctorOtpRequest, resetSendDoctorOtpState } from '../redux/sendDoctorOtpSlice';
+
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`;
+
+const FormSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+`;
+
+const InputGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+`;
+
+const Label = styled.label`
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 13.5px;
+  outline: none;
+  font-weight: 600;
+  background-color: #ffffff;
+  color: #1e293b;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: #009688;
+    box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.08);
+  }
+`;
+
+const PhoneInputContainer = styled.div`
+  display: flex;
+  gap: 12px;
+  width: 100%;
+`;
+
+const CountryCode = styled.select`
+  width: 90px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 13.5px;
+  font-weight: 600;
+  outline: none;
+  background-color: #ffffff;
+  color: #1e293b;
+`;
+
+const InfoBanner = styled.div`
+  background-color: #e6f9f3;
+  border: 1px solid #c2f0e3;
+  color: #065f46;
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+`;
+
+const ErrorBanner = styled.div`
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+`;
+
+const ContinueBtn = styled.button`
+  width: 100%;
+  padding: 14px;
+  background-color: ${props => props.disabled ? '#94a3b8' : '#009688'};
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+
+  &:hover:not(:disabled) {
+    background-color: #00796b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 150, 136, 0.15);
+  }
+`;
+
+const Spinner = styled.div`
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: ${spin} 0.6s linear infinite;
+`;
+
+const FootNote = styled.p`
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+  font-weight: 600;
+  margin: 0;
+`;
+
+const AddDoctorVerification = ({ email, setEmail, phone, setPhone, onContinue, onOtpKeyReceived }) => {
+  const dispatch = useDispatch();
+  const { isLoading, isSuccess, isError, errorMessage, data } = useSelector(state => state.sendDoctorOtp);
+
+  const handleNext = () => {
+    if (!email || !phone) {
+      alert("Please enter both Email and Mobile Number!");
+      return;
+    }
+    dispatch(sendDoctorOtpRequest({ email, phone }));
+  };
+
+  useEffect(() => {
+    if (isSuccess && data) {
+      console.log('Send Doctor OTP success, response:', data);
+      // Pass OTP keys to parent so OTP step can use them for verification
+      if (onOtpKeyReceived) {
+        onOtpKeyReceived({
+          encryptionKey: data?.result?.data?.encryptionKey || data?.data?.encryptionKey || '',
+          userId: data?.result?.data?.userId || data?.data?.userId || '',
+          userType: data?.result?.data?.userType || data?.data?.userType || 'provider',
+        });
+      }
+      dispatch(resetSendDoctorOtpState());
+      onContinue();
+    }
+  }, [isSuccess, data]);
+
+  useEffect(() => {
+    // Cleanup on unmount
+    return () => {
+      dispatch(resetSendDoctorOtpState());
+    };
+  }, []);
+
+  return (
+    <FormSection>
+      <InputGroup>
+        <Label>Email</Label>
+        <Input 
+          type="email" 
+          placeholder="Abc@example.com" 
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+        />
+      </InputGroup>
+
+      <InputGroup>
+        <Label>Mobile Number</Label>
+        <PhoneInputContainer>
+          <CountryCode>
+            <option>+91</option>
+            <option>+1</option>
+            <option>+44</option>
+          </CountryCode>
+          <Input 
+            type="text" 
+            placeholder="Enter 10-digit number" 
+            value={phone}
+            onChange={e => setPhone(e.target.value)}
+          />
+        </PhoneInputContainer>
+      </InputGroup>
+
+      {isError && (
+        <ErrorBanner>
+          {errorMessage || 'Failed to send OTP. Please try again.'}
+        </ErrorBanner>
+      )}
+
+      <InfoBanner>
+        We'll send you a one-time password (OTP) to verify your Email & Number
+      </InfoBanner>
+
+      <ContinueBtn onClick={handleNext} disabled={isLoading}>
+        {isLoading ? <><Spinner /> Sending OTP...</> : 'Continue ➜'}
+      </ContinueBtn>
+      <FootNote>By continuing, you agree to our Terms of Service and Privacy Policy</FootNote>
+    </FormSection>
+  );
+};
+
+export default AddDoctorVerification;

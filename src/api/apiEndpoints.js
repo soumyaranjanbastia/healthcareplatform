@@ -29,6 +29,10 @@ const API_ENDPOINTS = {
   dashboardOverview: 'hospital/dashboardOverview',
   sendLoginOtp: 'hospital/send-login-otp',
   verifyLoginOtp: 'hospital/verify-login-otp',
+  professionalDetails: 'auth/addProfessionalDetails',
+  insertEmailandPhone: 'auth/insertEmailandPhone',
+  verifyAuthOtp: 'auth/verify',
+  resendAuthOtp: 'auth/resend',
 };
 
 export default API_ENDPOINTS;

@@ -17,6 +17,11 @@ import verifyExistingPatientOtpReducer from "../features/booking/redux/verifyExi
 import dashboardOverviewReducer from "../features/dashboard/redux/dashboardOverviewSlice";
 import sendLoginOtpReducer from "../features/auth/redux/sendLoginOtpSlice";
 import verifyLoginOtpReducer from "../features/auth/redux/verifyLoginOtpSlice";
+import sendDoctorOtpReducer from "../features/doctors/redux/sendDoctorOtpSlice";
+import verifyDoctorOtpReducer from "../features/doctors/redux/verifyDoctorOtpSlice";
+import resendDoctorOtpReducer from "../features/doctors/redux/resendDoctorOtpSlice";
+import registerDoctorFeatureReducer from "../features/doctors/redux/registerDoctorSlice";
+import professionalDetailsReducer from "../features/doctors/redux/professionalDetailsSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -37,6 +42,11 @@ const rootReducer = combineReducers({
   dashboardOverview: dashboardOverviewReducer,
   sendLoginOtp: sendLoginOtpReducer,
   verifyLoginOtp: verifyLoginOtpReducer,
+  sendDoctorOtp: sendDoctorOtpReducer,
+  verifyDoctorOtp: verifyDoctorOtpReducer,
+  resendDoctorOtp: resendDoctorOtpReducer,
+  registerDoctorFeature: registerDoctorFeatureReducer,
+  professionalDetails: professionalDetailsReducer,
 });
 
 export default rootReducer;

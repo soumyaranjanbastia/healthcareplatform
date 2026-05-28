@@ -17,6 +17,11 @@ import verifyExistingPatientOtpSaga from '../features/booking/redux/verifyExisti
 import { watchDashboardOverviewSaga } from '../features/dashboard/redux/dashboardOverviewSaga';
 import { watchSendLoginOtpSaga } from '../features/auth/redux/sendLoginOtpSaga';
 import { watchVerifyLoginOtpSaga } from '../features/auth/redux/verifyLoginOtpSaga';
+import sendDoctorOtpSaga from '../features/doctors/redux/sendDoctorOtpSaga';
+import verifyDoctorOtpSaga from '../features/doctors/redux/verifyDoctorOtpSaga';
+import resendDoctorOtpSaga from '../features/doctors/redux/resendDoctorOtpSaga';
+import watchDoctorRegisterFeatureSaga from '../features/doctors/redux/registerDoctorSaga';
+import professionalDetailsSaga from '../features/doctors/redux/professionalDetailsSaga';
 
 export default function* rootSaga() {
   yield all([
@@ -38,5 +43,10 @@ export default function* rootSaga() {
     fork(watchDashboardOverviewSaga),
     fork(watchSendLoginOtpSaga),
     fork(watchVerifyLoginOtpSaga),
+    fork(sendDoctorOtpSaga),
+    fork(verifyDoctorOtpSaga),
+    fork(resendDoctorOtpSaga),
+    fork(watchDoctorRegisterFeatureSaga),
+    fork(professionalDetailsSaga),
   ]);
 }

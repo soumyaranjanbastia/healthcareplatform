@@ -9,11 +9,15 @@ import NewBookingFlow from '../../booking/screens/NewBookingFlow';
 import PatientList from '../../patients/screens/PatientList';
 import PatientDetails from '../../patients/screens/PatientDetails';
 import PatientConsultationDetails from '../../patients/screens/PatientConsultationDetails';
+import DoctorList from '../../doctors/screens/DoctorList';
+import DoctorDetails from '../../doctors/screens/DoctorDetails';
+import AddDoctorFlow from '../../doctors/screens/AddDoctorFlow';
+import { MOCK_DOCTORS } from '../../doctors/data/mockDoctors';
 import AlertModal from '../../../components/Alertmodal';
 import StaffManagement from '../../staff/screens/StaffManagement';
-import { 
-  Calendar, Users, Search, Bell, Settings, LogOut, Plus, ChevronDown, 
-  Phone, UserCheck, ShieldAlert, CalendarPlus, Menu, X, UserCog
+import {
+  Calendar, Users, Search, Bell, Settings, LogOut, Plus, ChevronDown,
+  Phone, UserCheck, ShieldAlert, CalendarPlus, Menu, X, UserCog, Stethoscope
 } from 'lucide-react';
 
 
@@ -69,8 +73,8 @@ const SidebarLogoWrapper = styled.div`
 
 const HeartLogoSvg = () => (
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path 
-      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
+    <path
+      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
       fill="url(#heartGradientDashboard)"
     />
     <defs>
@@ -626,6 +630,11 @@ const ReceptionistDashboard = () => {
   const [activePatient, setActivePatient] = useState(null);
   const [activeVisit, setActiveVisit] = useState(null);
 
+  // Doctors navigation states managed directly
+  const [doctorView, setDoctorView] = useState('LIST'); // 'LIST' | 'DETAILS' | 'ADD_NEW'
+  const [activeDoctor, setActiveDoctor] = useState(null);
+  const [doctors, setDoctors] = useState(MOCK_DOCTORS);
+
   // Right Drawer states
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerTitle, setDrawerTitle] = useState('');
@@ -649,7 +658,7 @@ const ReceptionistDashboard = () => {
   return (
     <DashboardLayout>
       <SidebarBackdrop isOpen={isSidebarOpen} onClick={() => setIsSidebarOpen(false)} />
-      
+
       {/* LEFT COLLAPSIBLE SIDEBAR */}
       <SidebarContainer isOpen={isSidebarOpen}>
         <SidebarLogoWrapper>
@@ -675,6 +684,10 @@ const ReceptionistDashboard = () => {
           <NavLink active={activeNav === 'Patients'} onClick={() => { setActiveNav('Patients'); setPatientView('LIST'); setIsSidebarOpen(false); }}>
             <Users size={16} />
             <span>Patients</span>
+          </NavLink>
+          <NavLink active={activeNav === 'Doctors'} onClick={() => { setActiveNav('Doctors'); setDoctorView('LIST'); setIsSidebarOpen(false); }}>
+            <Stethoscope size={16} />
+            <span>Doctors</span>
           </NavLink>
           <NavLink active={activeNav === 'Billing'} onClick={() => { setActiveNav('Billing'); setIsSidebarOpen(false); }}>
             <Calendar size={16} />
@@ -707,16 +720,16 @@ const ReceptionistDashboard = () => {
 
       {/* RIGHT MAIN WORKSPACE */}
       <MainWorkspace>
-        
+
         {showBookingFlow ? (
-          <NewBookingFlow 
-            onClose={() => setShowBookingFlow(false)} 
-            onComplete={() => setShowBookingFlow(false)} 
+          <NewBookingFlow
+            onClose={() => setShowBookingFlow(false)}
+            onComplete={() => setShowBookingFlow(false)}
           />
         ) : activeNav === 'Patients' ? (
           <>
             {patientView === 'LIST' && (
-              <PatientList 
+              <PatientList
                 onSelectPatient={(patient) => {
                   setActivePatient(patient);
                   setPatientView('DETAILS');
@@ -731,7 +744,7 @@ const ReceptionistDashboard = () => {
             )}
 
             {patientView === 'DETAILS' && activePatient && (
-              <PatientDetails 
+              <PatientDetails
                 patient={activePatient}
                 onBack={() => setPatientView('LIST')}
                 onSelectConsultation={(patient, visit) => {
@@ -743,10 +756,40 @@ const ReceptionistDashboard = () => {
             )}
 
             {patientView === 'CONSULTATION' && activePatient && activeVisit && (
-              <PatientConsultationDetails 
+              <PatientConsultationDetails
                 patient={activePatient}
                 visit={activeVisit}
                 onBack={() => setPatientView('DETAILS')}
+              />
+            )}
+          </>
+        ) : activeNav === 'Doctors' ? (
+          <>
+            {doctorView === 'LIST' && (
+              <DoctorList
+                doctors={doctors}
+                onViewDoctor={(doctor) => {
+                  setActiveDoctor(doctor);
+                  setDoctorView('DETAILS');
+                }}
+                onAddNewDoctor={() => setDoctorView('ADD_NEW')}
+              />
+            )}
+
+            {doctorView === 'DETAILS' && activeDoctor && (
+              <DoctorDetails
+                doctor={activeDoctor}
+                onBack={() => setDoctorView('LIST')}
+              />
+            )}
+
+            {doctorView === 'ADD_NEW' && (
+              <AddDoctorFlow
+                onClose={() => setDoctorView('LIST')}
+                onComplete={(newDoc) => {
+                  setDoctors(prev => [...prev, newDoc]);
+                  setDoctorView('LIST');
+                }}
               />
             )}
           </>
@@ -769,9 +812,9 @@ const ReceptionistDashboard = () => {
               <HeaderControls>
                 <SearchBarContainer>
                   <Search size={16} color="#94a3b8" />
-                  <input 
-                    type="text" 
-                    placeholder="Search patients, appointments, invoices..." 
+                  <input
+                    type="text"
+                    placeholder="Search patients, appointments, invoices..."
                   />
                 </SearchBarContainer>
 
@@ -854,9 +897,9 @@ const ReceptionistDashboard = () => {
             <DoctorAvailability />
 
             {/* APPOINTMENTS LOGS */}
-            <TodayAppointments 
-              searchTerm={searchTerm} 
-              setSearchTerm={setSearchTerm} 
+            <TodayAppointments
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
               onReschedule={(patientName) => {
                 setDrawerTitle(`Reschedule Appointment - ${patientName}`);
                 setDrawerType('reschedule');
@@ -873,9 +916,9 @@ const ReceptionistDashboard = () => {
       </MainWorkspace>
 
       {/* REUSABLE GLOBAL RIGHT DRAWER MOUNT */}
-      <RightDrawer 
-        isOpen={drawerOpen} 
-        onClose={() => setDrawerOpen(false)} 
+      <RightDrawer
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
         title={drawerTitle}
       >
         {drawerType === 'new_booking' && (

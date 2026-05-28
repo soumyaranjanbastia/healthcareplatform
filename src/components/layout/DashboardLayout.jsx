@@ -51,14 +51,19 @@ const DashboardLayout = ({ children, activeSidebarLabel, userName, userRole, onN
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default to closed as per user preference
   const { currentUser } = useSelector(state => state.auth);
 
+  const handleNavClick = (label) => {
+    setIsSidebarOpen(false);
+    if (onNavClick) onNavClick(label);
+  };
+
   return (
     <LayoutContainer>
       <Overlay isOpen={isSidebarOpen} onClick={() => setIsSidebarOpen(false)} />
       <Sidebar 
         activeLabel={activeSidebarLabel} 
         isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
-        onNavClick={onNavClick}
+        onClose={() => setIsSidebarOpen(false)}
+        onNavClick={handleNavClick}
       />
       
       <MainContentWrapper>

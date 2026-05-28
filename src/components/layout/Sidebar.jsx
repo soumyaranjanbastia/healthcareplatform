@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LayoutDashboard, Users, Calendar, Activity, Settings, LogOut, X, UserCog } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Activity, Settings, LogOut, X, UserCog, Stethoscope } from 'lucide-react';
 
 const SidebarWrapper = styled.div`
   position: fixed;
@@ -97,6 +97,7 @@ const Sidebar = ({ activeLabel, isOpen = true, onClose, onNavClick }) => {
   const navItems = [
     { label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { label: 'Patients', icon: <Users size={20} /> },
+    { label: 'Doctors', icon: <Stethoscope size={20} /> },
     { label: 'Appointments', icon: <Calendar size={20} /> },
     { label: 'Analytics', icon: <Activity size={20} /> },
     { label: 'Staff', icon: <UserCog size={20} /> },

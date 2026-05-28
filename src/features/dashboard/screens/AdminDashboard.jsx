@@ -11,6 +11,12 @@ import StaffManagement from '../../staff/screens/StaffManagement';
 import PatientList from '../../patients/screens/PatientList';
 import AlertModal from '../../../components/Alertmodal';
 
+// Doctors feature
+import DoctorList from '../../doctors/screens/DoctorList';
+import DoctorDetails from '../../doctors/screens/DoctorDetails';
+import AddDoctorFlow from '../../doctors/screens/AddDoctorFlow';
+import { MOCK_DOCTORS } from '../../doctors/data/mockDoctors';
+
 const ContentWrapper = styled.div`
   max-width: 1440px;
   margin: 0 auto;
@@ -48,6 +54,11 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
+  // Doctors view state
+  const [doctorView, setDoctorView] = useState('LIST'); // 'LIST' | 'DETAILS' | 'ADD_NEW'
+  const [activeDoctor, setActiveDoctor] = useState(null);
+  const [doctors, setDoctors] = useState(MOCK_DOCTORS);
+
   useEffect(() => {
     const companyId = currentUser?.companyId;
     if (companyId) {
@@ -60,12 +71,21 @@ const AdminDashboard = () => {
       setShowSignOutConfirm(true);
     } else {
       setActiveTab(label);
+      if (label === 'Doctors') {
+        setDoctorView('LIST');
+        setActiveDoctor(null);
+      }
     }
   };
 
   const confirmSignOut = () => {
     setShowSignOutConfirm(false);
     dispatch({ type: 'LOGOUT' });
+  };
+
+  const handleDoctorAdded = (newDoctor) => {
+    setDoctors(prev => [newDoctor, ...prev]);
+    setDoctorView('LIST');
   };
 
   const renderContent = () => {
@@ -86,6 +106,35 @@ const AdminDashboard = () => {
           <PatientList 
             onSelectPatient={(patient) => alert(`Selected Patient: ${patient.name}`)}
             onNewBooking={() => alert('New Booking flow coming soon!')}
+          />
+        );
+      case 'Doctors':
+        if (doctorView === 'ADD_NEW') {
+          return (
+            <AddDoctorFlow
+              onClose={() => setDoctorView('LIST')}
+              onComplete={handleDoctorAdded}
+            />
+          );
+        }
+
+        if (doctorView === 'DETAILS' && activeDoctor) {
+          return (
+            <DoctorDetails
+              doctor={activeDoctor}
+              onBack={() => setDoctorView('LIST')}
+            />
+          );
+        }
+
+        return (
+          <DoctorList
+            doctors={doctors}
+            onViewDoctor={(doctor) => {
+              setActiveDoctor(doctor);
+              setDoctorView('DETAILS');
+            }}
+            onAddNewDoctor={() => setDoctorView('ADD_NEW')}
           />
         );
       case 'Appointments':
