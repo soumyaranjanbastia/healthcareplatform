@@ -32,6 +32,11 @@ const ConsultationGrid = styled.div`
   width: 100%;
   max-width: 700px;
   animation: ${scaleUp} 0.3s ease-out;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 `;
 
 const ConsultationCard = styled.div`

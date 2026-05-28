@@ -51,6 +51,13 @@ const MedicalGrid = styled.div`
   .full-width {
     grid-column: span 2;
   }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    .full-width {
+      grid-column: span 1;
+    }
+  }
 `;
 
 const InputGroup = styled.div`

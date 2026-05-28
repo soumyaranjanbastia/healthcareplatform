@@ -158,6 +158,10 @@ const WizardBody = styled.div`
   justify-content: center;
   align-items: center;
   background-color: #ffffff;
+
+  @media (max-width: 768px) {
+    padding: 24px 16px;
+  }
 `;
 
 // FOOTER STYLE
@@ -168,6 +172,10 @@ const WizardFooter = styled.div`
   padding: 20px 40px;
   background-color: #fafbfc;
   border-top: 1px solid #f1f5f9;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 `;
 
 const CancelBtn = styled.button`
@@ -242,7 +250,7 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
   const [isPatientVerified, setIsPatientVerified] = useState(false);
   const [lastConsulted, setLastConsulted] = useState({ doctorName: 'Dr. Anita Sharma', specialty: 'Cardiology' });
   const [currentEncryptionKey, setCurrentEncryptionKey] = useState(null);
-  
+
   // Registration data
   const [personalDetails, setPersonalDetails] = useState({
     fullName: '',
@@ -292,7 +300,7 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
     if (registerPatientState.isSuccess) {
       alert("Patient demographic details registered successfully via API!");
       console.log('Registered Patient Response:', registerPatientState.patientData);
-      
+
       const encKey = registerPatientState.patientData?.encryptionKey || registerPatientState.patientData?.data?.encryptionKey;
       if (encKey) {
         setCurrentEncryptionKey(encKey);
@@ -305,7 +313,7 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
       } else {
         setStep(5);
       }
-      
+
       dispatch(resetRegisterPatientState());
     }
     if (registerPatientState.isError) {
@@ -353,14 +361,14 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
   useEffect(() => {
     if (saveMedicalInfoState.isSuccess) {
       console.log('Medical info saved successfully:', saveMedicalInfoState.data);
-      setStep(5);
+      setStep(isExistingPatient === 'Existing' ? 4 : 5);
       dispatch(resetSaveMedicalInfoState());
     }
     if (saveMedicalInfoState.isError) {
       alert(`Failed to save medical information: ${saveMedicalInfoState.errorMessage}`);
       dispatch(resetSaveMedicalInfoState());
     }
-  }, [saveMedicalInfoState.isSuccess, saveMedicalInfoState.isError, saveMedicalInfoState.errorMessage, dispatch]);
+  }, [saveMedicalInfoState.isSuccess, saveMedicalInfoState.isError, saveMedicalInfoState.errorMessage, dispatch, isExistingPatient]);
 
   const handleSendOtp = () => {
     if (!mobileNumber) {
@@ -393,104 +401,150 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
     }
   };
 
-  const stepNames = [
-    "Registration Type",
-    "Personal Details",
-    "OTP Verification",
-    "Medical Information",
-    "Doctor Selection",
-    "Slot Assignment",
-    "Payment",
-    "Confirmation"
-  ];
+  const stepNames = isExistingPatient === 'Existing'
+    ? [
+      "Registration Type",
+      "Patient Search",
+      "Medical Information",
+      "Doctor Selection",
+      "Slot Assignment",
+      "Payment",
+      "Confirmation"
+    ]
+    : [
+      "Registration Type",
+      "Personal Details",
+      "OTP Verification",
+      "Medical Information",
+      "Doctor Selection",
+      "Slot Assignment",
+      "Payment",
+      "Confirmation"
+    ];
 
   const handleNext = () => {
-    if (step === 1) {
-      if (subStep === 1) {
-        setSubStep(2);
-      } else if (subStep === 2) {
-        if (isExistingPatient === 'New') {
-          // New Patient goes to Step 2: Personal Details
-          setStep(2);
-        } else {
-          setSubStep(3);
-        }
-      } else if (subStep === 3) {
-        if (isExistingPatient === 'Existing') {
-          // Existing Patient successfully found goes STRAIGHT to Step 5: Doctor Selection
-          setStep(5);
-        } else {
+    if (isExistingPatient === 'Existing') {
+      if (step === 1) {
+        if (subStep === 1) {
+          setSubStep(2);
+        } else if (subStep === 2) {
           setStep(2);
         }
+      } else if (step === 2) {
+        setStep(3);
+      } else if (step === 3) {
+        // Step 3 is Medical Information for Existing Patient. Save it to API.
+        const medicalPayload = {
+          symptoms: medicalInfo.symptoms || '',
+          medicalHistory: medicalInfo.medicalHistory || '',
+          existingDiseases: medicalInfo.existingDiseases || '',
+          currentMedication: medicalInfo.currentMedication || '',
+          allergies: medicalInfo.allergies || '',
+          chronicConditions: medicalInfo.chronicConditionsString
+            ? medicalInfo.chronicConditionsString.split(',').map(s => s.trim()).filter(Boolean)
+            : [],
+        };
+        dispatch(saveMedicalInfoRequest(medicalPayload));
+      } else if (step === 4) {
+        setStep(5);
+      } else if (step === 5) {
+        setStep(6);
+      } else if (step === 6) {
+        setStep(7);
       }
-    } else if (step === 2) {
-      if (!personalDetails.fullName || !personalDetails.phone) {
-        alert("Please fill in required fields (Full Name, Phone Number)!");
-        return;
-      }
-      
-      const registrationPayload = {
-        fullName: personalDetails.fullName,
-        address: personalDetails.address,
-        gender: personalDetails.gender,
-        age: personalDetails.age ? Number(personalDetails.age) : 0,
-        phone: personalDetails.phone,
-        emailId: personalDetails.email,
-        registrationOtp: personalDetails.registerWithOtp ? personalDetails.registerWithOtp.toLowerCase() : 'no'
-      };
-      
-      // Dispatch API request to register patient demographic details!
-      dispatch(registerPatientRequest(registrationPayload));
-    } else if (step === 3) {
-      // Step 3 (OTP Verification) goes to Step 4 (Medical Info)
-      setStep(4);
-    } else if (step === 4) {
-      // Step 4 (Medical Info): dispatch save API, navigate on success via useEffect
-      const medicalPayload = {
-        symptoms: medicalInfo.symptoms || '',
-        medicalHistory: medicalInfo.medicalHistory || '',
-        existingDiseases: medicalInfo.existingDiseases || '',
-        currentMedication: medicalInfo.currentMedication || '',
-        allergies: medicalInfo.allergies || '',
-        chronicConditions: medicalInfo.chronicConditionsString
-          ? medicalInfo.chronicConditionsString.split(',').map(s => s.trim()).filter(Boolean)
-          : [],
-      };
-      dispatch(saveMedicalInfoRequest(medicalPayload));
     } else {
-      setStep(prev => Math.min(prev + 1, 8));
+      // New Patient Flow
+      if (step === 1) {
+        if (subStep === 1) {
+          setSubStep(2);
+        } else if (subStep === 2) {
+          setStep(2);
+        }
+      } else if (step === 2) {
+        if (!personalDetails.fullName || !personalDetails.phone) {
+          alert("Please fill in required fields (Full Name, Phone Number)!");
+          return;
+        }
+
+        // [INCOMING CHANGE]: Dispatch API request to register patient demographic details!
+        const registrationPayload = {
+          fullName: personalDetails.fullName,
+          address: personalDetails.address,
+          gender: personalDetails.gender,
+          age: personalDetails.age ? Number(personalDetails.age) : 0,
+          phone: personalDetails.phone,
+          emailId: personalDetails.email,
+          registrationOtp: personalDetails.registerWithOtp ? personalDetails.registerWithOtp.toLowerCase() : 'no'
+        };
+
+        dispatch(registerPatientRequest(registrationPayload));
+      } else if (step === 3) {
+        // Step 3 (OTP Verification) goes to Step 4 (Medical Info)
+        setStep(4);
+      } else if (step === 4) {
+        // [INCOMING CHANGE]: Dispatch Save Medical Info API
+        const medicalPayload = {
+          symptoms: medicalInfo.symptoms || '',
+          medicalHistory: medicalInfo.medicalHistory || '',
+          existingDiseases: medicalInfo.existingDiseases || '',
+          currentMedication: medicalInfo.currentMedication || '',
+          allergies: medicalInfo.allergies || '',
+          chronicConditions: medicalInfo.chronicConditionsString
+            ? medicalInfo.chronicConditionsString.split(',').map(s => s.trim()).filter(Boolean)
+            : [],
+        };
+        dispatch(saveMedicalInfoRequest(medicalPayload));
+      } else {
+        setStep(prev => Math.min(prev + 1, 8));
+      }
     }
   };
 
   const handleBack = () => {
-    if (step === 5) {
-      if (isExistingPatient === 'Existing') {
+    if (isExistingPatient === 'Existing') {
+      if (step === 7) {
+        setStep(6);
+      } else if (step === 6) {
+        setStep(5);
+      } else if (step === 5) {
+        setStep(4);
+      } else if (step === 4) {
+        setStep(3);
+      } else if (step === 3) {
+        setStep(2);
+      } else if (step === 2) {
         setStep(1);
-        setSubStep(3);
-      } else {
+        setSubStep(2);
+      } else if (step === 1) {
+        if (subStep === 2) {
+          setSubStep(1);
+        } else {
+          onClose();
+        }
+      }
+    } else {
+      if (step === 5) {
         if (personalDetails.registerWithOtp === 'Yes') {
           setStep(4);
         } else {
           setStep(2);
         }
-      }
-    } else if (step === 4) {
-      setStep(3);
-    } else if (step === 3) {
-      setStep(2);
-    } else if (step === 2) {
-      setStep(1);
-      setSubStep(2);
-    } else if (step === 1) {
-      if (subStep === 3) {
+      } else if (step === 4) {
+        setStep(3);
+      } else if (step === 3) {
+        setStep(2);
+      } else if (step === 2) {
+        setStep(1);
         setSubStep(2);
-      } else if (subStep === 2) {
-        setSubStep(1);
+      } else if (step === 1) {
+        if (subStep === 2) {
+          setSubStep(1);
+        } else {
+          onClose();
+        }
       } else {
-        onClose();
+        setStep(prev => Math.max(prev - 1, 1));
       }
-    } else {
-      setStep(prev => Math.max(prev - 1, 1));
     }
   };
 
@@ -498,7 +552,7 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
 
   return (
     <Container>
-      
+
       {/* HEADER SECTION */}
       <Header>
         <BackBtn onClick={onClose}>
@@ -506,13 +560,13 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
         </BackBtn>
         <HeaderText>
           <h2>New Booking</h2>
-          <p>Step {step} of 8: {stepNames[step - 1]}</p>
+          <p>Step {step} of {stepNames.length}: {stepNames[step - 1]}</p>
         </HeaderText>
       </Header>
 
       {/* WIZARD CONTAINER */}
       <WizardCard>
-        
+
         {/* STEP PROGRESS BAR */}
         <StepperContainer>
           {stepNames.map((name, i) => {
@@ -536,9 +590,9 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
         {/* STEP BODY */}
         <WizardBody>
 
-          {/* STEP 1: Registration Type & Lookup */}
+          {/* STEP 1: Registration Type */}
           {step === 1 && (
-            <RegistrationTypeStep 
+            <RegistrationTypeStep
               step={step}
               subStep={subStep}
               consultationType={consultationType}
@@ -567,9 +621,40 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
             />
           )}
 
-          {/* STEP 2: Personal Details */}
-          {step === 2 && (
-            <PersonalDetailsStep 
+          {/* STEP 2 for Existing Patient: Patient Search */}
+          {isExistingPatient === 'Existing' && step === 2 && (
+            <RegistrationTypeStep
+              step={1}
+              subStep={3}
+              consultationType={consultationType}
+              setConsultationType={setConsultationType}
+              isExistingPatient={isExistingPatient}
+              setIsExistingPatient={setIsExistingPatient}
+              searchMethod={searchMethod}
+              setSearchMethod={setSearchMethod}
+              caseNumber={caseNumber}
+              setCaseNumber={setCaseNumber}
+              mobileNumber={mobileNumber}
+              setMobileNumber={setMobileNumber}
+              otpSent={otpSent}
+              handleSendOtp={handleSendOtp}
+              otpCode={otpCode}
+              setOtpCode={setOtpCode}
+              handleSearchPatient={handleSearchPatient}
+              onRegisterNew={() => {
+                setIsExistingPatient('New');
+                setStep(2);
+              }}
+              isPatientVerified={isPatientVerified}
+              setIsPatientVerified={setIsPatientVerified}
+              personalDetails={personalDetails}
+              lastConsulted={lastConsulted}
+            />
+          )}
+
+          {/* STEP 2 for New Patient: Personal Details */}
+          {isExistingPatient === 'New' && step === 2 && (
+            <PersonalDetailsStep
               personalDetails={personalDetails}
               setPersonalDetails={setPersonalDetails}
               patientId={tempPatientId}
@@ -577,9 +662,9 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
             />
           )}
 
-          {/* STEP 3: OTP Verification */}
-          {step === 3 && (
-            <OtpVerificationStep 
+          {/* STEP 3 for New Patient: OTP Verification */}
+          {isExistingPatient === 'New' && step === 3 && (
+            <OtpVerificationStep
               phone={personalDetails.phone}
               email={personalDetails.email}
               currentEncryptionKey={currentEncryptionKey}
@@ -590,28 +675,28 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
             />
           )}
 
-          {/* STEP 4: Medical Information */}
-          {step === 4 && (
-            <MedicalInformationStep 
+          {/* STEP 3 (Existing) or 4 (New): Medical Information */}
+          {((isExistingPatient === 'Existing' && step === 3) || (isExistingPatient === 'New' && step === 4)) && (
+            <MedicalInformationStep
               medicalInfo={medicalInfo}
               setMedicalInfo={setMedicalInfo}
-              onSkip={() => setStep(5)}
+              onSkip={() => setStep(isExistingPatient === 'Existing' ? 4 : 5)}
               isLoading={saveMedicalInfoState.isLoading}
             />
           )}
 
-          {/* STEP 5: Doctor Selection */}
-          {step === 5 && (
-            <DoctorSelectionStep 
+          {/* STEP 4 (Existing) or 5 (New): Doctor Selection */}
+          {((isExistingPatient === 'Existing' && step === 4) || (isExistingPatient === 'New' && step === 5)) && (
+            <DoctorSelectionStep
               doctors={MOCK_DOCTORS}
               selectedDoctor={selectedDoctor}
               onSelectDoctor={setSelectedDoctor}
             />
           )}
 
-          {/* STEP 6: Slot Assignment */}
-          {step === 6 && (
-            <SlotAssignmentStep 
+          {/* STEP 5 (Existing) or 6 (New): Slot Assignment */}
+          {((isExistingPatient === 'Existing' && step === 5) || (isExistingPatient === 'New' && step === 6)) && (
+            <SlotAssignmentStep
               selectedDoctor={selectedDoctor}
               bookingDate={bookingDate}
               setBookingDate={setBookingDate}
@@ -620,9 +705,9 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
             />
           )}
 
-          {/* STEP 7: Payment */}
-          {step === 7 && (
-            <PaymentStep 
+          {/* STEP 6 (Existing) or 7 (New): Payment */}
+          {((isExistingPatient === 'Existing' && step === 6) || (isExistingPatient === 'New' && step === 7)) && (
+            <PaymentStep
               selectedDoctor={selectedDoctor}
               paymentMethod={paymentMethod}
               setPaymentMethod={setPaymentMethod}
@@ -630,9 +715,9 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
             />
           )}
 
-          {/* STEP 8: Confirmation Summary */}
-          {step === 8 && (
-            <ConfirmationStep 
+          {/* STEP 7 (Existing) or 8 (New): Confirmation Summary */}
+          {((isExistingPatient === 'Existing' && step === 7) || (isExistingPatient === 'New' && step === 8)) && (
+            <ConfirmationStep
               personalDetails={personalDetails}
               patientId={tempPatientId}
               selectedDoctor={selectedDoctor}
@@ -646,7 +731,7 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
         </WizardBody>
 
         {/* STEP FOOTER */}
-        {step < 8 && (
+        {step < stepNames.length && (
           <WizardFooter>
             <CancelBtn onClick={onClose}>
               Cancel
@@ -658,8 +743,8 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
                   Back
                 </CancelBtn>
               )}
-              
-              <NextBtn 
+
+              <NextBtn
                 onClick={handleNext}
                 disabled={registerPatientState.isLoading || sendOtpState.isLoading || saveMedicalInfoState.isLoading}
               >
