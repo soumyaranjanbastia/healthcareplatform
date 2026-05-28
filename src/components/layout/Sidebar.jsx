@@ -132,7 +132,7 @@ const Sidebar = ({ activeLabel, isOpen = true, onClose, onNavClick }) => {
           <Settings size={20} />
           Settings
         </NavItem>
-        <LogoutItem onClick={() => alert('Signing out...')}>
+        <LogoutItem onClick={() => onNavClick && onNavClick('Logout')}>
           <LogOut size={20} />
           Logout
         </LogoutItem>

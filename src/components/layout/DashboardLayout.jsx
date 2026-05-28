@@ -47,7 +47,7 @@ const Overlay = styled.div`
   transition: all 0.3s ease;
 `;
 
-const DashboardLayout = ({ children, activeSidebarLabel, userName, userRole }) => {
+const DashboardLayout = ({ children, activeSidebarLabel, userName, userRole, onNavClick }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default to closed as per user preference
   const { currentUser } = useSelector(state => state.auth);
 
@@ -58,6 +58,7 @@ const DashboardLayout = ({ children, activeSidebarLabel, userName, userRole }) =
         activeLabel={activeSidebarLabel} 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
+        onNavClick={onNavClick}
       />
       
       <MainContentWrapper>
