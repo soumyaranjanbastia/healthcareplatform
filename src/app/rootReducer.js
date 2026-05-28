@@ -17,13 +17,14 @@ import verifyExistingPatientOtpReducer from "../features/booking/redux/verifyExi
 import dashboardOverviewReducer from "../features/dashboard/redux/dashboardOverviewSlice";
 import sendLoginOtpReducer from "../features/auth/redux/sendLoginOtpSlice";
 import verifyLoginOtpReducer from "../features/auth/redux/verifyLoginOtpSlice";
+import logoutReducer from "../features/auth/redux/logoutSlice";
 import sendDoctorOtpReducer from "../features/doctors/redux/sendDoctorOtpSlice";
 import verifyDoctorOtpReducer from "../features/doctors/redux/verifyDoctorOtpSlice";
 import resendDoctorOtpReducer from "../features/doctors/redux/resendDoctorOtpSlice";
 import registerDoctorFeatureReducer from "../features/doctors/redux/registerDoctorSlice";
 import professionalDetailsReducer from "../features/doctors/redux/professionalDetailsSlice";
 
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
   auth: authReducer,
   staff: dashboardReducer, // Bound as 'staff' to prevent breaking legacy App.jsx selectors
   booking: bookingReducer,
@@ -42,11 +43,21 @@ const rootReducer = combineReducers({
   dashboardOverview: dashboardOverviewReducer,
   sendLoginOtp: sendLoginOtpReducer,
   verifyLoginOtp: verifyLoginOtpReducer,
+  logout: logoutReducer,
   sendDoctorOtp: sendDoctorOtpReducer,
   verifyDoctorOtp: verifyDoctorOtpReducer,
   resendDoctorOtp: resendDoctorOtpReducer,
   registerDoctorFeature: registerDoctorFeatureReducer,
   professionalDetails: professionalDetailsReducer,
 });
+
+const rootReducer = (state, action) => {
+  if (action.type === 'LOGOUT') {
+    // Preserve any state that shouldn't be wiped (e.g. geoData)
+    const { geoData } = state || {};
+    state = geoData ? { geoData } : undefined;
+  }
+  return appReducer(state, action);
+};
 
 export default rootReducer;

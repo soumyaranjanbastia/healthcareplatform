@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { LayoutDashboard, Users, Calendar, Activity, Settings, LogOut, X, UserCog, Stethoscope } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { logoutRequest } from '../../features/auth/redux/logoutSlice';
+import ConfirmModal from '../ConfirmModal';
 
 const SidebarWrapper = styled.div`
   position: fixed;
@@ -93,52 +96,74 @@ const Spacer = styled.div`
   flex: 1;
 `;
 
-const Sidebar = ({ activeLabel, isOpen = true, onClose, onNavClick }) => {
+const Sidebar = ({ activeLabel, isOpen = true, onClose, onNavItemClick }) => {
+  const dispatch = useDispatch();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
   const navItems = [
     { label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-    { label: 'Patients', icon: <Users size={20} /> },
     { label: 'Doctors', icon: <Stethoscope size={20} /> },
+    { label: 'Patients', icon: <Users size={20} /> },
     { label: 'Appointments', icon: <Calendar size={20} /> },
     { label: 'Analytics', icon: <Activity size={20} /> },
     { label: 'Staff', icon: <UserCog size={20} /> },
   ];
 
+  const handleLogoutConfirm = () => {
+    setIsLogoutModalOpen(false);
+    dispatch(logoutRequest());
+  };
+
   return (
-    <SidebarWrapper isOpen={isOpen}>
-      <SidebarContent>
-        <HeaderArea>
-          <LogoSection>
-            <Activity size={24} color="#009688" />
-            HealthAdmin
-          </LogoSection>
-          <CloseButton onClick={onClose}>
-            <X size={20} />
-          </CloseButton>
-        </HeaderArea>
-        
-        {navItems.map(item => (
-          <NavItem 
-            key={item.label} 
-            active={item.label === activeLabel}
-            onClick={() => onNavClick && onNavClick(item.label)}
-          >
-            {item.icon}
-            {item.label}
+    <>
+      <SidebarWrapper isOpen={isOpen}>
+        <SidebarContent>
+          <HeaderArea>
+            <LogoSection>
+              <Activity size={24} color="#009688" />
+              HealthAdmin
+            </LogoSection>
+            <CloseButton onClick={onClose}>
+              <X size={20} />
+            </CloseButton>
+          </HeaderArea>
+
+          {navItems.map(item => (
+            <NavItem
+              key={item.label}
+              active={item.label === activeLabel}
+              onClick={() => {
+                if (onNavItemClick) onNavItemClick(item.label);
+              }}
+            >
+              {item.icon}
+              {item.label}
+            </NavItem>
+          ))}
+
+          <Spacer />
+
+          <NavItem onClick={() => onNavItemClick && onNavItemClick('Settings')}>
+            <Settings size={20} />
+            Settings
           </NavItem>
-        ))}
+          <LogoutItem onClick={() => setIsLogoutModalOpen(true)}>
+            <LogOut size={20} />
+            Logout
+          </LogoutItem>
+        </SidebarContent>
+      </SidebarWrapper>
 
-        <Spacer />
-
-        <NavItem onClick={() => onNavClick && onNavClick('Settings')}>
-          <Settings size={20} />
-          Settings
-        </NavItem>
-        <LogoutItem onClick={() => onNavClick && onNavClick('Logout')}>
-          <LogOut size={20} />
-          Logout
-        </LogoutItem>
-      </SidebarContent>
-    </SidebarWrapper>
+      <ConfirmModal 
+        isOpen={isLogoutModalOpen}
+        title="Logout"
+        message="Are you sure you want to logout?"
+        onConfirm={handleLogoutConfirm}
+        onCancel={() => setIsLogoutModalOpen(false)}
+        confirmText="Yes, Logout"
+        cancelText="Cancel"
+      />
+    </>
   );
 };
 

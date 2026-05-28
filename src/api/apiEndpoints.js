@@ -33,6 +33,7 @@ const API_ENDPOINTS = {
   insertEmailandPhone: 'auth/insertEmailandPhone',
   verifyAuthOtp: 'auth/verify',
   resendAuthOtp: 'auth/resend',
+  logout: 'hospital/logout',
 };
 
 export default API_ENDPOINTS;

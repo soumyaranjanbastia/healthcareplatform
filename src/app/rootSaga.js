@@ -22,6 +22,7 @@ import verifyDoctorOtpSaga from '../features/doctors/redux/verifyDoctorOtpSaga';
 import resendDoctorOtpSaga from '../features/doctors/redux/resendDoctorOtpSaga';
 import watchDoctorRegisterFeatureSaga from '../features/doctors/redux/registerDoctorSaga';
 import professionalDetailsSaga from '../features/doctors/redux/professionalDetailsSaga';
+import { watchLogout } from '../features/auth/redux/logoutSaga';
 
 export default function* rootSaga() {
   yield all([
@@ -48,5 +49,6 @@ export default function* rootSaga() {
     fork(resendDoctorOtpSaga),
     fork(watchDoctorRegisterFeatureSaga),
     fork(professionalDetailsSaga),
+    fork(watchLogout),
   ]);
 }

@@ -8,8 +8,8 @@ import AdminMetrics from '../components/AdminMetrics';
 import AdminCharts from '../components/AdminCharts';
 import AdminDataTable from '../components/AdminDataTable';
 import StaffManagement from '../../staff/screens/StaffManagement';
-import PatientList from '../../patients/screens/PatientList';
-import AlertModal from '../../../components/Alertmodal';
+import PatientManagement from '../../patients/screens/PatientManagement';
+import PatientDetails from '../../patients/screens/PatientDetails';
 
 // Doctors feature
 import DoctorList from '../../doctors/screens/DoctorList';
@@ -51,8 +51,8 @@ const PlaceholderCard = styled.div`
 const AdminDashboard = () => {
   const dispatch = useDispatch();
   const { currentUser } = useSelector(state => state.auth);
-  const [activeTab, setActiveTab] = useState('Dashboard');
-  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+  const [currentView, setCurrentView] = useState('Dashboard');
+  const [selectedPatientId, setSelectedPatientId] = useState(null);
 
   // Doctors view state
   const [doctorView, setDoctorView] = useState('LIST'); // 'LIST' | 'DETAILS' | 'ADD_NEW'
@@ -60,27 +60,32 @@ const AdminDashboard = () => {
   const [doctors, setDoctors] = useState(MOCK_DOCTORS);
 
   useEffect(() => {
-    const companyId = currentUser?.companyId;
-    if (companyId) {
-      dispatch(dashboardOverviewRequest({ companyId }));
-    }
-  }, [dispatch, currentUser]);
-
-  const handleNavClick = (label) => {
-    if (label === 'Logout') {
-      setShowSignOutConfirm(true);
-    } else {
-      setActiveTab(label);
-      if (label === 'Doctors') {
-        setDoctorView('LIST');
-        setActiveDoctor(null);
+    // Only fetch dashboard overview when on the Dashboard view
+    if (currentView === 'Dashboard') {
+      const companyId = currentUser?.companyId;
+      if (companyId) {
+        dispatch(dashboardOverviewRequest({ companyId }));
       }
+    }
+  }, [dispatch, currentUser, currentView]);
+
+  const handleSidebarItemClick = (label) => {
+    setCurrentView(label);
+    if (label === 'Doctors') {
+      setDoctorView('LIST');
+      setActiveDoctor(null);
+    }
+    if (label !== 'Patients') {
+      setSelectedPatientId(null);
     }
   };
 
-  const confirmSignOut = () => {
-    setShowSignOutConfirm(false);
-    dispatch({ type: 'LOGOUT' });
+  const handleViewPatientDetails = (patientId) => {
+    setSelectedPatientId(patientId);
+  };
+
+  const handleBackToPatients = () => {
+    setSelectedPatientId(null);
   };
 
   const handleDoctorAdded = (newDoctor) => {
@@ -89,7 +94,7 @@ const AdminDashboard = () => {
   };
 
   const renderContent = () => {
-    switch (activeTab) {
+    switch (currentView) {
       case 'Dashboard':
         return (
           <ContentWrapper>
@@ -101,13 +106,6 @@ const AdminDashboard = () => {
         );
       case 'Staff':
         return <StaffManagement />;
-      case 'Patients':
-        return (
-          <PatientList 
-            onSelectPatient={(patient) => alert(`Selected Patient: ${patient.name}`)}
-            onNewBooking={() => alert('New Booking flow coming soon!')}
-          />
-        );
       case 'Doctors':
         if (doctorView === 'ADD_NEW') {
           return (
@@ -137,6 +135,11 @@ const AdminDashboard = () => {
             onAddNewDoctor={() => setDoctorView('ADD_NEW')}
           />
         );
+      case 'Patients':
+        if (selectedPatientId) {
+          return <PatientDetails patientId={selectedPatientId} onBack={handleBackToPatients} />;
+        }
+        return <PatientManagement onViewDetails={handleViewPatientDetails} />;
       case 'Appointments':
         return (
           <PlaceholderCard>
@@ -172,20 +175,10 @@ const AdminDashboard = () => {
 
   return (
     <DashboardLayout 
-      activeSidebarLabel={activeTab}
-      onNavClick={handleNavClick}
+      activeSidebarLabel={currentView}
+      onSidebarItemClick={handleSidebarItemClick}
     >
       {renderContent()}
-
-      <AlertModal
-        isOpen={showSignOutConfirm}
-        message="Are you sure you want to sign out of Swastyam connect?"
-        title="Sign Out"
-        confirmText="Yes, Sign Out"
-        cancelText="Cancel"
-        onClose={() => setShowSignOutConfirm(false)}
-        onConfirm={confirmSignOut}
-      />
     </DashboardLayout>
   );
 };

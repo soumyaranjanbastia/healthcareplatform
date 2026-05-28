@@ -47,14 +47,9 @@ const Overlay = styled.div`
   transition: all 0.3s ease;
 `;
 
-const DashboardLayout = ({ children, activeSidebarLabel, userName, userRole, onNavClick }) => {
+const DashboardLayout = ({ children, activeSidebarLabel, onSidebarItemClick }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default to closed as per user preference
   const { currentUser } = useSelector(state => state.auth);
-
-  const handleNavClick = (label) => {
-    setIsSidebarOpen(false);
-    if (onNavClick) onNavClick(label);
-  };
 
   return (
     <LayoutContainer>
@@ -62,15 +57,20 @@ const DashboardLayout = ({ children, activeSidebarLabel, userName, userRole, onN
       <Sidebar 
         activeLabel={activeSidebarLabel} 
         isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)}
-        onNavClick={handleNavClick}
+        onClose={() => setIsSidebarOpen(false)} 
+        onNavItemClick={(label) => {
+          setIsSidebarOpen(false);
+          if (onSidebarItemClick) {
+            onSidebarItemClick(label);
+          }
+        }}
       />
       
       <MainContentWrapper>
         <HeaderWrapper>
           <CommonHeader 
-            userName={currentUser?.fullName || userName || 'User'}
-            userRole={currentUser?.role || userRole || 'Admin'}
+            userName={currentUser?.fullName || 'User'}
+            userRole={currentUser?.role || 'Admin'}
             userEmail={currentUser?.email || 'user@example.com'}
             onMenuClick={() => setIsSidebarOpen(true)}
           />
