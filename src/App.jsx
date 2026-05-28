@@ -48,7 +48,7 @@ const App = () => {
       if (role === 'Admin') return <AdminDashboard />;
       if (role === 'Doctor') return <DoctorDashboard />;
       if (role === 'Finance') return <FinanceDashboard />;
-      
+
       // Default to receptionist front desk
       return <ReceptionistDashboard />;
     }
@@ -59,7 +59,7 @@ const App = () => {
   return (
     <>
       {renderContent()}
-      <AlertModal 
+      <AlertModal
         isOpen={alertInfo.isOpen}
         message={alertInfo.message}
         onClose={() => setAlertInfo({ isOpen: false, message: '' })}

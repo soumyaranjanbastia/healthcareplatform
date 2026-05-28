@@ -208,7 +208,7 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
   return (
     <>
       <form onSubmit={handleContinue}>
-        <WizardCard title="Email & Mobile Verification" icon={<Mail size={20} />}>
+        <WizardCard title="Company Email & Mobile Verification" icon={<Mail size={20} />}>
           <WizardInput 
             label="Email Address" 
             required 
