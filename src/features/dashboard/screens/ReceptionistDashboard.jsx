@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { keyframes } from 'styled-components';
+import DashboardLayout from '../../../components/layout/DashboardLayout';
 import RightDrawer from '../../../components/common/RightDrawer';
 import DoctorAvailability from '../components/DoctorAvailability';
 import TodayAppointments from '../components/TodayAppointments';
@@ -33,14 +34,6 @@ const slideIn = keyframes`
 `;
 
 // --- STYLED COMPONENTS ---
-const DashboardLayout = styled.div`
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-  background-color: #f3f4f6;
-  font-family: 'Outfit', 'Inter', sans-serif;
-  color: #1e293b;
-`;
 
 // SIDEBAR STYLE
 const SidebarContainer = styled.aside`
@@ -693,71 +686,10 @@ const ReceptionistDashboard = () => {
   };
 
   return (
-    <DashboardLayout>
-      <SidebarBackdrop isOpen={isSidebarOpen} onClick={() => setIsSidebarOpen(false)} />
-
-      {/* LEFT COLLAPSIBLE SIDEBAR */}
-      <SidebarContainer isOpen={isSidebarOpen}>
-        <SidebarLogoWrapper>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <HeartLogoSvg />
-            <LogoText>Swastyam connect</LogoText>
-          </div>
-          <CloseSidebarBtn onClick={() => setIsSidebarOpen(false)} aria-label="Close sidebar">
-            <X size={18} />
-          </CloseSidebarBtn>
-        </SidebarLogoWrapper>
-
-        <HospitalTag>
-          <span>Active Hospital</span>
-          <span>{clinicDetails?.name || 'Hospital name'}</span>
-        </HospitalTag>
-
-        <NavList>
-          <NavLink active={activeNav === 'Dashboard'} onClick={() => { setActiveNav('Dashboard'); setIsSidebarOpen(false); }}>
-            <Users size={16} />
-            <span>Dashboard</span>
-          </NavLink>
-          <NavLink active={activeNav === 'Patients'} onClick={() => { setActiveNav('Patients'); setPatientView('LIST'); setIsSidebarOpen(false); }}>
-            <Users size={16} />
-            <span>Patients</span>
-          </NavLink>
-          <NavLink active={activeNav === 'Doctors'} onClick={() => { setActiveNav('Doctors'); setDoctorView('LIST'); setIsSidebarOpen(false); }}>
-            <Stethoscope size={16} />
-            <span>Doctors</span>
-          </NavLink>
-          <NavLink active={activeNav === 'Billing'} onClick={() => { setActiveNav('Billing'); setIsSidebarOpen(false); }}>
-            <Calendar size={16} />
-            <span>Billing & Finance</span>
-          </NavLink>
-          <NavLink active={activeNav === 'Notifications'} onClick={() => { setActiveNav('Notifications'); setIsSidebarOpen(false); }}>
-            <Bell size={16} />
-            <span>Notifications</span>
-          </NavLink>
-          <NavLink active={activeNav === 'Staff'} onClick={() => { setActiveNav('Staff'); setIsSidebarOpen(false); }}>
-            <UserCog size={16} />
-            <span>Staff</span>
-          </NavLink>
-          <NavLink active={activeNav === 'Settings'} onClick={() => { setActiveNav('Settings'); setIsSidebarOpen(false); }}>
-            <Settings size={16} />
-            <span>Settings</span>
-          </NavLink>
-        </NavList>
-
-        <SidebarFooter>
-          <OnlineBadge>
-            <span>System Online</span>
-          </OnlineBadge>
-          <SignOutBtn onClick={() => { setIsSidebarOpen(false); handleSignOut(); }}>
-            <LogOut size={16} />
-            <span>Sign Out</span>
-          </SignOutBtn>
-        </SidebarFooter>
-      </SidebarContainer>
-
-      {/* RIGHT MAIN WORKSPACE */}
-      <MainWorkspace>
-
+    <DashboardLayout 
+      activeSidebarLabel={activeNav} 
+      onSidebarItemClick={setActiveNav}
+    >
         {showBookingFlow ? (
           <NewBookingFlow
             onClose={() => setShowBookingFlow(false)}
@@ -834,42 +766,7 @@ const ReceptionistDashboard = () => {
         ) : activeNav === 'Staff' ? (
           <StaffManagement />
         ) : (
-          <>
-            {/* HEADER */}
-            <HeaderBar>
-              <HeaderTitleWrapper>
-                <MobileMenuBtn onClick={() => setIsSidebarOpen(true)} aria-label="Open menu">
-                  <Menu size={20} />
-                </MobileMenuBtn>
-                <HeaderTitleSection>
-                  <h2>Front Desk Dashboard</h2>
-                  <p>Operational command center for patient management.</p>
-                </HeaderTitleSection>
-              </HeaderTitleWrapper>
-
-              <HeaderControls>
-                <SearchBarContainer>
-                  <Search size={16} color="#94a3b8" />
-                  <input
-                    type="text"
-                    placeholder="Search patients, appointments, invoices..."
-                  />
-                </SearchBarContainer>
-
-                <DropdownSelect>
-                  <span>Clinic 1</span>
-                  <ChevronDown size={14} color="#64748b" />
-                </DropdownSelect>
-
-                <CircularBtn>
-                  <Bell size={18} />
-                  <NotificationBadge />
-                </CircularBtn>
-
-                <UserProfileIcon>U</UserProfileIcon>
-              </HeaderControls>
-            </HeaderBar>
-
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
             {/* QUICK ACTIONS DOCK */}
             <ActionsRow>
               <ActionButton type="calendar" onClick={() => alert('Opening OPD Calendar...')}>
@@ -948,10 +845,8 @@ const ReceptionistDashboard = () => {
 
             {/* FOLLOW-UP COORDINATION QUEUE */}
             <FollowUpQueue />
-          </>
+          </div>
         )}
-
-      </MainWorkspace>
 
       {/* REUSABLE GLOBAL RIGHT DRAWER MOUNT */}
       <RightDrawer
@@ -1043,17 +938,6 @@ const ReceptionistDashboard = () => {
           </DrawerForm>
         )}
       </RightDrawer>
-
-      <AlertModal
-        isOpen={showSignOutConfirm}
-        message="Are you sure you want to sign out of Swastyam connect?"
-        title="Sign Out"
-        confirmText="Yes, Sign Out"
-        cancelText="Cancel"
-        onClose={() => setShowSignOutConfirm(false)}
-        onConfirm={confirmSignOut}
-      />
-
     </DashboardLayout>
   );
 };

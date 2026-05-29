@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { LayoutDashboard, Users, Calendar, Activity, Settings, LogOut, X, UserCog, Stethoscope } from 'lucide-react';
-import { useDispatch } from 'react-redux';
+import { LayoutDashboard, Users, Calendar, Activity, Settings, LogOut, X, UserCog, Stethoscope, Bell } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import { logoutRequest } from '../../features/auth/redux/logoutSlice';
 import ConfirmModal from '../ConfirmModal';
 
@@ -100,14 +100,26 @@ const Sidebar = ({ activeLabel, isOpen = true, onClose, onNavItemClick }) => {
   const dispatch = useDispatch();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
-  const navItems = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-    { label: 'Doctors', icon: <Stethoscope size={20} /> },
-    { label: 'Patients', icon: <Users size={20} /> },
-    { label: 'Appointments', icon: <Calendar size={20} /> },
-    { label: 'Analytics', icon: <Activity size={20} /> },
-    { label: 'Staff', icon: <UserCog size={20} /> },
+  const { currentUser } = useSelector(state => state.sendLoginOtp);
+  const userRole = currentUser?.role || 'Admin';
+
+  const adminNavItems = [
+    { id: 'Dashboard', label: 'Admin Dashboard', icon: <LayoutDashboard size={20} /> },
+    { id: 'Patients', label: 'Patients Management', icon: <Users size={20} /> },
+    { id: 'Doctors', label: 'Doctors Management', icon: <Stethoscope size={20} /> },
+    { id: 'Appointments', label: 'Booking Management', icon: <Calendar size={20} /> },
+    { id: 'Staff', label: 'Staff', icon: <UserCog size={20} /> },
+    { id: 'Analytics', label: 'Analytics', icon: <Activity size={20} /> },
   ];
+
+  const receptionistNavItems = [
+    { id: 'Dashboard', label: 'Receptionist Dashboard', icon: <LayoutDashboard size={20} /> },
+    { id: 'Patients', label: 'Patients Management', icon: <Users size={20} /> },
+    { id: 'Doctors', label: 'Doctors Management', icon: <Stethoscope size={20} /> },
+    { id: 'Appointments', label: 'Booking Management', icon: <Calendar size={20} /> },
+  ];
+
+  const navItems = userRole === 'Receptionist' ? receptionistNavItems : adminNavItems;
 
   const handleLogoutConfirm = () => {
     setIsLogoutModalOpen(false);
@@ -130,10 +142,10 @@ const Sidebar = ({ activeLabel, isOpen = true, onClose, onNavItemClick }) => {
 
           {navItems.map(item => (
             <NavItem
-              key={item.label}
-              active={item.label === activeLabel}
+              key={item.id}
+              active={item.id === activeLabel}
               onClick={() => {
-                if (onNavItemClick) onNavItemClick(item.label);
+                if (onNavItemClick) onNavItemClick(item.id);
               }}
             >
               {item.icon}
@@ -143,10 +155,6 @@ const Sidebar = ({ activeLabel, isOpen = true, onClose, onNavItemClick }) => {
 
           <Spacer />
 
-          <NavItem onClick={() => onNavItemClick && onNavItemClick('Settings')}>
-            <Settings size={20} />
-            Settings
-          </NavItem>
           <LogoutItem onClick={() => setIsLogoutModalOpen(true)}>
             <LogOut size={20} />
             Logout

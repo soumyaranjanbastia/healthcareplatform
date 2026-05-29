@@ -752,7 +752,6 @@ const StaffManagement = () => {
   // Dynamic Statistics
   const totalStaffCount = normalizedStaff.length;
   const adminStaffCount = normalizedStaff.filter(s => s.role === 'Admin').length;
-  const nurseStaffCount = normalizedStaff.filter(s => s.role === 'Nurse').length;
   const receptionistStaffCount = normalizedStaff.filter(s => s.role === 'Receptionist').length;
 
   return (
@@ -783,10 +782,6 @@ const StaffManagement = () => {
           <StatValue>{receptionistStaffCount}</StatValue>
         </StatCard>
         <StatCard>
-          <StatLabel>Nurses</StatLabel>
-          <StatValue>{nurseStaffCount}</StatValue>
-        </StatCard>
-        <StatCard>
           <StatLabel>Admin Staff</StatLabel>
           <StatValue>{adminStaffCount}</StatValue>
         </StatCard>
@@ -809,7 +804,6 @@ const StaffManagement = () => {
             onChange={e => setSelectedRole(e.target.value)}
           >
             <option value="All">All Role</option>
-            <option value="Nurse">Nurse</option>
             <option value="Receptionist">Receptionist</option>
             <option value="Admin">Admin</option>
           </DropdownSelect>

@@ -73,6 +73,11 @@ const DashboardLayout = ({ children, activeSidebarLabel, onSidebarItemClick }) =
             userRole={currentUser?.role || 'Admin'}
             userEmail={currentUser?.email || 'user@example.com'}
             onMenuClick={() => setIsSidebarOpen(true)}
+            onActionClick={(actionId) => {
+              if (onSidebarItemClick) {
+                onSidebarItemClick(actionId);
+              }
+            }}
           />
         </HeaderWrapper>
         <ContentPadding>

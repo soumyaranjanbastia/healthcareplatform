@@ -497,13 +497,24 @@ const EmployeeRegistrationModal = ({ isOpen, onClose }) => {
 
             <FormGroup>
               <Label><Calendar size={14} /> Date of Birth</Label>
-              <InputWrapper>
+              <InputWrapper 
+                onClick={(e) => {
+                  const input = e.currentTarget.querySelector('input');
+                  if (input && input.showPicker) {
+                    try { input.showPicker(); } catch (err) { input.focus(); }
+                  } else if (input) {
+                    input.focus();
+                  }
+                }}
+                style={{ cursor: 'pointer' }}
+              >
                 <Calendar size={14} />
                 <input 
                   type="date" 
                   value={formData.dob}
                   onChange={(e) => handleInputChange('dob', e.target.value)}
                   disabled={createLoading}
+                  style={{ cursor: 'pointer' }}
                 />
               </InputWrapper>
             </FormGroup>

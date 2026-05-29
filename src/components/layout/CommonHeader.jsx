@@ -1,6 +1,36 @@
 import React from 'react';
 import styled from 'styled-components';
-import { User, Menu } from 'lucide-react';
+import { User, Menu, Bell, CreditCard } from 'lucide-react';
+
+const ActionIconBtn = styled.button`
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  margin-right: 12px;
+  position: relative;
+
+  &:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+  }
+`;
+
+const Badge = styled.span`
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+`;
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -99,7 +129,7 @@ const UserEmail = styled.span`
   margin-top: 2px;
 `;
 
-const CommonHeader = ({ userName, userRole, userEmail, onMenuClick }) => {
+const CommonHeader = ({ userName, userRole, userEmail, onMenuClick, onActionClick }) => {
   return (
     <HeaderContainer>
       <HeaderLeft>
@@ -109,6 +139,16 @@ const CommonHeader = ({ userName, userRole, userEmail, onMenuClick }) => {
       </HeaderLeft>
 
       <TopRightSection>
+        {userRole === 'Admin' && (
+          <ActionIconBtn onClick={() => onActionClick && onActionClick('Billing')} title="Earnings">
+            <CreditCard size={20} />
+          </ActionIconBtn>
+        )}
+        <ActionIconBtn onClick={() => onActionClick && onActionClick('Notifications')} title="Notifications">
+          <Bell size={20} />
+          <Badge />
+        </ActionIconBtn>
+
         {userName && (
           <ProfileSection>
             <UserInfo>
