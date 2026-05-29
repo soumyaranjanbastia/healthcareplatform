@@ -104,89 +104,89 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
     switch (step) {
       case 1:
         return (
-          <Step1Verification 
-            onNext={handleNextStep} 
+          <Step1Verification
+            onNext={handleNextStep}
             onPrev={handlePrevStep}
-            data={formData} 
-            updateData={updateFormData} 
+            data={formData}
+            updateData={updateFormData}
           />
         );
       case 2:
         return (
-          <Step2PartnerType 
-            onNext={handleNextStep} 
+          <Step2PartnerType
+            onNext={handleNextStep}
             onPrev={handlePrevStep}
-            data={formData} 
-            updateData={updateFormData} 
+            data={formData}
+            updateData={updateFormData}
           />
         );
       case 3:
         return (
-          <Step3BasicDetails 
-            onNext={handleNextStep} 
+          <Step3BasicDetails
+            onNext={handleNextStep}
             onPrev={handlePrevStep}
-            data={formData} 
-            updateData={updateFormData} 
+            data={formData}
+            updateData={updateFormData}
           />
         );
       case 4:
         return (
-          <Step4BusinessDetails 
-            onNext={handleNextStep} 
-            onPrev={handlePrevStep} 
-            data={formData} 
-            updateData={updateFormData} 
+          <Step4BusinessDetails
+            onNext={handleNextStep}
+            onPrev={handlePrevStep}
+            data={formData}
+            updateData={updateFormData}
           />
         );
       case 5:
         return (
-          <Step5BankDetails 
-            onNext={handleNextStep} 
-            onPrev={handlePrevStep} 
-            data={formData} 
-            updateData={updateFormData} 
+          <Step5BankDetails
+            onNext={handleNextStep}
+            onPrev={handlePrevStep}
+            data={formData}
+            updateData={updateFormData}
           />
         );
       case 6:
         return (
-          <Step6Documents 
-            onNext={handleNextStep} 
-            onPrev={handlePrevStep} 
-            data={formData} 
-            updateData={updateFormData} 
+          <Step6Documents
+            onNext={handleNextStep}
+            onPrev={handlePrevStep}
+            data={formData}
+            updateData={updateFormData}
           />
         );
       case 7:
         return (
-          <Step7ScreenConfig 
-            onNext={handleNextStep} 
-            onPrev={handlePrevStep} 
-            data={formData} 
-            updateData={updateFormData} 
+          <Step7ScreenConfig
+            onNext={handleNextStep}
+            onPrev={handlePrevStep}
+            data={formData}
+            updateData={updateFormData}
           />
         );
       case 8:
         return (
-          <Step8ReviewSubmit 
-            onNext={handleFinish} 
-            onPrev={handlePrevStep} 
-            data={formData} 
+          <Step8ReviewSubmit
+            onNext={handleFinish}
+            onPrev={handlePrevStep}
+            data={formData}
           />
         );
       case 9:
         return (
-          <StepSuccess 
-            onFinish={handleFinish} 
-            data={formData} 
+          <StepSuccess
+            onFinish={handleFinish}
+            data={formData}
           />
         );
       default:
         return (
-          <Step1Verification 
-            onNext={handleNextStep} 
+          <Step1Verification
+            onNext={handleNextStep}
             onPrev={handlePrevStep}
-            data={formData} 
-            updateData={updateFormData} 
+            data={formData}
+            updateData={updateFormData}
           />
         );
     }
@@ -194,9 +194,9 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
 
   return (
     <Container>
-      <WizardHeader 
-        onBack={handlePrevStep} 
-        title="Registration" 
+      <WizardHeader
+        onBack={handlePrevStep}
+        title="Registration"
         subtitle={step === 9 ? "Your profile has been created" : "Complete your profile to get started"}
       />
       {step <= 8 && (

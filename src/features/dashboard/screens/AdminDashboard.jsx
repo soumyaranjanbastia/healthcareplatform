@@ -166,7 +166,7 @@ const Select = styled.select`
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
-  const { currentUser } = useSelector(state => state.auth);
+  const { currentUser } = useSelector(state => state.sendLoginOtp);
   const [currentView, setCurrentView] = useState('Dashboard');
   const [selectedPatientId, setSelectedPatientId] = useState(null);
 

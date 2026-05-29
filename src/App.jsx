@@ -16,7 +16,7 @@ const App = () => {
   const dispatch = useDispatch();
 
   // Select global auth states
-  const { isAuthenticated, currentUser } = useSelector(state => state.auth);
+  const { isAuthenticated, currentUser } = useSelector(state => state.sendLoginOtp);
 
   // Global alert state
   const [alertInfo, setAlertInfo] = useState({ isOpen: false, message: '' });

@@ -1,5 +1,4 @@
 import { combineReducers } from "redux";
-import authReducer from "../features/auth/redux/authReducer";
 import dashboardReducer from "../features/dashboard/redux/dashboardReducer";
 import bookingReducer from "../features/booking/redux/bookingReducer";
 import geoDataReducer from "../features/auth/redux/geoDataSlice";
@@ -28,7 +27,6 @@ import doctorListReducer from "../features/doctors/redux/doctorListSlice";
 import patientManagementReducer from "../features/patients/redux/patientManagementSlice";
 
 const appReducer = combineReducers({
-  auth: authReducer,
   staff: dashboardReducer, // Bound as 'staff' to prevent breaking legacy App.jsx selectors
   booking: bookingReducer,
   geoData: geoDataReducer,

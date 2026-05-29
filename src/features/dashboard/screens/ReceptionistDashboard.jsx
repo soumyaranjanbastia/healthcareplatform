@@ -679,7 +679,7 @@ const ReceptionistDashboard = () => {
   const [selectedPatient, setSelectedPatient] = useState('');
 
   // Dynamic selector
-  const { currentUser, clinicDetails } = useSelector(state => state.auth);
+  const { currentUser, clinicDetails } = useSelector(state => state.sendLoginOtp);
 
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 

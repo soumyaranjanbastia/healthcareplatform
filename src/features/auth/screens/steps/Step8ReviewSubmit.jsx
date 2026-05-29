@@ -156,12 +156,12 @@ const Step8ReviewSubmit = ({ onNext, onPrev, data }) => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    
+
     // Remove sensitive OTP and key fields before submitting/logging
     const { emailKey, phoneKey, emailOtp, phoneOtp, ...sanitizedData } = data;
-    
+
     console.log('Final Registration Payload:', sanitizedData);
-    
+
     // Dispatch the API request instead of calling onNext directly
     dispatch(registerDoctorRequest(sanitizedData));
   };
@@ -247,8 +247,8 @@ const Step8ReviewSubmit = ({ onNext, onPrev, data }) => {
             <ReviewRow>
               <RowLabel>Timings</RowLabel>
               <RowValue>
-                {data.startTime && data.endTime 
-                  ? `${data.startTime} ${data.startAmPm} - ${data.endTime} ${data.endAmPm}` 
+                {data.startTime && data.endTime
+                  ? `${data.startTime} ${data.startAmPm} - ${data.endTime} ${data.endAmPm}`
                   : 'Not provided'}
               </RowValue>
             </ReviewRow>

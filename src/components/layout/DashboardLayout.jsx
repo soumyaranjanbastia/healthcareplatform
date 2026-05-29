@@ -49,7 +49,7 @@ const Overlay = styled.div`
 
 const DashboardLayout = ({ children, activeSidebarLabel, onSidebarItemClick }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default to closed as per user preference
-  const { currentUser } = useSelector(state => state.auth);
+  const { currentUser } = useSelector(state => state.sendLoginOtp);
 
   return (
     <LayoutContainer>
