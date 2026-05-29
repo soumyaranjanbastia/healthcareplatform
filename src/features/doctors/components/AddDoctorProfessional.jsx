@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Plus, Minus } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProfessionRequest } from '../redux/getProfessionSlice';
+import SearchableSelect from '../../auth/components/SearchableSelect';
 
 const FormSection = styled.div`
   display: flex;
@@ -199,6 +202,33 @@ const AddDoctorProfessional = ({
     'Marathi', 'Bengali', 'Gujarati', 'Punjabi', 'Urdu', 'Odia'
   ];
 
+  const dispatch = useDispatch();
+  const { professions, isLoading: isSpecsLoading } = useSelector(state => state.getProfession);
+
+  const [specializationsList, setSpecializationsList] = useState([
+    'Cardiology', 'Neurology', 'Orthopedics', 'Pediatrics'
+  ]);
+
+  useEffect(() => {
+    if (!professions) {
+      dispatch(getProfessionRequest());
+    }
+  }, [dispatch, professions]);
+
+  useEffect(() => {
+    if (professions && professions.success && Array.isArray(professions.services)) {
+      const healthService = professions.services.find(s => s.name === 'health' || s.id === 1);
+      if (healthService && Array.isArray(healthService.specializations)) {
+        setSpecializationsList(healthService.specializations);
+        
+        // If the current specialization state is empty or not in the fetched list, select the first option
+        if (healthService.specializations.length > 0 && !healthService.specializations.includes(specialization)) {
+          setSpecialization(healthService.specializations[0]);
+        }
+      }
+    }
+  }, [professions, specialization, setSpecialization]);
+
   const handleToggleLanguage = (lang) => {
     if (selectedLanguages.includes(lang)) {
       setSelectedLanguages(selectedLanguages.filter(l => l !== lang));
@@ -239,23 +269,36 @@ const AddDoctorProfessional = ({
       <Row>
         <InputGroup>
           <Label>Registration Council*</Label>
-          <Select value={council} onChange={e => setCouncil(e.target.value)}>
-            <option value="">Select Council</option>
-            <option>Medical Council of India</option>
-            <option>Delhi Medical Council</option>
-            <option>Maharashtra Medical Council</option>
-          </Select>
+          <SearchableSelect 
+            value={council} 
+            onChange={e => setCouncil(e.target.value)}
+            placeholder="Select Council"
+            options={[
+              { value: 'Medical Council of India', label: 'Medical Council of India' },
+              { value: 'State Medical Council', label: 'State Medical Council' },
+              { value: 'Dental Council of India', label: 'Dental Council of India' },
+              { value: 'Indian Nursing Council', label: 'Indian Nursing Council' }
+            ]}
+          />
         </InputGroup>
 
         <InputGroup>
           <Label>Highest Qualification*</Label>
-          <Select value={qualification} onChange={e => setQualification(e.target.value)}>
-            <option value="">Select Qualification</option>
-            <option>MD</option>
-            <option>MS</option>
-            <option>MBBS</option>
-            <option>DM</option>
-          </Select>
+          <SearchableSelect 
+            value={qualification} 
+            onChange={e => setQualification(e.target.value)}
+            placeholder="Select Qualification"
+            options={[
+              { value: 'MBBS', label: 'MBBS' },
+              { value: 'MD', label: 'MD' },
+              { value: 'MS', label: 'MS' },
+              { value: 'DNB', label: 'DNB' },
+              { value: 'DM', label: 'DM' },
+              { value: 'MCh', label: 'MCh' },
+              { value: 'BDS', label: 'BDS' },
+              { value: 'MDS', label: 'MDS' }
+            ]}
+          />
         </InputGroup>
       </Row>
 
@@ -272,12 +315,13 @@ const AddDoctorProfessional = ({
 
         <InputGroup>
           <Label>Specialization*</Label>
-          <Select value={specialization} onChange={e => setSpecialization(e.target.value)}>
-            <option>Cardiology</option>
-            <option>Neurology</option>
-            <option>Orthopedics</option>
-            <option>Pediatrics</option>
-          </Select>
+          <SearchableSelect 
+            value={specialization} 
+            onChange={e => setSpecialization(e.target.value)}
+            placeholder={isSpecsLoading ? 'Loading specializations...' : 'Select Specialization'}
+            disabled={isSpecsLoading}
+            options={specializationsList.map(spec => ({ value: spec, label: spec }))}
+          />
         </InputGroup>
       </Row>
 

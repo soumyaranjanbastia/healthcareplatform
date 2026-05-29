@@ -24,6 +24,7 @@ import registerDoctorFeatureReducer from "../features/doctors/redux/registerDoct
 import professionalDetailsReducer from "../features/doctors/redux/professionalDetailsSlice";
 import branchesReducer from "../features/doctors/redux/branchesSlice";
 import doctorListReducer from "../features/doctors/redux/doctorListSlice";
+import getProfessionReducer from "../features/doctors/redux/getProfessionSlice";
 import patientManagementReducer from "../features/patients/redux/patientManagementSlice";
 
 const appReducer = combineReducers({
@@ -52,6 +53,7 @@ const appReducer = combineReducers({
   professionalDetails: professionalDetailsReducer,
   branches: branchesReducer,
   doctorList: doctorListReducer,
+  getProfession: getProfessionReducer,
   patientManagement: patientManagementReducer,
 });
 

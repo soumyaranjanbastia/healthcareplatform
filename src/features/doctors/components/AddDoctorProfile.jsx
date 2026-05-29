@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Camera, Plus } from 'lucide-react';
+import SearchableSelect from '../../auth/components/SearchableSelect';
 
 const FormSection = styled.div`
   display: flex;
@@ -91,6 +92,9 @@ const BigAvatar = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  background-image: ${props => props.image ? `url(${props.image})` : 'none'};
 `;
 
 const CameraBadge = styled.div`
@@ -167,11 +171,86 @@ const AddDoctorProfile = ({
   state, setState,
   city, setCity,
   geoData,
+  profileImage,
+  setProfileImage,
   onContinue
 }) => {
+  const handleAvatarClick = () => {
+    document.getElementById('avatar-file-input').click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const max_width = 400; // max size in px
+          const max_height = 400;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > max_width) {
+              height *= max_width / width;
+              width = max_width;
+            }
+          } else {
+            if (height > max_height) {
+              width *= max_height / height;
+              height = max_height;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // compress to JPEG with 0.7 quality
+          const base64 = canvas.toDataURL('image/jpeg', 0.7);
+          setProfileImage(base64);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleNext = () => {
-    if (!firstName || !profileName || !dob || !country || !state || !city || !altEmail) {
-      alert("Please fill in all required profile details (including Country, State, and City)!");
+    let finalProfileName = profileName;
+    if (!finalProfileName && firstName) {
+      finalProfileName = `${title} ${firstName} ${lastName}`.trim();
+      setProfileName(finalProfileName);
+    }
+
+    if (!firstName) {
+      alert("Please enter First Name!");
+      return;
+    }
+    if (!finalProfileName) {
+      alert("Please enter Profile Name!");
+      return;
+    }
+    if (!dob) {
+      alert("Please enter Date of Birth!");
+      return;
+    }
+    if (!country) {
+      alert("Please select Country!");
+      return;
+    }
+
+    const hasStates = stateOptions.length > 0 && stateOptions.some(opt => opt.value !== '' && opt.value !== 'Select State');
+    const hasCities = cityOptions.length > 0 && cityOptions.some(opt => opt.value !== '' && opt.value !== 'Select City');
+
+    if (hasStates && !state) {
+      alert("Please select State!");
+      return;
+    }
+    if (hasCities && !city) {
+      alert("Please select City!");
       return;
     }
     onContinue();
@@ -199,23 +278,36 @@ const AddDoctorProfile = ({
   return (
     <FormSection>
       <AvatarUploaderWrapper>
-        <BigAvatar onClick={() => alert('Profile photo selector stimulated!')}>
-          <Camera size={28} color="#94a3b8" />
+        <input 
+          type="file" 
+          id="avatar-file-input" 
+          accept="image/*" 
+          style={{ display: 'none' }} 
+          onChange={handleFileChange}
+        />
+        <BigAvatar onClick={handleAvatarClick} image={profileImage}>
+          {!profileImage && <Camera size={28} color="#94a3b8" />}
           <CameraBadge><Plus size={12} /></CameraBadge>
         </BigAvatar>
-        <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Add photo (optional)</span>
+        <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>
+          {profileImage ? 'Change photo' : 'Add photo (optional)'}
+        </span>
       </AvatarUploaderWrapper>
 
       <FormTitle>Complete Your Profile</FormTitle>
 
       <Row>
-        <InputGroup style={{ flex: '0 0 100px' }}>
+        <InputGroup style={{ flex: '0 0 120px' }}>
           <Label>Title</Label>
-          <Select value={title} onChange={e => setTitle(e.target.value)}>
-            <option>Dr.</option>
-            <option>Mr.</option>
-            <option>Mrs.</option>
-          </Select>
+          <SearchableSelect 
+            value={title} 
+            onChange={e => setTitle(e.target.value)}
+            options={[
+              { value: 'Dr.', label: 'Dr.' },
+              { value: 'Mr.', label: 'Mr.' },
+              { value: 'Mrs.', label: 'Mrs.' }
+            ]}
+          />
         </InputGroup>
 
         <InputGroup>
@@ -276,7 +368,7 @@ const AddDoctorProfile = ({
         </InputGroup>
 
         <InputGroup>
-          <Label>Alternative email*</Label>
+          <Label>Alternative email</Label>
           <Input 
             type="email" 
             placeholder="Alternative email" 
@@ -289,32 +381,38 @@ const AddDoctorProfile = ({
       <Row>
         <InputGroup>
           <Label>Country*</Label>
-          <Select value={country} onChange={e => {
-            setCountry(e.target.value);
-            setState('');
-            setCity('');
-          }}>
-            {countryOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-          </Select>
+          <SearchableSelect 
+            value={country} 
+            onChange={e => {
+              setCountry(e.target.value);
+              setState('');
+              setCity('');
+            }}
+            options={countryOptions}
+          />
         </InputGroup>
 
         <InputGroup>
           <Label>State*</Label>
-          <Select value={state} onChange={e => {
-            setState(e.target.value);
-            setCity('');
-          }}>
-            <option value="">Select State</option>
-            {stateOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-          </Select>
+          <SearchableSelect 
+            value={state} 
+            onChange={e => {
+              setState(e.target.value);
+              setCity('');
+            }}
+            placeholder="Select State"
+            options={stateOptions}
+          />
         </InputGroup>
 
         <InputGroup>
           <Label>City*</Label>
-          <Select value={city} onChange={e => setCity(e.target.value)}>
-            <option value="">Select City</option>
-            {cityOptions.map(ct => <option key={ct.value} value={ct.value}>{ct.label}</option>)}
-          </Select>
+          <SearchableSelect 
+            value={city} 
+            onChange={e => setCity(e.target.value)}
+            placeholder="Select City"
+            options={cityOptions}
+          />
         </InputGroup>
       </Row>
 

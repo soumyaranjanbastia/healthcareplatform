@@ -31,6 +31,7 @@ const API_ENDPOINTS = {
   verifyLoginOtp: 'hospital/verify-login-otp',
   professionalDetails: 'auth/addProfessionalDetails',
   insertEmailandPhone: 'auth/insertEmailandPhone',
+  getProfession: 'auth/getProfession',
   verifyAuthOtp: 'auth/verify',
   resendAuthOtp: 'auth/resend',
   logout: 'hospital/logout',

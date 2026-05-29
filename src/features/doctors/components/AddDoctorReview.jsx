@@ -200,7 +200,8 @@ const AddDoctorReview = ({ formData, onSubmit, isLoading = false, error = null }
     accNumber = '',
     bankName = '',
     ifscCode = '',
-    panNumber = ''
+    panNumber = '',
+    phonePrefix = '+91'
   } = formData;
 
   return (
@@ -230,7 +231,7 @@ const AddDoctorReview = ({ formData, onSubmit, isLoading = false, error = null }
                 </DetailRow>
                 <DetailRow>
                   <DetailLabel>Phone</DetailLabel>
-                  <DetailValue>+91 {phone}</DetailValue>
+                  <DetailValue>{phonePrefix} {phone}</DetailValue>
                 </DetailRow>
                 <DetailRow>
                   <DetailLabel>Gender</DetailLabel>

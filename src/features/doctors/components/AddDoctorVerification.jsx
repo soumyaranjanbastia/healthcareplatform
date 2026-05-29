@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { keyframes } from 'styled-components';
 import { sendDoctorOtpRequest, resetSendDoctorOtpState } from '../redux/sendDoctorOtpSlice';
+import SearchableSelect from '../../auth/components/SearchableSelect';
 
 const spin = keyframes`
   from { transform: rotate(0deg); }
@@ -128,17 +129,66 @@ const FootNote = styled.p`
   margin: 0;
 `;
 
-const AddDoctorVerification = ({ email, setEmail, phone, setPhone, onContinue, onOtpKeyReceived }) => {
+const AddDoctorVerification = ({ email, setEmail, phone, setPhone, phonePrefix, setPhonePrefix, geoData, onContinue, onOtpKeyReceived }) => {
   const dispatch = useDispatch();
   const { isLoading, isSuccess, isError, errorMessage, data } = useSelector(state => state.sendDoctorOtp);
+
+  const getPhoneLimit = () => {
+    if (geoData && Array.isArray(geoData)) {
+      const countryObj = geoData.find(c => {
+        let code = c.dialCode || c.phoneCode || c.phonePrefix || c.prefix || c.code || '+91';
+        let strCode = String(code).trim();
+        if (!strCode.startsWith('+')) strCode = '+' + strCode;
+        return strCode === phonePrefix;
+      });
+      if (countryObj && countryObj.digits) {
+        return Number(countryObj.digits) || 10;
+      }
+    }
+    return 10;
+  };
 
   const handleNext = () => {
     if (!email || !phone) {
       alert("Please enter both Email and Mobile Number!");
       return;
     }
-    dispatch(sendDoctorOtpRequest({ email, phone }));
+    const phoneLimit = getPhoneLimit();
+    if (phone.length !== phoneLimit) {
+      alert(`Phone number must be exactly ${phoneLimit} digits.`);
+      return;
+    }
+    dispatch(sendDoctorOtpRequest({ email, phone: `${phonePrefix}${phone}` }));
   };
+
+  // Derive prefix options dynamically from geoData
+  let prefixOptions = [];
+
+  if (geoData && Array.isArray(geoData)) {
+    const rawOptions = geoData.map((c) => {
+      let code = c.dialCode || c.phoneCode || c.phonePrefix || c.prefix || c.code || '+91';
+      let strCode = String(code).trim();
+      if (!strCode.startsWith('+')) {
+        strCode = '+' + strCode;
+      }
+      return { value: strCode, label: strCode };
+    });
+
+    // Deduplicate options by prefix value
+    const seen = new Set();
+    prefixOptions = rawOptions.filter(opt => {
+      const isDuplicate = seen.has(opt.value);
+      seen.add(opt.value);
+      return !isDuplicate;
+    });
+
+    // Make sure +91 is always an option
+    if (!seen.has('+91')) {
+      prefixOptions.unshift({ value: '+91', label: '+91' });
+    }
+  } else {
+    prefixOptions = [{ value: '+91', label: '+91' }];
+  }
 
   useEffect(() => {
     if (isSuccess && data) {
@@ -178,16 +228,19 @@ const AddDoctorVerification = ({ email, setEmail, phone, setPhone, onContinue, o
       <InputGroup>
         <Label>Mobile Number</Label>
         <PhoneInputContainer>
-          <CountryCode>
-            <option>+91</option>
-            <option>+1</option>
-            <option>+44</option>
-          </CountryCode>
+          <div style={{ width: '120px' }}>
+            <SearchableSelect 
+              value={phonePrefix} 
+              onChange={e => setPhonePrefix(e.target.value)} 
+              options={prefixOptions}
+            />
+          </div>
           <Input 
             type="text" 
-            placeholder="Enter 10-digit number" 
+            placeholder="Enter number" 
             value={phone}
-            onChange={e => setPhone(e.target.value)}
+            maxLength={getPhoneLimit()}
+            onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
           />
         </PhoneInputContainer>
       </InputGroup>

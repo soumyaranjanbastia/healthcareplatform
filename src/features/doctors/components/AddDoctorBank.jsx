@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 const FormSection = styled.div`
   display: flex;
@@ -65,6 +65,30 @@ const Row = styled.div`
   flex-wrap: wrap;
 `;
 
+const PasswordWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const EyeButton = styled.button`
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
+  &:hover {
+    color: #009688;
+  }
+`;
+
 const SecureBadge = styled.div`
   display: flex;
   align-items: center;
@@ -111,23 +135,22 @@ const AddDoctorBank = ({
   panNumber, setPanNumber,
   onContinue
 }) => {
-  // Premium auto-fill based on IFSC code
+  const [showAccNumber, setShowAccNumber] = useState(false);
+  // Auto-fill suggestion based on IFSC code if field is empty or holding default placeholder
   useEffect(() => {
     const code = ifscCode.toUpperCase().trim();
-    if (code.startsWith('SBIN')) {
-      setBankName('State Bank of India');
-    } else if (code.startsWith('HDFC')) {
-      setBankName('HDFC Bank');
-    } else if (code.startsWith('ICIC')) {
-      setBankName('ICICI Bank');
-    } else if (code.startsWith('BARB')) {
-      setBankName('Bank of Baroda');
-    } else if (code.startsWith('PUNB')) {
-      setBankName('Punjab National Bank');
-    } else if (code.length >= 4 && bankName === 'Auto-filled from IFSC') {
-      setBankName('Cooperative/Commercial Bank');
-    } else if (code.length === 0) {
-      setBankName('Auto-filled from IFSC');
+    if (!bankName || bankName === 'Auto-filled from IFSC') {
+      if (code.startsWith('SBIN')) {
+        setBankName('State Bank of India');
+      } else if (code.startsWith('HDFC')) {
+        setBankName('HDFC Bank');
+      } else if (code.startsWith('ICIC')) {
+        setBankName('ICICI Bank');
+      } else if (code.startsWith('BARB')) {
+        setBankName('Bank of Baroda');
+      } else if (code.startsWith('PUNB')) {
+        setBankName('Punjab National Bank');
+      }
     }
   }, [ifscCode]);
 
@@ -163,12 +186,21 @@ const AddDoctorBank = ({
       <Row>
         <InputGroup>
           <Label>Account Number*</Label>
-          <Input 
-            type="password" 
-            placeholder="1234 5678 9012 3456" 
-            value={accNumber}
-            onChange={e => setAccNumber(e.target.value)}
-          />
+          <PasswordWrapper>
+            <Input 
+              type={showAccNumber ? "text" : "password"} 
+              placeholder="1234 5678 9012 3456" 
+              value={accNumber}
+              onChange={e => setAccNumber(e.target.value.replace(/\D/g, ''))}
+              style={{ paddingRight: '42px' }}
+            />
+            <EyeButton 
+              type="button" 
+              onClick={() => setShowAccNumber(!showAccNumber)}
+            >
+              {showAccNumber ? <EyeOff size={18} /> : <Eye size={18} />}
+            </EyeButton>
+          </PasswordWrapper>
         </InputGroup>
 
         <InputGroup>
@@ -177,7 +209,7 @@ const AddDoctorBank = ({
             type="text" 
             placeholder="Re-enter account number" 
             value={confirmAccNumber}
-            onChange={e => setConfirmAccNumber(e.target.value)}
+            onChange={e => setConfirmAccNumber(e.target.value.replace(/\D/g, ''))}
           />
         </InputGroup>
       </Row>
@@ -197,10 +229,9 @@ const AddDoctorBank = ({
           <Label>Bank Name*</Label>
           <Input 
             type="text" 
-            placeholder="Auto-filled from IFSC" 
-            value={bankName}
-            readOnly
-            style={{ backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }}
+            placeholder="Enter bank name" 
+            value={bankName === 'Auto-filled from IFSC' ? '' : bankName}
+            onChange={e => setBankName(e.target.value)}
           />
         </InputGroup>
       </Row>

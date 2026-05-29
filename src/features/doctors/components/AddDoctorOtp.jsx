@@ -150,7 +150,7 @@ const Spinner = styled.div`
   animation: ${spin} 0.6s linear infinite;
 `;
 
-const AddDoctorOtp = ({ email, phone, emailCode, setEmailCode, phoneCode, setPhoneCode, onContinue, otpKeys }) => {
+const AddDoctorOtp = ({ email, phone, phonePrefix = '+91', emailCode, setEmailCode, phoneCode, setPhoneCode, onContinue, otpKeys }) => {
   const dispatch = useDispatch();
   const verifyState = useSelector(state => state.verifyDoctorOtp);
   const resendState = useSelector(state => state.resendDoctorOtp);
@@ -201,10 +201,10 @@ const AddDoctorOtp = ({ email, phone, emailCode, setEmailCode, phoneCode, setPho
 
   const handleResend = useCallback(() => {
     if (!canResend) return;
-    dispatch(resendDoctorOtpRequest({ email, phone }));
+    dispatch(resendDoctorOtpRequest({ email, phone: `${phonePrefix}${phone}` }));
     setTimer(60);
     setCanResend(false);
-  }, [canResend, email, phone]);
+  }, [canResend, email, phonePrefix, phone]);
 
   // On verify success
   useEffect(() => {
@@ -257,7 +257,7 @@ const AddDoctorOtp = ({ email, phone, emailCode, setEmailCode, phoneCode, setPho
           {!isEmailVerified ? 'Enter verification code sent to' : 'Email verified! Enter phone verification code sent to'}
         </span>
         <span style={{ fontSize: 13, color: '#64748b', fontWeight: 700 }}>
-          {!isEmailVerified ? email : `+91 ${phone}`}
+          {!isEmailVerified ? email : `${phonePrefix} ${phone}`}
         </span>
       </VerificationBox>
 
@@ -267,7 +267,8 @@ const AddDoctorOtp = ({ email, phone, emailCode, setEmailCode, phoneCode, setPho
           type="text" 
           placeholder="Enter 6-digit code" 
           value={emailCode}
-          onChange={e => setEmailCode(e.target.value)}
+          maxLength={6}
+          onChange={e => setEmailCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
           disabled={isEmailVerified || verifyState.isLoading}
         />
         {!isEmailVerified && (
@@ -289,7 +290,8 @@ const AddDoctorOtp = ({ email, phone, emailCode, setEmailCode, phoneCode, setPho
             type="text" 
             placeholder="Enter 6-digit code" 
             value={phoneCode}
-            onChange={e => setPhoneCode(e.target.value)}
+            maxLength={6}
+            onChange={e => setPhoneCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
             disabled={verifyState.isLoading}
           />
           <TimerRow>

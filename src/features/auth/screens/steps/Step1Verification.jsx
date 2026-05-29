@@ -169,6 +169,7 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
 
   const handleSendOtp = () => {
     if (!email || !phone) return alert('Please enter both Email and Phone.');
+    if (phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
     if (otpSent) {
       dispatch(resendHospitalOtpRequest({ email, phone }));
     } else {
@@ -179,6 +180,7 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
   const handleContinue = (e) => {
     e.preventDefault();
     if (!email || !phone) return alert('Please complete email and phone fields.');
+    if (phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
     if (!agreed) return alert('Please agree to the Terms of Service & Privacy Policy.');
     if (!otpSent) return alert('Please click "Send OTP" to receive and enter verification codes.');
     if (!emailOtp || !phoneOtp) return alert('Please enter the OTP codes.');

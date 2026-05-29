@@ -63,7 +63,10 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
+  width: 100%;
 `;
+
+
 
 const BackBtn = styled.button`
   background: none;
@@ -165,6 +168,7 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
   // STEP 1 & 2: VERIFICATION
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [phonePrefix, setPhonePrefix] = useState('');
   const [emailCode, setEmailCode] = useState('');
   const [phoneCode, setPhoneCode] = useState('');
 
@@ -179,6 +183,7 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
   const [country, setCountry] = useState('India');
   const [state, setState] = useState('Maharashtra');
   const [city, setCity] = useState('');
+  const [profileImage, setProfileImage] = useState(null);
 
   // STEP 4: PROFESSIONAL
   const [regNo, setRegNo] = useState('');
@@ -200,7 +205,7 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
   const [accNumber, setAccNumber] = useState('');
   const [confirmAccNumber, setConfirmAccNumber] = useState('');
   const [ifscCode, setIfscCode] = useState('');
-  const [bankName, setBankName] = useState('Auto-filled from IFSC');
+  const [bankName, setBankName] = useState('');
   const [panNumber, setPanNumber] = useState('');
 
   // Fetch geo data on mount
@@ -209,6 +214,19 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
       dispatch(getGeoDataRequest());
     }
   }, [dispatch, geoData]);
+
+  // Set default prefix once geoData is loaded if not already selected
+  useEffect(() => {
+    if (geoData && Array.isArray(geoData) && !phonePrefix) {
+      const india = geoData.find(c => c.name === 'India');
+      if (india) {
+        const code = india.dialCode || india.phoneCode || india.phonePrefix || india.prefix || india.code || '+91';
+        let strCode = String(code).trim();
+        if (!strCode.startsWith('+')) strCode = '+' + strCode;
+        setPhonePrefix(strCode);
+      }
+    }
+  }, [geoData, phonePrefix]);
 
   // Monitor professional details success/error for step transitions & final submission
   useEffect(() => {
@@ -225,12 +243,12 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
           specialization: degree || 'Interventional Cardiology',
           experience: experience,
           shift: 'Morning (9:00 AM - 4:00 PM)',
-          phone: `+91 ${phone}`,
+          phone: `${phonePrefix} ${phone}`,
           email: email,
           dob: dob,
           address: fullLocation,
           joinDate: new Date().toISOString().split('T')[0],
-          avatar: `${firstName[0]}${lastName ? lastName[0] : ''}`.toUpperCase(),
+          avatar: profileImage || `${firstName[0]}${lastName ? lastName[0] : ''}`.toUpperCase(),
           status: 'Active',
           aadhaar: 'XXXX-XXXX-9988',
           pan: panNumber.toUpperCase(),
@@ -289,8 +307,8 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
     if (currentStepNumber === 3) {
       payload.BasicInfo = {
         email,
-        phone,
-        profileImage: null,
+        phone: `${phonePrefix}${phone}`,
+        profileImage: profileImage,
         salutation: title,
         profileName: profileName || `${title} ${firstName} ${lastName}`.trim(),
         fullName: `${firstName} ${lastName}`.trim(),
@@ -347,8 +365,8 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
       registrationType: 'provider',
       BasicInfo: {
         email,
-        phone,
-        profileImage: null,
+        phone: `${phonePrefix}${phone}`,
+        profileImage: profileImage,
         salutation: title,
         profileName: profileName || `${title} ${firstName} ${lastName}`.trim(),
         fullName: `${firstName} ${lastName}`.trim(),
@@ -389,7 +407,7 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
     title, firstName, lastName, email, phone, gender, dob, location: fullLocation, altEmail,
     regNo, council, qualification, degree, specialization, experience,
     selectedLanguages, conditionsList, about,
-    accHolderName, accNumber, bankName, ifscCode, panNumber
+    accHolderName, accNumber, bankName, ifscCode, panNumber, phonePrefix // Include phonePrefix in review data
   };
 
   return (
@@ -439,6 +457,9 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
             setEmail={setEmail} 
             phone={phone} 
             setPhone={setPhone} 
+            phonePrefix={phonePrefix}
+            setPhonePrefix={setPhonePrefix}
+            geoData={geoData}
             onContinue={handleContinue}
             onOtpKeyReceived={handleOtpKeyReceived}
           />
@@ -448,6 +469,7 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
           <AddDoctorOtp 
             email={email} 
             phone={phone} 
+            phonePrefix={phonePrefix}
             emailCode={emailCode} 
             setEmailCode={setEmailCode} 
             phoneCode={phoneCode} 
@@ -470,6 +492,8 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
             state={state} setState={setState}
             city={city} setCity={setCity}
             geoData={geoData}
+            profileImage={profileImage}
+            setProfileImage={setProfileImage}
             onContinue={() => handleStepSubmit(3)}
           />
         )}
