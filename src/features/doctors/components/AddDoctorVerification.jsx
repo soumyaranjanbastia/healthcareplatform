@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { keyframes } from 'styled-components';
 import { sendDoctorOtpRequest, resetSendDoctorOtpState } from '../redux/sendDoctorOtpSlice';
@@ -129,8 +129,17 @@ const FootNote = styled.p`
   margin: 0;
 `;
 
+const ErrorText = styled.span`
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+`;
+
 const AddDoctorVerification = ({ email, setEmail, phone, setPhone, phonePrefix, setPhonePrefix, geoData, onContinue, onOtpKeyReceived }) => {
   const dispatch = useDispatch();
+  const [errors, setErrors] = useState({});
   const { isLoading, isSuccess, isError, errorMessage, data } = useSelector(state => state.sendDoctorOtp);
 
   const getPhoneLimit = () => {
@@ -149,15 +158,26 @@ const AddDoctorVerification = ({ email, setEmail, phone, setPhone, phonePrefix, 
   };
 
   const handleNext = () => {
-    if (!email || !phone) {
-      alert("Please enter both Email and Mobile Number!");
-      return;
+    const newErrors = {};
+    if (!email) {
+      newErrors.email = 'Email Address is required.';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) newErrors.email = 'Please enter a valid Email Address.';
     }
+
     const phoneLimit = getPhoneLimit();
-    if (phone.length !== phoneLimit) {
-      alert(`Phone number must be exactly ${phoneLimit} digits.`);
+    if (!phone) {
+      newErrors.phone = 'Mobile Number is required.';
+    } else if (phone.length !== phoneLimit) {
+      newErrors.phone = `Phone number must be exactly ${phoneLimit} digits.`;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+    setErrors({});
     dispatch(sendDoctorOtpRequest({ email, phone: `${phonePrefix}${phone}` }));
   };
 
@@ -222,7 +242,9 @@ const AddDoctorVerification = ({ email, setEmail, phone, setPhone, phonePrefix, 
           placeholder="Abc@example.com" 
           value={email}
           onChange={e => setEmail(e.target.value)}
+          style={errors.email ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
         />
+        {errors.email && <ErrorText>{errors.email}</ErrorText>}
       </InputGroup>
 
       <InputGroup>
@@ -241,8 +263,10 @@ const AddDoctorVerification = ({ email, setEmail, phone, setPhone, phonePrefix, 
             value={phone}
             maxLength={getPhoneLimit()}
             onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
+            style={errors.phone ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
           />
         </PhoneInputContainer>
+        {errors.phone && <ErrorText>{errors.phone}</ErrorText>}
       </InputGroup>
 
       {isError && (

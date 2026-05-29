@@ -136,6 +136,13 @@ const ModalText = styled.p`
   margin-bottom: 30px;
 `;
 
+const ModalButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 24px;
+`;
+
 const ErrorText = styled.div`
   color: #ef4444;
   font-size: 13px;
@@ -185,9 +192,11 @@ const Step8ReviewSubmit = ({ onNext, onPrev, data }) => {
             <ModalText>
               Your account has been created successfully. Welcome to Swastyam Connect!
             </ModalText>
-            <WizardButton type="button" onClick={handleGoToDashboard} style={{ width: '100%', justifyContent: 'center' }}>
-              Go to Dashboard <ArrowRight size={16} />
-            </WizardButton>
+            <ModalButtonWrapper>
+              <WizardButton type="button" onClick={handleGoToDashboard} style={{ width: '100%', justifyContent: 'center' }}>
+                Go to Dashboard <ArrowRight size={16} />
+              </WizardButton>
+            </ModalButtonWrapper>
           </ModalContent>
         </ModalOverlay>
       )}

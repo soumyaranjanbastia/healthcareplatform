@@ -311,19 +311,19 @@ const PatientManagement = ({ onViewDetails }) => {
       <MetricsGrid>
         <MetricCard>
           <MetricLabel>Total Patients</MetricLabel>
-          <MetricValue>2,847</MetricValue>
+          <MetricValue>N/A</MetricValue>
         </MetricCard>
         <MetricCard>
           <MetricLabel>Active Today</MetricLabel>
-          <MetricValue>64</MetricValue>
+          <MetricValue>N/A</MetricValue>
         </MetricCard>
         <MetricCard>
           <MetricLabel>New This Month</MetricLabel>
-          <MetricValue>142</MetricValue>
+          <MetricValue>N/A</MetricValue>
         </MetricCard>
         <MetricCard>
           <MetricLabel>Critical Cases</MetricLabel>
-          <MetricValue>8</MetricValue>
+          <MetricValue>N/A</MetricValue>
         </MetricCard>
       </MetricsGrid>
 

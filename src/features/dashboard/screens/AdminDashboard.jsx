@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { X } from 'lucide-react';
+import { X, Bell, CreditCard } from 'lucide-react';
 import { dashboardOverviewRequest } from '../redux/dashboardOverviewSlice';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import AdminHeader from '../components/AdminHeader';
@@ -11,6 +11,7 @@ import AdminDataTable from '../components/AdminDataTable';
 import StaffManagement from '../../staff/screens/StaffManagement';
 import PatientManagement from '../../patients/screens/PatientManagement';
 import PatientDetails from '../../patients/screens/PatientDetails';
+import ComingSoon from '../../../components/common/ComingSoon';
 
 // Doctors feature
 import DoctorList from '../../doctors/screens/DoctorList';
@@ -385,24 +386,55 @@ const AdminDashboard = () => {
         return <PatientManagement onViewDetails={handleViewPatientDetails} />;
       case 'Appointments':
         return (
-          <PlaceholderCard>
-            <h3>Appointments Calendar</h3>
-            <p>Operational hospital calendar schedule interface coming soon.</p>
-          </PlaceholderCard>
+          <ComingSoon 
+            badgeText="Appointments" 
+            title="Hospital Appointments Calendar" 
+            gradientSpan="Coming Soon" 
+            description="We are currently building a modular scheduling interface. You'll be able to view, update, and manage doctor bookings in a centralized calendar workspace."
+            onNotifySuccess={() => setCurrentView('Dashboard')}
+          />
         );
       case 'Analytics':
         return (
-          <ContentWrapper>
-            <AdminHeader />
-            <AdminCharts />
-          </ContentWrapper>
+          <ComingSoon 
+            badgeText="Analytics" 
+            title="Central Analytics & Operations Metrics" 
+            gradientSpan="Under Construction" 
+            description="A complete operations analytics panel displaying real-time clinical logs, staff distribution, and custom report builders is currently under development."
+            onNotifySuccess={() => setCurrentView('Dashboard')}
+          />
         );
       case 'Settings':
         return (
-          <PlaceholderCard>
-            <h3>Admin System Settings</h3>
-            <p>Configure hospital details, roles, permissions, and audit logs.</p>
-          </PlaceholderCard>
+          <ComingSoon 
+            badgeText="Settings" 
+            title="Admin System Settings & Audit Logs" 
+            gradientSpan="Under Development" 
+            description="Configure hospital details, roles, permissions, operational bounds, and track clinical auditing summaries. This panel will go live in the upcoming iteration."
+            onNotifySuccess={() => setCurrentView('Dashboard')}
+          />
+        );
+      case 'Notifications':
+        return (
+          <ComingSoon 
+            badgeText="Notifications" 
+            title="Real-Time Alerts & Notification Center" 
+            gradientSpan="Coming Soon" 
+            description="We are building a robust live messaging and clinical notifications hub. Register your email below to get early updates!"
+            icon={<Bell size={30} />}
+            onNotifySuccess={() => setCurrentView('Dashboard')}
+          />
+        );
+      case 'Billing':
+        return (
+          <ComingSoon 
+            badgeText="Earnings & Finance" 
+            title="Hospital Revenue & Earnings Panels" 
+            gradientSpan="Under Development" 
+            description="A complete financial panel displaying real-time patient fee earnings, transaction summaries, and digital payouts is currently under construction."
+            icon={<CreditCard size={30} />}
+            onNotifySuccess={() => setCurrentView('Dashboard')}
+          />
         );
       default:
         return (

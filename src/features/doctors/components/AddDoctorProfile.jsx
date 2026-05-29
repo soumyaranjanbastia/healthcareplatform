@@ -159,6 +159,14 @@ const ContinueBtn = styled.button`
   }
 `;
 
+const ErrorText = styled.span`
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+`;
+
 const AddDoctorProfile = ({
   title, setTitle,
   firstName, setFirstName,
@@ -175,6 +183,7 @@ const AddDoctorProfile = ({
   setProfileImage,
   onContinue
 }) => {
+  const [errors, setErrors] = useState({});
   const handleAvatarClick = () => {
     document.getElementById('avatar-file-input').click();
   };
@@ -225,34 +234,63 @@ const AddDoctorProfile = ({
       setProfileName(finalProfileName);
     }
 
+    const newErrors = {};
+
     if (!firstName) {
-      alert("Please enter First Name!");
-      return;
+      newErrors.firstName = 'First Name is required.';
+    } else {
+      const nameRegex = /^[a-zA-Z\s]+$/;
+      if (!nameRegex.test(firstName)) {
+        newErrors.firstName = 'First Name must only contain letters.';
+      }
     }
+
+    if (lastName) {
+      const nameRegex = /^[a-zA-Z\s]+$/;
+      if (!nameRegex.test(lastName)) {
+        newErrors.lastName = 'Last Name must only contain letters.';
+      }
+    }
+
     if (!finalProfileName) {
-      alert("Please enter Profile Name!");
-      return;
+      newErrors.profileName = 'Profile Name is required.';
+    } else {
+      const profileRegex = /^[a-zA-Z0-9\s]+$/;
+      if (!profileRegex.test(finalProfileName)) {
+        newErrors.profileName = 'Profile Name must only contain letters and numbers.';
+      }
     }
+
+    if (altEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(altEmail)) {
+        newErrors.altEmail = 'Please enter a valid Alternative Email Address.';
+      }
+    }
+
     if (!dob) {
-      alert("Please enter Date of Birth!");
-      return;
+      newErrors.dob = 'Date of Birth is required.';
     }
+
     if (!country) {
-      alert("Please select Country!");
-      return;
+      newErrors.country = 'Country is required.';
     }
 
     const hasStates = stateOptions.length > 0 && stateOptions.some(opt => opt.value !== '' && opt.value !== 'Select State');
     const hasCities = cityOptions.length > 0 && cityOptions.some(opt => opt.value !== '' && opt.value !== 'Select City');
 
     if (hasStates && !state) {
-      alert("Please select State!");
-      return;
+      newErrors.state = 'State is required.';
     }
     if (hasCities && !city) {
-      alert("Please select City!");
+      newErrors.city = 'City is required.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+    setErrors({});
     onContinue();
   };
 
@@ -316,8 +354,10 @@ const AddDoctorProfile = ({
             type="text" 
             placeholder="First Name" 
             value={firstName}
-            onChange={e => setFirstName(e.target.value)}
+            onChange={e => setFirstName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
+            style={errors.firstName ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
           />
+          {errors.firstName && <ErrorText>{errors.firstName}</ErrorText>}
         </InputGroup>
 
         <InputGroup>
@@ -326,8 +366,10 @@ const AddDoctorProfile = ({
             type="text" 
             placeholder="Last Name" 
             value={lastName}
-            onChange={e => setLastName(e.target.value)}
+            onChange={e => setLastName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
+            style={errors.lastName ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
           />
+          {errors.lastName && <ErrorText>{errors.lastName}</ErrorText>}
         </InputGroup>
       </Row>
 
@@ -337,8 +379,10 @@ const AddDoctorProfile = ({
           type="text" 
           placeholder="Profile name" 
           value={profileName}
-          onChange={e => setProfileName(e.target.value)}
+          onChange={e => setProfileName(e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))}
+          style={errors.profileName ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
         />
+        {errors.profileName && <ErrorText>{errors.profileName}</ErrorText>}
       </InputGroup>
 
       <InputGroup>
@@ -364,7 +408,9 @@ const AddDoctorProfile = ({
             type="date" 
             value={dob}
             onChange={e => setDob(e.target.value)}
+            style={errors.dob ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
           />
+          {errors.dob && <ErrorText>{errors.dob}</ErrorText>}
         </InputGroup>
 
         <InputGroup>
@@ -374,7 +420,9 @@ const AddDoctorProfile = ({
             placeholder="Alternative email" 
             value={altEmail}
             onChange={e => setAltEmail(e.target.value)}
+            style={errors.altEmail ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
           />
+          {errors.altEmail && <ErrorText>{errors.altEmail}</ErrorText>}
         </InputGroup>
       </Row>
 
@@ -389,6 +437,7 @@ const AddDoctorProfile = ({
               setCity('');
             }}
             options={countryOptions}
+            error={errors.country}
           />
         </InputGroup>
 
@@ -402,6 +451,7 @@ const AddDoctorProfile = ({
             }}
             placeholder="Select State"
             options={stateOptions}
+            error={errors.state}
           />
         </InputGroup>
 
@@ -412,6 +462,7 @@ const AddDoctorProfile = ({
             onChange={e => setCity(e.target.value)}
             placeholder="Select City"
             options={cityOptions}
+            error={errors.city}
           />
         </InputGroup>
       </Row>

@@ -611,9 +611,27 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
           setStep(2);
         }
       } else if (step === 2) {
-        if (!personalDetails.fullName || !personalDetails.phone) {
-          alert("Please fill in required fields (Full Name, Phone Number)!");
+        if (!personalDetails.fullName.trim()) {
+          alert("Please enter patient's Full Name!");
           return;
+        }
+
+        if (personalDetails.registerWithOtp === 'Yes' && !personalDetails.phone) {
+          alert("Phone number is required for OTP-verified registration!");
+          return;
+        }
+
+        if (personalDetails.phone && personalDetails.phone.length !== 10) {
+          alert("Phone number must be exactly 10 digits!");
+          return;
+        }
+
+        if (personalDetails.email) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(personalDetails.email.trim())) {
+            alert("Please enter a valid Email ID!");
+            return;
+          }
         }
 
         // [INCOMING CHANGE]: Dispatch API request to register patient demographic details!
@@ -622,8 +640,8 @@ const NewBookingFlow = ({ onClose, onComplete }) => {
           address: personalDetails.address,
           gender: personalDetails.gender,
           age: personalDetails.age ? Number(personalDetails.age) : 0,
-          phone: personalDetails.phone,
-          emailId: personalDetails.email,
+          phone: personalDetails.phone || '',
+          emailId: personalDetails.email || '',
           registrationOtp: personalDetails.registerWithOtp ? personalDetails.registerWithOtp.toLowerCase() : 'no'
         };
 

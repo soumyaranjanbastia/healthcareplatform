@@ -126,6 +126,14 @@ const ContinueBtn = styled.button`
   }
 `;
 
+const ErrorText = styled.span`
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+`;
+
 const AddDoctorBank = ({
   accHolderName, setAccHolderName,
   accNumber, setAccNumber,
@@ -136,6 +144,7 @@ const AddDoctorBank = ({
   onContinue
 }) => {
   const [showAccNumber, setShowAccNumber] = useState(false);
+  const [errors, setErrors] = useState({});
   // Auto-fill suggestion based on IFSC code if field is empty or holding default placeholder
   useEffect(() => {
     const code = ifscCode.toUpperCase().trim();
@@ -155,14 +164,23 @@ const AddDoctorBank = ({
   }, [ifscCode]);
 
   const handleNext = () => {
-    if (!accHolderName || !accNumber || !confirmAccNumber || !ifscCode || !panNumber) {
-      alert("Please fill in all required bank details!");
+    const newErrors = {};
+    if (!accHolderName) newErrors.accHolderName = 'Account Holder Name is required.';
+    if (!accNumber) newErrors.accNumber = 'Account Number is required.';
+    if (!confirmAccNumber) {
+      newErrors.confirmAccNumber = 'Confirm Account Number is required.';
+    } else if (accNumber !== confirmAccNumber) {
+      newErrors.confirmAccNumber = 'Account numbers do not match!';
+    }
+    if (!ifscCode) newErrors.ifscCode = 'IFSC Code is required.';
+    if (!bankName) newErrors.bankName = 'Bank Name is required.';
+    if (!panNumber) newErrors.panNumber = 'PAN Number is required.';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
-    if (accNumber !== confirmAccNumber) {
-      alert("Account numbers do not match!");
-      return;
-    }
+    setErrors({});
     onContinue();
   };
 
@@ -180,7 +198,9 @@ const AddDoctorBank = ({
           placeholder="Enter account holder name" 
           value={accHolderName}
           onChange={e => setAccHolderName(e.target.value)}
+          style={errors.accHolderName ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
         />
+        {errors.accHolderName && <ErrorText>{errors.accHolderName}</ErrorText>}
       </InputGroup>
 
       <Row>
@@ -192,7 +212,10 @@ const AddDoctorBank = ({
               placeholder="1234 5678 9012 3456" 
               value={accNumber}
               onChange={e => setAccNumber(e.target.value.replace(/\D/g, ''))}
-              style={{ paddingRight: '42px' }}
+              style={{ 
+                paddingRight: '42px',
+                ...(errors.accNumber ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {})
+              }}
             />
             <EyeButton 
               type="button" 
@@ -201,6 +224,7 @@ const AddDoctorBank = ({
               {showAccNumber ? <EyeOff size={18} /> : <Eye size={18} />}
             </EyeButton>
           </PasswordWrapper>
+          {errors.accNumber && <ErrorText>{errors.accNumber}</ErrorText>}
         </InputGroup>
 
         <InputGroup>
@@ -210,7 +234,9 @@ const AddDoctorBank = ({
             placeholder="Re-enter account number" 
             value={confirmAccNumber}
             onChange={e => setConfirmAccNumber(e.target.value.replace(/\D/g, ''))}
+            style={errors.confirmAccNumber ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
           />
+          {errors.confirmAccNumber && <ErrorText>{errors.confirmAccNumber}</ErrorText>}
         </InputGroup>
       </Row>
 
@@ -222,7 +248,9 @@ const AddDoctorBank = ({
             placeholder="SBIN0001234" 
             value={ifscCode}
             onChange={e => setIfscCode(e.target.value)}
+            style={errors.ifscCode ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
           />
+          {errors.ifscCode && <ErrorText>{errors.ifscCode}</ErrorText>}
         </InputGroup>
 
         <InputGroup>
@@ -232,7 +260,9 @@ const AddDoctorBank = ({
             placeholder="Enter bank name" 
             value={bankName === 'Auto-filled from IFSC' ? '' : bankName}
             onChange={e => setBankName(e.target.value)}
+            style={errors.bankName ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
           />
+          {errors.bankName && <ErrorText>{errors.bankName}</ErrorText>}
         </InputGroup>
       </Row>
 
@@ -243,7 +273,9 @@ const AddDoctorBank = ({
           placeholder="ABCDE1234F" 
           value={panNumber}
           onChange={e => setPanNumber(e.target.value)}
+          style={errors.panNumber ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
         />
+        {errors.panNumber && <ErrorText>{errors.panNumber}</ErrorText>}
       </InputGroup>
 
       <SecureBadge>

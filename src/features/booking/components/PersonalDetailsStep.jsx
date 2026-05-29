@@ -48,43 +48,6 @@ const FormFields = styled.div`
   }
 `;
 
-const HelperPanel = styled.div`
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 16px;
-  height: fit-content;
-  align-self: center;
-`;
-
-const AutoGenerateHeader = styled.div`
-  font-size: 11px;
-  color: #94a3b8;
-  font-weight: 700;
-  text-transform: uppercase;
-`;
-
-const AutoFieldBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-
-  span:first-child {
-    font-size: 12px;
-    font-weight: 600;
-    color: #64748b;
-  }
-  span:last-child {
-    font-size: 15px;
-    font-weight: 700;
-    color: #2563eb;
-  }
-`;
-
 const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
@@ -176,7 +139,7 @@ const PersonalDetailsStep = ({ personalDetails, setPersonalDetails, patientId, f
               type="text" 
               placeholder="Enter patient's full name" 
               value={personalDetails.fullName}
-              onChange={e => handleChange('fullName', e.target.value)}
+              onChange={e => handleChange('fullName', e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
             />
           </InputGroup>
 
@@ -214,12 +177,13 @@ const PersonalDetailsStep = ({ personalDetails, setPersonalDetails, patientId, f
           </InputGroup>
 
           <InputGroup>
-            <Label>Phone Number <span style={{ color: '#ef4444' }}>*</span></Label>
+            <Label>Phone Number</Label>
             <Input 
               type="tel" 
-              placeholder="10-digit mobile number" 
+              placeholder="10-digit number (optional)" 
               value={personalDetails.phone}
-              onChange={e => handleChange('phone', e.target.value)}
+              maxLength={10}
+              onChange={e => handleChange('phone', e.target.value.replace(/\D/g, ''))}
             />
           </InputGroup>
 
@@ -227,7 +191,7 @@ const PersonalDetailsStep = ({ personalDetails, setPersonalDetails, patientId, f
             <Label>Email ID</Label>
             <Input 
               type="email" 
-              placeholder="e.g., example@gmail.com" 
+              placeholder="e.g., example@gmail.com (optional)" 
               value={personalDetails.email}
               onChange={e => handleChange('email', e.target.value)}
             />

@@ -212,7 +212,7 @@ const Step6Documents = ({ onNext, onPrev, data, updateData }) => {
   ];
 
   return (
-    <form onSubmit={handleContinue}>
+    <form onSubmit={handleContinue} noValidate>
       <WizardCard title="Upload Documents" subtitle="Upload your KYC documents for verification.">
         <div style={{ marginTop: '10px' }}>
           {docList.map(doc => {

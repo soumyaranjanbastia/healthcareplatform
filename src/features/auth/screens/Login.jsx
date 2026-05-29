@@ -243,7 +243,7 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
       </FormHeader>
 
       {otpStep === 1 ? (
-        <form onSubmit={handleSendOtp}>
+        <form onSubmit={handleSendOtp} noValidate>
           {sendData?.message && sendData?.isRegistered === false && (
             <SuccessMsg>
               <CheckCircle2 size={16} /> {sendData.message}
@@ -272,7 +272,7 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
           </SubmitButton>
         </form>
       ) : (
-        <form onSubmit={handleVerifyOtp}>
+        <form onSubmit={handleVerifyOtp} noValidate>
           {sendData?.message && (
             <SuccessMsg>
               <CheckCircle2 size={16} /> {sendData.message}

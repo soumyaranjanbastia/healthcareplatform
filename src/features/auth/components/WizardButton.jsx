@@ -76,17 +76,18 @@ const WizardButton = ({
   variant = 'primary', 
   children, 
   disabled = false, 
-  type = 'button' 
+  type = 'button',
+  ...props
 }) => {
   if (variant === 'secondary') {
     return (
-      <SecondaryButton type={type} onClick={onClick} disabled={disabled}>
+      <SecondaryButton type={type} onClick={onClick} disabled={disabled} {...props}>
         {children}
       </SecondaryButton>
     );
   }
   return (
-    <PrimaryButton type={type} onClick={onClick} disabled={disabled}>
+    <PrimaryButton type={type} onClick={onClick} disabled={disabled} {...props}>
       {children}
     </PrimaryButton>
   );

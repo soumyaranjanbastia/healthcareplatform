@@ -6,34 +6,24 @@ import WizardCard from '../../components/WizardCard';
 import WizardInput from '../../components/WizardInput';
 import WizardSelect from '../../components/WizardSelect';
 import WizardButton, { ButtonWrapper } from '../../components/WizardButton';
+import SearchableSelect from '../../components/SearchableSelect';
 import { getGeoDataRequest } from '../../redux/geoDataSlice';
 
 const FormRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
 `;
 
-const WarningBox = styled.div`
-  background-color: #fffaf0;
-  border-radius: 10px;
-  padding: 14px 16px;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  color: #c05621;
-  font-weight: 500;
-  margin-bottom: 20px;
-  line-height: 1.4;
-`;
-
 const LocationGrid = styled.div`
   display: grid;
-  grid-template-columns: 1.2fr 1.2fr 1.6fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
-  @media (max-width: 600px) {
+  margin-bottom: 16px;
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
 `;
@@ -41,6 +31,8 @@ const LocationGrid = styled.div`
 const TimeRow = styled.div`
   display: flex;
   gap: 8px;
+  align-items: flex-start;
+  width: 100%;
 `;
 
 const TimeInputWrap = styled.div`
@@ -49,7 +41,56 @@ const TimeInputWrap = styled.div`
 
 const AmPmWrap = styled.div`
   width: 80px;
-  padding-top: 25px; /* Aligns the select with the input below the label */
+  margin-top: 6px; /* Offsets the 6px empty LabelRow gap inside WizardInput for pixel-perfect alignment */
+`;
+
+const TimeSelect = styled.select`
+  width: 100%;
+  padding: 12px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #0f172a;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  height: 46px; /* Matches the exact height of the WizardInput text field */
+
+  &:focus {
+    border-color: #009688;
+    box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.08);
+  }
+`;
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 16px;
+`;
+
+const Label = styled.label`
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+`;
+
+const RequiredStar = styled.span`
+  color: #ef4444;
+  margin-left: 2px;
+`;
+
+const TimeGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 16px;
 `;
 
 const BranchCardHeader = styled.div`
@@ -119,6 +160,20 @@ const AddBranchBtn = styled.button`
   }
 `;
 
+const SearchableSelectGroup = ({ label, required = false, error, ...props }) => {
+  return (
+    <FormGroup>
+      {label && (
+        <Label>
+          {label}
+          {required && <RequiredStar>*</RequiredStar>}
+        </Label>
+      )}
+      <SearchableSelect error={error} {...props} />
+    </FormGroup>
+  );
+};
+
 const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
   const dispatch = useDispatch();
   const { geoData } = useSelector((state) => state.geoData);
@@ -158,6 +213,8 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
     }
   ]);
 
+  const [errors, setErrors] = useState({});
+
   const handleAddBranch = () => {
     setBranches([...branches, {
       name: '',
@@ -179,24 +236,54 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
   const handleRemoveBranch = (index) => {
     if (branches.length === 1) return alert('At least one main branch is required.');
     setBranches(branches.filter((_, i) => i !== index));
+    
+    // Clean errors list for removed branch if any
+    if (errors.branches) {
+      const updatedBranchErrors = errors.branches.filter((_, i) => i !== index);
+      setErrors({ ...errors, branches: updatedBranchErrors });
+    }
   };
 
   const handleBranchChange = (index, field, value) => {
     const updated = [...branches];
     updated[index][field] = value;
     setBranches(updated);
+
+    // Clear specific field error on change
+    if (errors.branches && errors.branches[index] && errors.branches[index][field]) {
+      const updatedBranchErrors = [...errors.branches];
+      delete updatedBranchErrors[index][field];
+      setErrors({ ...errors, branches: updatedBranchErrors });
+    }
   };
 
   const handleBranchCountryChange = (index, value) => {
     const updated = [...branches];
     updated[index] = { ...updated[index], country: value, state: '', city: '' };
     setBranches(updated);
+
+    // Clear specific country/state/city errors on change
+    if (errors.branches && errors.branches[index]) {
+      const updatedBranchErrors = [...errors.branches];
+      delete updatedBranchErrors[index].country;
+      delete updatedBranchErrors[index].state;
+      delete updatedBranchErrors[index].city;
+      setErrors({ ...errors, branches: updatedBranchErrors });
+    }
   };
 
   const handleBranchStateChange = (index, value) => {
     const updated = [...branches];
     updated[index] = { ...updated[index], state: value, city: '' };
     setBranches(updated);
+
+    // Clear specific state/city errors on change
+    if (errors.branches && errors.branches[index]) {
+      const updatedBranchErrors = [...errors.branches];
+      delete updatedBranchErrors[index].state;
+      delete updatedBranchErrors[index].city;
+      setErrors({ ...errors, branches: updatedBranchErrors });
+    }
   };
 
   useEffect(() => {
@@ -205,8 +292,137 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
     }
   }, [dispatch, geoData]);
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    // 1. Company Name
+    if (!companyName.trim()) {
+      newErrors.companyName = 'Company name is required';
+    }
+
+    // 2. GSTIN
+    if (!gstin.trim()) {
+      newErrors.gstin = 'GSTIN is required';
+    } else {
+      const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstinRegex.test(gstin.trim())) {
+        newErrors.gstin = 'Invalid GSTIN format (e.g. 22AAAAA0000A1Z5)';
+      }
+    }
+
+    // 3. PAN
+    if (!pan.trim()) {
+      newErrors.pan = 'PAN is required';
+    } else {
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (!panRegex.test(pan.trim())) {
+        newErrors.pan = 'Invalid PAN format (e.g. ABCDE1234F)';
+      }
+    }
+
+    // 4. Country, State, City
+    if (!country) {
+      newErrors.country = 'Country is required';
+    }
+    if (!state) {
+      newErrors.state = 'State is required';
+    }
+    if (!city) {
+      newErrors.city = 'City is required';
+    }
+
+    // 5. Working Hours
+    if (!startTime) {
+      newErrors.startTime = 'Start time is required';
+    }
+    if (!endTime) {
+      newErrors.endTime = 'End time is required';
+    }
+
+    // 6. Branches Validation
+    const branchErrors = [];
+    branches.forEach((branch, index) => {
+      const bErr = {};
+      if (!branch.name.trim()) {
+        bErr.name = 'Branch name is required';
+      }
+      if (!branch.country) {
+        bErr.country = 'Country is required';
+      }
+      if (!branch.state) {
+        bErr.state = 'State is required';
+      }
+      if (!branch.city) {
+        bErr.city = 'City is required';
+      }
+      
+      if (!branch.pincode.trim()) {
+        bErr.pincode = 'Pincode is required';
+      } else if (branch.pincode.length !== 6) {
+        bErr.pincode = 'Pincode must be exactly 6 digits';
+      }
+
+      if (!branch.radius.trim()) {
+        bErr.radius = 'Service radius is required';
+      }
+
+      if (!branch.nodalOfficerName.trim()) {
+        bErr.nodalOfficerName = 'Nodal officer name is required';
+      } else {
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        if (!nameRegex.test(branch.nodalOfficerName.trim())) {
+          bErr.nodalOfficerName = 'Nodal officer name must contain letters only';
+        }
+      }
+
+      if (!branch.nodalOfficerEmail.trim()) {
+        bErr.nodalOfficerEmail = 'Nodal officer email is required';
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(branch.nodalOfficerEmail.trim())) {
+          bErr.nodalOfficerEmail = 'Invalid email address';
+        }
+      }
+
+      if (!branch.nodalOfficerPhone.trim()) {
+        bErr.nodalOfficerPhone = 'Nodal officer phone is required';
+      } else if (branch.nodalOfficerPhone.length !== 10) {
+        bErr.nodalOfficerPhone = 'Phone number must be exactly 10 digits';
+      }
+
+      if (!branch.startTime) {
+        bErr.startTime = 'Start time is required';
+      }
+      if (!branch.endTime) {
+        bErr.endTime = 'End time is required';
+      }
+
+      if (Object.keys(bErr).length > 0) {
+        branchErrors[index] = bErr;
+      }
+    });
+
+    if (branchErrors.some(err => err && Object.keys(err).length > 0)) {
+      newErrors.branches = branchErrors;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleContinue = (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      // Smooth scroll to first field with custom error styling
+      setTimeout(() => {
+        const firstErrorEl = document.querySelector('[style*="border-color: rgb(239, 68, 68)"], [style*="border-color: #ef4444"]');
+        if (firstErrorEl) {
+          firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 50);
+      return;
+    }
 
     updateData({
       companyName, gstin, pan,
@@ -239,100 +455,151 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
   }
 
   return (
-    <form onSubmit={handleContinue}>
+    <form onSubmit={handleContinue} noValidate>
       {/* Company details */}
       <WizardCard title="Company Details" icon={<Briefcase size={20} />}>
         <WizardInput 
           label="Company Name" 
+          required={true}
           placeholder="HealthFirst Pharmacy" 
           value={companyName}
-          onChange={e => setCompanyName(e.target.value)}
+          onChange={e => {
+            setCompanyName(e.target.value);
+            if (errors.companyName) setErrors({ ...errors, companyName: null });
+          }}
+          error={errors.companyName}
         />
         <FormRow>
           <WizardInput 
             label="GSTIN" 
+            required={true}
             placeholder="e.g. 22AAAAA0000A1Z5" 
             value={gstin}
-            onChange={e => setGstin(e.target.value)}
+            maxLength={15}
+            onChange={e => {
+              setGstin(e.target.value.toUpperCase());
+              if (errors.gstin) setErrors({ ...errors, gstin: null });
+            }}
+            error={errors.gstin}
           />
           <WizardInput 
             label="PAN" 
+            required={true}
             placeholder="e.g. ABCDE1234F" 
             value={pan}
             maxLength={10}
-            onChange={e => setPan(e.target.value.toUpperCase())}
+            onChange={e => {
+              setPan(e.target.value.toUpperCase());
+              if (errors.pan) setErrors({ ...errors, pan: null });
+            }}
+            error={errors.pan}
           />
         </FormRow>
 
         <WizardCard title="Primary Office Location" subtitle="Primary operating location" style={{ padding: 0, border: 'none', boxShadow: 'none', marginBottom: '0' }}>
           <LocationGrid>
-            <WizardSelect 
+            <SearchableSelectGroup 
               label="Country" 
+              required={true}
               value={country} 
               onChange={e => {
                 setCountry(e.target.value);
                 setState(''); // Reset state when country changes
                 setCity(''); // Reset city when country changes
+                if (errors.country) setErrors({ ...errors, country: null });
               }}
               options={countryOptions}
+              placeholder="Select Country"
+              error={errors.country}
             />
-            <WizardSelect 
+            <SearchableSelectGroup 
               label="State" 
+              required={true}
               value={state} 
               onChange={e => {
                 setState(e.target.value);
                 setCity(''); // Reset city when state changes
+                if (errors.state) setErrors({ ...errors, state: null });
               }}
               options={stateOptions}
+              placeholder="Select State"
+              error={errors.state}
             />
-            <WizardSelect 
+            <SearchableSelectGroup 
               label="City" 
+              required={true}
               value={city} 
-              onChange={e => setCity(e.target.value)}
+              onChange={e => {
+                setCity(e.target.value);
+                if (errors.city) setErrors({ ...errors, city: null });
+              }}
               options={cityOptions}
+              placeholder="Select City"
+              error={errors.city}
             />
           </LocationGrid>
         </WizardCard>
 
         <FormRow>
-          <TimeRow>
-            <TimeInputWrap>
-              <WizardInput 
-                label="Start Time" 
-                type="time"
-                placeholder="HH:MM"
-                value={startTime}
-                onChange={e => setStartTime(e.target.value)}
-                icon={<Clock size={18} />}
-              />
-            </TimeInputWrap>
-            <AmPmWrap>
-              <WizardSelect 
-                value={startAmPm} 
-                onChange={e => setStartAmPm(e.target.value)}
-                options={[{value:'AM', label:'AM'}, {value:'PM', label:'PM'}]} 
-              />
-            </AmPmWrap>
-          </TimeRow>
-          <TimeRow>
-            <TimeInputWrap>
-              <WizardInput 
-                label="End Time" 
-                type="time"
-                placeholder="HH:MM"
-                value={endTime}
-                onChange={e => setEndTime(e.target.value)}
-                icon={<Clock size={18} />}
-              />
-            </TimeInputWrap>
-            <AmPmWrap>
-              <WizardSelect 
-                value={endAmPm} 
-                onChange={e => setEndAmPm(e.target.value)}
-                options={[{value:'AM', label:'AM'}, {value:'PM', label:'PM'}]} 
-              />
-            </AmPmWrap>
-          </TimeRow>
+          <TimeGroup>
+            <Label>Start Time <RequiredStar>*</RequiredStar></Label>
+            <TimeRow>
+              <TimeInputWrap>
+                <WizardInput 
+                  type="time"
+                  placeholder="HH:MM"
+                  value={startTime}
+                  onChange={e => {
+                    setStartTime(e.target.value);
+                    if (errors.startTime) setErrors({ ...errors, startTime: null });
+                  }}
+                  icon={<Clock size={18} />}
+                  error={errors.startTime}
+                />
+              </TimeInputWrap>
+              <AmPmWrap>
+                <TimeSelect 
+                  value={startAmPm} 
+                  onChange={e => setStartAmPm(e.target.value)}
+                >
+                  <option value="AM">AM</option>
+                  <option value="PM">PM</option>
+                </TimeSelect>
+              </AmPmWrap>
+            </TimeRow>
+          </TimeGroup>
+          <div />
+        </FormRow>
+        
+        <FormRow>
+          <TimeGroup>
+            <Label>End Time <RequiredStar>*</RequiredStar></Label>
+            <TimeRow>
+              <TimeInputWrap>
+                <WizardInput 
+                  type="time"
+                  placeholder="HH:MM"
+                  value={endTime}
+                  onChange={e => {
+                    setEndTime(e.target.value);
+                    if (errors.endTime) setErrors({ ...errors, endTime: null });
+                  }}
+                  icon={<Clock size={18} />}
+                  error={errors.endTime}
+                />
+              </TimeInputWrap>
+              <AmPmWrap>
+                <TimeSelect 
+                  value={endAmPm} 
+                  onChange={e => setEndAmPm(e.target.value)}
+                >
+                  <option value="AM">AM</option>
+                  <option value="PM">PM</option>
+                </TimeSelect>
+              </AmPmWrap>
+            </TimeRow>
+          </TimeGroup>
+          <div />
         </FormRow>
       </WizardCard>
 
@@ -384,110 +651,146 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
 
             <WizardInput 
               label="Branch Name" 
+              required={true}
               placeholder="Enter branch name" 
               value={branch.name}
               onChange={e => handleBranchChange(index, 'name', e.target.value)}
+              error={errors.branches && errors.branches[index] && errors.branches[index].name}
             />
 
             <LocationGrid>
-              <WizardSelect 
+              <SearchableSelectGroup 
                 label="Country" 
+                required={true}
                 value={branch.country || ''} 
                 onChange={e => handleBranchCountryChange(index, e.target.value)}
                 options={bCountryOptions}
+                placeholder="Select Country"
+                error={errors.branches && errors.branches[index] && errors.branches[index].country}
               />
-              <WizardSelect 
+              <SearchableSelectGroup 
                 label="State" 
+                required={true}
                 value={branch.state || ''} 
                 onChange={e => handleBranchStateChange(index, e.target.value)}
                 options={bStateOptions}
+                placeholder="Select State"
+                error={errors.branches && errors.branches[index] && errors.branches[index].state}
               />
-              <WizardSelect 
+              <SearchableSelectGroup 
                 label="City" 
+                required={true}
                 value={branch.city || ''} 
                 onChange={e => handleBranchChange(index, 'city', e.target.value)}
                 options={bCityOptions}
+                placeholder="Select City"
+                error={errors.branches && errors.branches[index] && errors.branches[index].city}
               />
             </LocationGrid>
 
             <FormRow>
               <WizardInput 
                 label="Pincode" 
+                required={true}
                 placeholder="Enter pincode" 
                 value={branch.pincode}
                 maxLength={6}
                 onChange={e => handleBranchChange(index, 'pincode', e.target.value.replace(/\D/g, ''))}
+                error={errors.branches && errors.branches[index] && errors.branches[index].pincode}
               />
               <WizardInput 
                 label="Service Radius (km)" 
+                required={true}
                 placeholder="e.g. 10" 
                 value={branch.radius}
                 onChange={e => handleBranchChange(index, 'radius', e.target.value.replace(/\D/g, ''))}
+                error={errors.branches && errors.branches[index] && errors.branches[index].radius}
               />
             </FormRow>
 
             <WizardInput 
               label="Nodal Officer Name" 
+              required={true}
               placeholder="Enter nodal officer full name" 
               value={branch.nodalOfficerName || ''}
-              onChange={e => handleBranchChange(index, 'nodalOfficerName', e.target.value)}
+              onChange={e => handleBranchChange(index, 'nodalOfficerName', e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
+              error={errors.branches && errors.branches[index] && errors.branches[index].nodalOfficerName}
             />
             
             <FormRow>
               <WizardInput 
                 label="Nodal Officer Email" 
+                required={true}
                 placeholder="officer@branch.com" 
                 value={branch.nodalOfficerEmail || ''}
                 onChange={e => handleBranchChange(index, 'nodalOfficerEmail', e.target.value)}
+                error={errors.branches && errors.branches[index] && errors.branches[index].nodalOfficerEmail}
               />
               <WizardInput 
                 label="Nodal Officer Phone" 
+                required={true}
                 placeholder="9876543210" 
                 value={branch.nodalOfficerPhone || ''}
                 maxLength={10}
                 onChange={e => handleBranchChange(index, 'nodalOfficerPhone', e.target.value.replace(/\D/g, ''))}
+                error={errors.branches && errors.branches[index] && errors.branches[index].nodalOfficerPhone}
               />
             </FormRow>
 
             <FormRow>
-              <TimeRow>
-                <TimeInputWrap>
-                  <WizardInput 
-                    label="Start Time" 
-                    type="time"
-                    placeholder="HH:MM"
-                    value={branch.startTime}
-                    onChange={e => handleBranchChange(index, 'startTime', e.target.value)}
-                    icon={<Clock size={18} />}
-                  />
-                </TimeInputWrap>
-                <AmPmWrap>
-                  <WizardSelect 
-                    value={branch.startAmPm} 
-                    onChange={e => handleBranchChange(index, 'startAmPm', e.target.value)}
-                    options={[{value:'AM', label:'AM'}, {value:'PM', label:'PM'}]} 
-                  />
-                </AmPmWrap>
-              </TimeRow>
-              <TimeRow>
-                <TimeInputWrap>
-                  <WizardInput 
-                    label="End Time" 
-                    type="time"
-                    placeholder="HH:MM"
-                    value={branch.endTime}
-                    onChange={e => handleBranchChange(index, 'endTime', e.target.value)}
-                    icon={<Clock size={18} />}
-                  />
-                </TimeInputWrap>
-                <AmPmWrap>
-                  <WizardSelect 
-                    value={branch.endAmPm} 
-                    onChange={e => handleBranchChange(index, 'endAmPm', e.target.value)}
-                    options={[{value:'AM', label:'AM'}, {value:'PM', label:'PM'}]} 
-                  />
-                </AmPmWrap>
-              </TimeRow>
+              <TimeGroup>
+                <Label>Start Time <RequiredStar>*</RequiredStar></Label>
+                <TimeRow>
+                  <TimeInputWrap>
+                    <WizardInput 
+                      type="time"
+                      placeholder="HH:MM"
+                      value={branch.startTime}
+                      onChange={e => handleBranchChange(index, 'startTime', e.target.value)}
+                      icon={<Clock size={18} />}
+                      error={errors.branches && errors.branches[index] && errors.branches[index].startTime}
+                    />
+                  </TimeInputWrap>
+                  <AmPmWrap>
+                    <TimeSelect 
+                      value={branch.startAmPm} 
+                      onChange={e => handleBranchChange(index, 'startAmPm', e.target.value)}
+                    >
+                      <option value="AM">AM</option>
+                      <option value="PM">PM</option>
+                    </TimeSelect>
+                  </AmPmWrap>
+                </TimeRow>
+              </TimeGroup>
+              <div />
+            </FormRow>
+            
+            <FormRow>
+              <TimeGroup>
+                <Label>End Time <RequiredStar>*</RequiredStar></Label>
+                <TimeRow>
+                  <TimeInputWrap>
+                    <WizardInput 
+                      type="time"
+                      placeholder="HH:MM"
+                      value={branch.endTime}
+                      onChange={e => handleBranchChange(index, 'endTime', e.target.value)}
+                      icon={<Clock size={18} />}
+                      error={errors.branches && errors.branches[index] && errors.branches[index].endTime}
+                    />
+                  </TimeInputWrap>
+                  <AmPmWrap>
+                    <TimeSelect 
+                      value={branch.endAmPm} 
+                      onChange={e => handleBranchChange(index, 'endAmPm', e.target.value)}
+                    >
+                      <option value="AM">AM</option>
+                      <option value="PM">PM</option>
+                    </TimeSelect>
+                  </AmPmWrap>
+                </TimeRow>
+              </TimeGroup>
+              <div />
             </FormRow>
           </div>
           );

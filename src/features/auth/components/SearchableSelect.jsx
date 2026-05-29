@@ -103,7 +103,15 @@ const EmptyMessage = styled.div`
   text-align: center;
 `;
 
-const SearchableSelect = ({ value, onChange, options = [], placeholder = 'Select option', disabled = false }) => {
+const ErrorText = styled.span`
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+`;
+
+const SearchableSelect = ({ value, onChange, options = [], placeholder = 'Select option', disabled = false, error }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const dropdownRef = useRef(null);
@@ -132,7 +140,11 @@ const SearchableSelect = ({ value, onChange, options = [], placeholder = 'Select
         $isOpen={isOpen} 
         $hasValue={!!value}
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        style={{ opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}
+        style={{ 
+          opacity: disabled ? 0.6 : 1, 
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          ...(error ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {})
+        }}
       >
         <span>{selectedLabel || placeholder}</span>
         <ChevronDown size={16} color="#94a3b8" />
@@ -177,6 +189,7 @@ const SearchableSelect = ({ value, onChange, options = [], placeholder = 'Select
           </ListOptions>
         </DropdownListContainer>
       )}
+      {error && <ErrorText>{error}</ErrorText>}
     </SearchableDropdownContainer>
   );
 };

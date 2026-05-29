@@ -90,6 +90,13 @@ const InputField = styled.input`
   }
 `;
 
+const ErrorText = styled.span`
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 2px;
+`;
+
 const WizardInput = ({ 
   label, 
   required = false, 
@@ -101,7 +108,8 @@ const WizardInput = ({
   onChange, 
   disabled = false,
   maxLength,
-  icon
+  icon,
+  error
 }) => {
   return (
     <FormGroup>
@@ -124,10 +132,12 @@ const WizardInput = ({
           maxLength={maxLength}
           autoComplete="off"
           $hasIcon={!!icon}
+          style={error ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
         />
         {icon && <IconWrapper>{icon}</IconWrapper>}
       </InputWrapper>
-      {helper && <HelperText>{helper}</HelperText>}
+      {error && <ErrorText>{error}</ErrorText>}
+      {helper && !error && <HelperText>{helper}</HelperText>}
     </FormGroup>
   );
 };

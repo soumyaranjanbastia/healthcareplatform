@@ -43,6 +43,7 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
   const [alternateEmail, setAlternateEmail] = useState(data.alternateEmail || '');
   const [phonePrefix, setPhonePrefix] = useState(data.phonePrefix || '+91');
   const [contactPhone, setContactPhone] = useState(data.contactPhone || '');
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (!geoData) {
@@ -81,18 +82,54 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
 
   const handleContinue = (e) => {
     e.preventDefault();
+    const newErrors = {};
 
-    if (!fullName || !profileName || !contactEmail || !contactPhone) {
-      alert('Please fill in all required fields.');
-      return;
+    if (!fullName) {
+      newErrors.fullName = 'Full Name is required.';
+    } else {
+      const nameRegex = /^[a-zA-Z\s]+$/;
+      if (!nameRegex.test(fullName)) {
+        newErrors.fullName = 'Full Name must only contain letters and spaces.';
+      }
+    }
+
+    if (!profileName) {
+      newErrors.profileName = 'Profile Name is required.';
+    } else {
+      const profileRegex = /^[a-zA-Z0-9\s]+$/;
+      if (!profileRegex.test(profileName)) {
+        newErrors.profileName = 'Profile Name must only contain letters, numbers, and spaces.';
+      }
+    }
+
+    if (!contactEmail) {
+      newErrors.contactEmail = 'Email Address is required.';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(contactEmail)) {
+        newErrors.contactEmail = 'Please enter a valid Email Address.';
+      }
+    }
+
+    if (alternateEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(alternateEmail)) {
+        newErrors.alternateEmail = 'Please enter a valid Alternate Email Address.';
+      }
     }
 
     const phoneLimit = getPhoneLimit();
-    if (contactPhone.length !== phoneLimit) {
-      alert(`Phone number must be exactly ${phoneLimit} digits.`);
-      return;
+    if (!contactPhone) {
+      newErrors.contactPhone = 'Phone number is required.';
+    } else if (contactPhone.length !== phoneLimit) {
+      newErrors.contactPhone = `Phone number must be exactly ${phoneLimit} digits.`;
     }
 
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
     updateData({
       fullName, profileName,
       contactEmail, alternateEmail, phonePrefix, contactPhone
@@ -130,7 +167,7 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
   }
 
   return (
-    <form onSubmit={handleContinue}>
+    <form onSubmit={handleContinue} noValidate>
       {/* Card 1: Personal Details */}
       <WizardCard title="Admin User Personal Details" subtitle="Primary admin account information">
         <FormRow>
@@ -138,13 +175,15 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
             label="Full Name" 
             placeholder="Enter your full name" 
             value={fullName}
-            onChange={e => setFullName(e.target.value)}
+            onChange={e => setFullName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
+            error={errors.fullName}
           />
           <WizardInput 
             label="Profile Name" 
             placeholder="Display name on platform" 
             value={profileName}
-            onChange={e => setProfileName(e.target.value)}
+            onChange={e => setProfileName(e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))}
+            error={errors.profileName}
           />
         </FormRow>
       </WizardCard>
@@ -158,6 +197,7 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
             placeholder="you@company.com" 
             value={contactEmail}
             onChange={e => setContactEmail(e.target.value)}
+            error={errors.contactEmail}
           />
           <WizardInput 
             label="Alternate Email" 
@@ -165,6 +205,7 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
             placeholder="backup@company.com" 
             value={alternateEmail}
             onChange={e => setAlternateEmail(e.target.value)}
+            error={errors.alternateEmail}
           />
         </FormRow>
         
@@ -186,6 +227,7 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
                 value={contactPhone}
                 maxLength={getPhoneLimit()}
                 onChange={e => setContactPhone(e.target.value.replace(/\D/g, ''))}
+                error={errors.contactPhone}
               />
             </PhoneInputWrapper>
           </CountryPhoneRow>

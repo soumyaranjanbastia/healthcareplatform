@@ -184,6 +184,14 @@ const ContinueBtn = styled.button`
   }
 `;
 
+const ErrorText = styled.span`
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+`;
+
 const AddDoctorProfessional = ({
   regNo, setRegNo,
   council, setCouncil,
@@ -197,6 +205,7 @@ const AddDoctorProfessional = ({
   about, setAbout,
   onContinue
 }) => {
+  const [errors, setErrors] = useState({});
   const languages = [
     'English', 'Hindi', 'Tamil', 'Telugu', 'Kannada', 'Malayalam', 
     'Marathi', 'Bengali', 'Gujarati', 'Punjabi', 'Urdu', 'Odia'
@@ -245,10 +254,18 @@ const AddDoctorProfessional = ({
   };
 
   const handleNext = () => {
-    if (!regNo || !about || !specialization || !qualification || !council) {
-      alert("Please enter Medical Registration Number, Council, Qualification, Specialization, and About yourself!");
+    const newErrors = {};
+    if (!regNo) newErrors.regNo = 'Medical Registration Number is required.';
+    if (!council) newErrors.council = 'Registration Council is required.';
+    if (!qualification) newErrors.qualification = 'Highest Qualification is required.';
+    if (!specialization) newErrors.specialization = 'Specialization is required.';
+    if (!about) newErrors.about = 'About description is required.';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+    setErrors({});
     onContinue();
   };
 
@@ -263,7 +280,9 @@ const AddDoctorProfessional = ({
           placeholder="Enter registration number" 
           value={regNo}
           onChange={e => setRegNo(e.target.value)}
+          style={errors.regNo ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
         />
+        {errors.regNo && <ErrorText>{errors.regNo}</ErrorText>}
       </InputGroup>
 
       <Row>
@@ -279,6 +298,7 @@ const AddDoctorProfessional = ({
               { value: 'Dental Council of India', label: 'Dental Council of India' },
               { value: 'Indian Nursing Council', label: 'Indian Nursing Council' }
             ]}
+            error={errors.council}
           />
         </InputGroup>
 
@@ -298,6 +318,7 @@ const AddDoctorProfessional = ({
               { value: 'BDS', label: 'BDS' },
               { value: 'MDS', label: 'MDS' }
             ]}
+            error={errors.qualification}
           />
         </InputGroup>
       </Row>
@@ -321,6 +342,7 @@ const AddDoctorProfessional = ({
             placeholder={isSpecsLoading ? 'Loading specializations...' : 'Select Specialization'}
             disabled={isSpecsLoading}
             options={specializationsList.map(spec => ({ value: spec, label: spec }))}
+            error={errors.specialization}
           />
         </InputGroup>
       </Row>
@@ -398,7 +420,9 @@ const AddDoctorProfessional = ({
           placeholder="Write about Yourself"
           value={about}
           onChange={e => setAbout(e.target.value)}
+          style={errors.about ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
         />
+        {errors.about && <ErrorText>{errors.about}</ErrorText>}
       </InputGroup>
 
       <ContinueBtn onClick={handleNext}>

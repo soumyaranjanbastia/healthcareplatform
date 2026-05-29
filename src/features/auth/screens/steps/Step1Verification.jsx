@@ -136,6 +136,7 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
   const [phoneOtp, setPhoneOtp] = useState('');
   const [agreed, setAgreed] = useState(data.agreed || false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // Active Keys Logic: Prioritize the keys from the Resend API if available
   const activeEmailKey = resendEmailKey || emailKey;
@@ -168,8 +169,24 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
   }, [dispatch]);
 
   const handleSendOtp = () => {
-    if (!email || !phone) return alert('Please enter both Email and Phone.');
-    if (phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
+    const newErrors = {};
+    if (!email) {
+      newErrors.email = 'Email Address is required.';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) newErrors.email = 'Please enter a valid Email Address.';
+    }
+    if (!phone) {
+      newErrors.phone = 'Mobile Number is required.';
+    } else if (phone.length !== 10) {
+      newErrors.phone = 'Phone number must be exactly 10 digits.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
     if (otpSent) {
       dispatch(resendHospitalOtpRequest({ email, phone }));
     } else {
@@ -179,12 +196,41 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
 
   const handleContinue = (e) => {
     e.preventDefault();
-    if (!email || !phone) return alert('Please complete email and phone fields.');
-    if (phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
-    if (!agreed) return alert('Please agree to the Terms of Service & Privacy Policy.');
-    if (!otpSent) return alert('Please click "Send OTP" to receive and enter verification codes.');
-    if (!emailOtp || !phoneOtp) return alert('Please enter the OTP codes.');
+    const newErrors = {};
+    if (!email) {
+      newErrors.email = 'Email Address is required.';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) newErrors.email = 'Please enter a valid Email Address.';
+    }
+    if (!phone) {
+      newErrors.phone = 'Mobile Number is required.';
+    } else if (phone.length !== 10) {
+      newErrors.phone = 'Phone number must be exactly 10 digits.';
+    }
+    if (!agreed) {
+      newErrors.agreed = 'Please agree to the Terms of Service and Privacy Policy.';
+    }
+    if (!otpSent) {
+      newErrors.otpSent = 'Please click "Send OTP" to receive and enter verification codes.';
+    } else {
+      if (!emailOtp) {
+        newErrors.emailOtp = 'Email OTP is required.';
+      } else if (emailOtp.length !== 6) {
+        newErrors.emailOtp = 'OTP must be exactly 6 digits.';
+      }
+      if (!phoneOtp) {
+        newErrors.phoneOtp = 'Phone OTP is required.';
+      } else if (phoneOtp.length !== 6) {
+        newErrors.phoneOtp = 'OTP must be exactly 6 digits.';
+      }
+    }
 
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
     dispatch(verifyHospitalOtpRequest({ 
       emailOtp, 
       emailKey: activeEmailKey, 
@@ -209,7 +255,7 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
 
   return (
     <>
-      <form onSubmit={handleContinue}>
+      <form onSubmit={handleContinue} noValidate>
         <WizardCard title="Company Email & Mobile Verification" icon={<Mail size={20} />}>
           <WizardInput 
             label="Email Address" 
@@ -218,6 +264,7 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
             placeholder="partner@example.com" 
             value={email}
             onChange={e => setEmail(e.target.value)}
+            error={errors.email}
           />
           <WizardInput 
             label="Mobile Number" 
@@ -227,6 +274,7 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
             value={phone}
             maxLength={10}
             onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
+            error={errors.phone}
           />
 
           {displayErrorMsg && <ErrorText>{displayErrorMsg}</ErrorText>}
@@ -245,6 +293,7 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
                 value={emailOtp}
                 maxLength={6}
                 onChange={e => setEmailOtp(e.target.value.replace(/\D/g, ''))}
+                error={errors.emailOtp}
               />
               <WizardInput 
                 label="Enter Phone OTP" 
@@ -253,6 +302,7 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
                 value={phoneOtp}
                 maxLength={6}
                 onChange={e => setPhoneOtp(e.target.value.replace(/\D/g, ''))}
+                error={errors.phoneOtp}
               />
             </>
           )}
@@ -265,6 +315,11 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
             />
             I agree to our Terms of Service and Privacy Policy
           </StyledCheckboxLabel>
+          {errors.agreed && (
+            <span style={{ fontSize: '11px', color: '#ef4444', fontWeight: 600, display: 'block', marginTop: '4px' }}>
+              {errors.agreed}
+            </span>
+          )}
         </WizardCard>
 
         <ButtonWrapper>
