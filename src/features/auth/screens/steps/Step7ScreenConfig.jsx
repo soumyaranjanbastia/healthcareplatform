@@ -73,6 +73,7 @@ const InputWrapper = styled.div`
 const StyledInput = styled.input`
   border: none;
   outline: none;
+  background-color: transparent;
   font-family: 'Inter', sans-serif;
   font-size: 15px;
   font-weight: 700;

@@ -11,7 +11,7 @@ import {
 function* handleSendLoginOtp(action) {
   try {
     const payload = action.payload; // { email: "..." }
-    
+
     const response = yield call(
       apiGateway,
       API_ENDPOINTS.sendLoginOtp,

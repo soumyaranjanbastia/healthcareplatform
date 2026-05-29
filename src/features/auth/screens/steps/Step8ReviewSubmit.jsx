@@ -147,7 +147,7 @@ const ErrorText = styled.div`
 
 const Step8ReviewSubmit = ({ onNext, onPrev, data }) => {
   const dispatch = useDispatch();
-  const { loading, success, error } = useSelector((state) => state.registerDoctor);
+  const { loading, success, error, data: apiData } = useSelector((state) => state.registerDoctor);
 
   useEffect(() => {
     // Reset state when mounting just in case
@@ -170,7 +170,7 @@ const Step8ReviewSubmit = ({ onNext, onPrev, data }) => {
     // Calling onNext will trigger handleFinish in Registration.jsx,
     // which dispatches onSignup and navigates to the Admin Dashboard.
     dispatch(resetRegisterDoctor());
-    onNext();
+    onNext(apiData);
   };
 
   return (
@@ -203,10 +203,6 @@ const Step8ReviewSubmit = ({ onNext, onPrev, data }) => {
             <ReviewRow>
               <RowLabel>Profile Name</RowLabel>
               <RowValue>{data.profileName || 'Not provided'}</RowValue>
-            </ReviewRow>
-            <ReviewRow>
-              <RowLabel>Date of Birth</RowLabel>
-              <RowValue>{data.dob || 'Not provided'}</RowValue>
             </ReviewRow>
             <ReviewRow>
               <RowLabel>Contact Email</RowLabel>

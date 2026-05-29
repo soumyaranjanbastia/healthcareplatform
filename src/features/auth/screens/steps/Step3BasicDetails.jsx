@@ -35,7 +35,6 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
 
   const [fullName, setFullName] = useState(data.fullName || '');
   const [profileName, setProfileName] = useState(data.profileName || '');
-  const [dob, setDob] = useState(data.dob || '');
   
   const [contactEmail, setContactEmail] = useState(data.contactEmail || '');
   const [alternateEmail, setAlternateEmail] = useState(data.alternateEmail || '');
@@ -46,7 +45,7 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
     e.preventDefault();
 
     updateData({
-      fullName, profileName, dob,
+      fullName, profileName,
       contactEmail, alternateEmail, phonePrefix, contactPhone
     });
     onNext();
@@ -68,15 +67,6 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
             placeholder="Display name on platform" 
             value={profileName}
             onChange={e => setProfileName(e.target.value)}
-          />
-        </FormRow>
-        <FormRow>
-          <WizardInput 
-            label="Date of Birth" 
-            type="date" 
-            value={dob}
-            onChange={e => setDob(e.target.value)}
-            icon={<Calendar size={18} />}
           />
         </FormRow>
       </WizardCard>

@@ -219,22 +219,24 @@ const Auth = ({ onLogin }) => {
   return (
     <PageContainer>
       {/* LEFT MARKETING SIDE */}
-      <LeftPanel>
-        <BrandBadge>
-          <HeartLogoSvg />
-          <BrandText>Swastyam Connect</BrandText>
-        </BrandBadge>
+      {authMode === 'login' && (
+        <LeftPanel>
+          <BrandBadge>
+            <HeartLogoSvg />
+            <BrandText>Swastyam Connect</BrandText>
+          </BrandBadge>
 
-        <LeftContent>
-          <Tagline>Keep track of every detail.</Tagline>
-          <SubTagline>From appointments to everyday hospital tasks.</SubTagline>
-          <GraphicWrapper>
-            <img src={authIllustration} alt="Secure Portal illustration" />
-          </GraphicWrapper>
-        </LeftContent>
+          <LeftContent>
+            <Tagline>Keep track of every detail.</Tagline>
+            <SubTagline>From appointments to everyday hospital tasks.</SubTagline>
+            <GraphicWrapper>
+              <img src={authIllustration} alt="Secure Portal illustration" />
+            </GraphicWrapper>
+          </LeftContent>
 
-        <CopyrightText>Copyright @ Mindcys</CopyrightText>
-      </LeftPanel>
+          <CopyrightText>Copyright @ Mindcys</CopyrightText>
+        </LeftPanel>
+      )}
 
       {/* RIGHT LOGIN/REGISTRATION SIDE */}
       <RightPanel>

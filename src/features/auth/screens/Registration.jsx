@@ -38,7 +38,6 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
     agreed: false,
     fullName: '',
     profileName: '',
-    dob: '',
     companyName: '',
     contactEmail: '',
     alternateEmail: '',
@@ -80,15 +79,22 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
     setFormData(prev => ({ ...prev, ...newData }));
   };
 
-  const handleFinish = () => {
+  const handleFinish = (apiData) => {
     // Dispatch Redux signup success payload trigger!
+    const userPayload = {
+      name: formData.fullName || 'Dr. Abhinav Kumar',
+      email: formData.contactEmail || 'partner@example.com',
+      role: 'Admin',
+      designation: 'Admin'
+    };
+
+    if (apiData && apiData.user) {
+      userPayload.id = apiData.user.id;
+      userPayload.companyId = apiData.user.companyId;
+    }
+
     onSignup({
-      user: {
-        name: formData.fullName || 'Dr. Abhinav Kumar',
-        email: formData.contactEmail || 'partner@example.com',
-        role: 'Admin',
-        designation: 'Admin'
-      },
+      user: userPayload,
       clinic: {
         name: formData.companyName || 'HealthFirst Pharmacy',
         specialties: [formData.partnerType === 'hospital' ? 'Hospital Care' : 'Cardiology'],

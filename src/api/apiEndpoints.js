@@ -25,7 +25,7 @@ const API_ENDPOINTS = {
   verifyExistingPatientOtp: 'assisted/verify-otp',
 
   resendHospitalOtp: 'hospital/resend-hospital-registration-otp',
-  registerDoctor: 'hospital/register-doctor',
+  registerDoctor: 'hospital/register-company',
   dashboardOverview: 'hospital/dashboardOverview',
   sendLoginOtp: 'hospital/send-login-otp',
   verifyLoginOtp: 'hospital/verify-login-otp',

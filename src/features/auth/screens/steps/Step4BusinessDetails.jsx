@@ -151,7 +151,10 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
       startTime: '09:00',
       startAmPm: 'AM',
       endTime: '06:00',
-      endAmPm: 'PM'
+      endAmPm: 'PM',
+      nodalOfficerName: '',
+      nodalOfficerEmail: '',
+      nodalOfficerPhone: ''
     }
   ]);
 
@@ -166,7 +169,10 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
       startTime: '09:00',
       startAmPm: 'AM',
       endTime: '06:00',
-      endAmPm: 'PM'
+      endAmPm: 'PM',
+      nodalOfficerName: '',
+      nodalOfficerEmail: '',
+      nodalOfficerPhone: ''
     }]);
   };
 
@@ -417,6 +423,29 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
                 placeholder="e.g. 10" 
                 value={branch.radius}
                 onChange={e => handleBranchChange(index, 'radius', e.target.value.replace(/\D/g, ''))}
+              />
+            </FormRow>
+
+            <WizardInput 
+              label="Nodal Officer Name" 
+              placeholder="Enter nodal officer full name" 
+              value={branch.nodalOfficerName || ''}
+              onChange={e => handleBranchChange(index, 'nodalOfficerName', e.target.value)}
+            />
+            
+            <FormRow>
+              <WizardInput 
+                label="Nodal Officer Email" 
+                placeholder="officer@branch.com" 
+                value={branch.nodalOfficerEmail || ''}
+                onChange={e => handleBranchChange(index, 'nodalOfficerEmail', e.target.value)}
+              />
+              <WizardInput 
+                label="Nodal Officer Phone" 
+                placeholder="9876543210" 
+                value={branch.nodalOfficerPhone || ''}
+                maxLength={10}
+                onChange={e => handleBranchChange(index, 'nodalOfficerPhone', e.target.value.replace(/\D/g, ''))}
               />
             </FormRow>
 
