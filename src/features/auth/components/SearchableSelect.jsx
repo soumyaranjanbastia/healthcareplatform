@@ -12,12 +12,12 @@ const DropdownHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 12px 14px;
-  border: 1px solid ${props => props.isOpen ? '#009688' : '#e2e8f0'};
+  border: 1px solid ${props => props.$isOpen ? '#009688' : '#e2e8f0'};
   border-radius: 10px;
   font-size: 13.5px;
   font-weight: 600;
   background-color: #ffffff;
-  color: ${props => props.hasValue ? '#1e293b' : '#94a3b8'};
+  color: ${props => props.$hasValue ? '#1e293b' : '#94a3b8'};
   cursor: pointer;
   box-sizing: border-box;
   
@@ -89,7 +89,7 @@ const ListItem = styled.li`
     background-color: #f8fafc;
   }
   
-  ${props => props.isSelected && `
+  ${props => props.$isSelected && `
     background-color: #e6f9f3;
     color: #009688;
     font-weight: 700;
@@ -129,8 +129,8 @@ const SearchableSelect = ({ value, onChange, options = [], placeholder = 'Select
   return (
     <SearchableDropdownContainer ref={dropdownRef}>
       <DropdownHeader 
-        isOpen={isOpen} 
-        hasValue={!!value}
+        $isOpen={isOpen} 
+        $hasValue={!!value}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         style={{ opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}
       >
@@ -160,7 +160,7 @@ const SearchableSelect = ({ value, onChange, options = [], placeholder = 'Select
                 return (
                   <ListItem 
                     key={index}
-                    isSelected={isSelected}
+                    $isSelected={isSelected}
                     onClick={() => {
                       onChange({ target: { value: optVal } });
                       setIsOpen(false);

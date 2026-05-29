@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { Search, Filter, Phone, Mail, Eye, Edit2, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, Phone, Mail, Eye, Edit2, Plus, ChevronLeft, ChevronRight, Loader2, Trash2 } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getStaffRequest, deleteStaffRequest, resetDeleteStaffState } from '../redux/staffSlice';
 import EmployeeRegistrationModal from '../components/EmployeeRegistrationModal';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
+`;
+
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 `;
 
 const Container = styled.div`
@@ -220,8 +227,8 @@ const RoleBadge = styled.span`
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 20px;
-  background-color: ${props => props.role === 'Nurse' ? '#e6f9f3' : '#f3e8ff'};
-  color: ${props => props.role === 'Nurse' ? '#10b981' : '#a855f7'};
+  background-color: ${props => props.role === 'Nurse' ? '#e6f9f3' : props.role === 'Admin' ? '#eff6ff' : '#f3e8ff'};
+  color: ${props => props.role === 'Nurse' ? '#10b981' : props.role === 'Admin' ? '#3b82f6' : '#a855f7'};
 `;
 
 const CardHeader = styled.div`
@@ -235,8 +242,8 @@ const Avatar = styled.div`
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: ${props => props.role === 'Nurse' ? '#e2fbf4' : '#f5f0ff'};
-  color: ${props => props.role === 'Nurse' ? '#009688' : '#a855f7'};
+  background-color: ${props => props.role === 'Nurse' ? '#e2fbf4' : props.role === 'Admin' ? '#e0f2fe' : '#f5f0ff'};
+  color: ${props => props.role === 'Nurse' ? '#009688' : props.role === 'Admin' ? '#0284c7' : '#a855f7'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -309,6 +316,7 @@ const CardActions = styled.div`
   display: flex;
   gap: 8px;
   width: 100%;
+  margin-top: auto;
 `;
 
 const ViewBtn = styled.button`
@@ -349,6 +357,137 @@ const EditBtn = styled.button`
     background-color: #f1f5f9;
     color: #1e293b;
   }
+`;
+
+const DeleteBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background-color: #fff5f5;
+  border: 1px solid #fee2e2;
+  border-radius: 10px;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #fecaca;
+    color: #dc2626;
+  }
+`;
+
+const CustomModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ConfirmModal = styled.div`
+  background: #ffffff;
+  width: 420px;
+  max-width: 90%;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+  padding: 24px;
+  text-align: center;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  animation: ${fadeIn} 0.2s ease-out;
+`;
+
+const WarningIconWrapper = styled.div`
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #fee2e2;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+`;
+
+const ConfirmTitle = styled.h3`
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
+`;
+
+const ConfirmText = styled.p`
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 24px;
+`;
+
+const ConfirmActions = styled.div`
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+`;
+
+const CancelConfirmBtn = styled.button`
+  flex: 1;
+  padding: 10px 16px;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #e2e8f0;
+  }
+`;
+
+const ActionConfirmBtn = styled.button`
+  flex: 1;
+  padding: 10px 16px;
+  background-color: #ef4444;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #dc2626;
+  }
+`;
+
+const SuccessToast = styled.div`
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background-color: #0f172a;
+  color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 2500;
+  animation: ${fadeIn} 0.3s ease-out;
+  border-left: 4px solid #10b981;
 `;
 
 // FOOTER PAGINATION
@@ -412,72 +551,209 @@ const PageBadge = styled.span`
   border-radius: 8px;
 `;
 
-const MOCK_STAFF = [
-  {
-    id: 'N001',
-    name: 'Jennifer Martinez',
-    initials: 'JM',
-    role: 'Nurse',
-    department: 'Emergency',
-    specialization: 'Critical Care',
-    experience: '8 years',
-    shift: 'Night',
-    phone: '(555) 555-6666',
-    email: 'jennifer.martinez@hospital.co'
-  },
-  {
-    id: 'N002',
-    name: 'Robert Taylor',
-    initials: 'RT',
-    role: 'Nurse',
-    department: 'ICU',
-    specialization: 'Intensive Care',
-    experience: '6 years',
-    shift: 'Evening',
-    phone: '(555) 666-7777',
-    email: 'robert.taylor@hospital.co'
-  },
-  {
-    id: 'N003',
-    name: 'Amanda White',
-    initials: 'AW',
-    role: 'Nurse',
-    department: 'Pediatrics',
-    specialization: 'Pediatric Care',
-    experience: '5 years',
-    shift: 'Morning',
-    phone: '(555) 777-8888',
-    email: 'amanda.white@hospital.co'
-  },
-  {
-    id: 'A001',
-    name: 'David Anderson',
-    initials: 'DA',
-    role: 'Admin',
-    department: 'Administration',
-    specialization: 'Hospital Management',
-    experience: '10 years',
-    shift: 'Morning',
-    phone: '(555) 888-9999',
+const LoadingContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  width: 100%;
+  color: #009688;
+  font-weight: 600;
+  gap: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+`;
+
+const Spinner = styled.div`
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 150, 136, 0.1);
+  border-top: 4px solid #009688;
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
+`;
+
+const EmptyContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  width: 100%;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  text-align: center;
+  
+  h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
   }
-];
+  
+  p {
+    font-size: 13px;
+  }
+`;
+
+const ErrorContainer = styled.div`
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #ef4444;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  width: 100%;
+`;
 
 const StaffManagement = () => {
+  const dispatch = useDispatch();
+  const { 
+    staffList, 
+    staffLoading, 
+    staffError, 
+    createSuccess,
+    deleteSuccess,
+    deleteError,
+    deleteLoading
+  } = useSelector(state => state.staffRegistration);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('All');
   const [selectedDept, setSelectedDept] = useState('All');
   const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
 
+  // Custom Modal States
+  const [deleteConfirmState, setDeleteConfirmState] = useState({
+    isOpen: false,
+    staffId: null,
+    branchId: null,
+    name: ''
+  });
+  
+  const [successToastState, setSuccessToastState] = useState({
+    isOpen: false,
+    message: ''
+  });
+
+  useEffect(() => {
+    dispatch(getStaffRequest({}));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (createSuccess) {
+      dispatch(getStaffRequest({}));
+    }
+  }, [createSuccess, dispatch]);
+
+  useEffect(() => {
+    if (deleteSuccess) {
+      setSuccessToastState({
+        isOpen: true,
+        message: 'Staff member deleted successfully!'
+      });
+      dispatch(resetDeleteStaffState());
+      dispatch(getStaffRequest({}));
+      
+      const timer = setTimeout(() => {
+        setSuccessToastState({ isOpen: false, message: '' });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [deleteSuccess, dispatch]);
+
+  const handleDeleteStaff = (staffId, branchId, name) => {
+    setDeleteConfirmState({
+      isOpen: true,
+      staffId,
+      branchId,
+      name
+    });
+  };
+
+  const executeDelete = () => {
+    if (deleteConfirmState.staffId) {
+      dispatch(deleteStaffRequest({ 
+        staffId: deleteConfirmState.staffId,
+        branchId: deleteConfirmState.branchId
+      }));
+      setDeleteConfirmState({ isOpen: false, staffId: null, branchId: null, name: '' });
+    }
+  };
+
+  // Normalize list from API, defaulting to an empty array
+  const activeStaffList = staffList || [];
+
+  const normalizedStaff = activeStaffList.map((member, index) => {
+    const fName = member.firstName || '';
+    const lName = member.lastName || '';
+    const fullName = member.name || `${fName} ${lName}`.trim() || 'Staff Member';
+    const initials = member.initials || (fName ? `${fName[0]}${lName ? lName[0] : ''}` : 'S').toUpperCase();
+    const id = member.branchUserId || member.id || member._id || `ST-${1000 + index}`;
+    
+    let role = 'Staff';
+    if (member.role) {
+      role = typeof member.role === 'object' ? (member.role.roleName || member.role.name) : member.role;
+    } else if (member.roleName) {
+      role = member.roleName;
+    } else if (member.roleId === 1) {
+      role = 'Admin';
+    } else if (member.roleId === 6) {
+      role = 'Receptionist';
+    }
+
+    let dobFormatted = 'N/A';
+    if (member.dob) {
+      try {
+        const dateObj = new Date(member.dob);
+        if (!isNaN(dateObj.getTime())) {
+          dobFormatted = dateObj.toLocaleDateString('en-GB'); // DD/MM/YYYY
+        }
+      } catch (e) {
+        dobFormatted = member.dob;
+      }
+    }
+
+    const locParts = [member.address, member.state, member.country].filter(Boolean);
+    const location = locParts.length > 0 ? locParts.join(', ') : 'N/A';
+
+    return {
+      id,
+      branchId: member.branchId,
+      branchName: member.branchName || 'N/A',
+      name: fullName,
+      initials,
+      role,
+      gender: member.gender || 'N/A',
+      dobFormatted,
+      location,
+      phone: member.phoneNumber || member.phone || 'N/A',
+      email: member.email || 'N/A',
+    };
+  });
+
   // Filter Logic
-  const filteredStaff = MOCK_STAFF.filter(member => {
+  const filteredStaff = normalizedStaff.filter(member => {
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = selectedRole === 'All' || member.role === selectedRole;
-    const matchesDept = selectedDept === 'All' || member.department === selectedDept;
+    const matchesDept = selectedDept === 'All' || member.branchName === selectedDept;
     
     return matchesSearch && matchesRole && matchesDept;
   });
+
+  // Dynamic Statistics
+  const totalStaffCount = normalizedStaff.length;
+  const adminStaffCount = normalizedStaff.filter(s => s.role === 'Admin').length;
+  const nurseStaffCount = normalizedStaff.filter(s => s.role === 'Nurse').length;
+  const receptionistStaffCount = normalizedStaff.filter(s => s.role === 'Receptionist').length;
 
   return (
     <Container>
@@ -493,23 +769,26 @@ const StaffManagement = () => {
         </AddDoctorBtn>
       </HeaderRow>
 
+      {staffError && <ErrorContainer>{staffError}</ErrorContainer>}
+      {deleteError && <ErrorContainer>{deleteError}</ErrorContainer>}
+
       {/* STATS */}
       <StatsGrid>
         <StatCard>
           <StatLabel>Total staff</StatLabel>
-          <StatValue>8</StatValue>
+          <StatValue>{totalStaffCount}</StatValue>
         </StatCard>
         <StatCard>
           <StatLabel>receptionist</StatLabel>
-          <StatValue>4</StatValue>
+          <StatValue>{receptionistStaffCount}</StatValue>
         </StatCard>
         <StatCard>
           <StatLabel>Nurses</StatLabel>
-          <StatValue>3</StatValue>
+          <StatValue>{nurseStaffCount}</StatValue>
         </StatCard>
         <StatCard>
           <StatLabel>Admin Staff</StatLabel>
-          <StatValue>1</StatValue>
+          <StatValue>{adminStaffCount}</StatValue>
         </StatCard>
       </StatsGrid>
 
@@ -531,17 +810,17 @@ const StaffManagement = () => {
           >
             <option value="All">All Role</option>
             <option value="Nurse">Nurse</option>
+            <option value="Receptionist">Receptionist</option>
             <option value="Admin">Admin</option>
           </DropdownSelect>
           <DropdownSelect 
             value={selectedDept} 
             onChange={e => setSelectedDept(e.target.value)}
           >
-            <option value="All">All Department</option>
-            <option value="Emergency">Emergency</option>
-            <option value="ICU">ICU</option>
-            <option value="Pediatrics">Pediatrics</option>
-            <option value="Administration">Administration</option>
+            <option value="All">All Branches</option>
+            {[...new Set(normalizedStaff.map(s => s.branchName))].filter(b => b && b !== 'N/A').map(branch => (
+              <option key={branch} value={branch}>{branch}</option>
+            ))}
           </DropdownSelect>
           <FilterBtn onClick={() => { setSearchTerm(''); setSelectedRole('All'); setSelectedDept('All'); }}>
             <Filter size={16} />
@@ -549,63 +828,81 @@ const StaffManagement = () => {
         </SelectGroup>
       </FilterRow>
 
-      {/* STAFF GRID */}
-      <StaffGrid>
-        {filteredStaff.map(member => (
-          <StaffCard key={member.id}>
-            <RoleBadge role={member.role}>{member.role}</RoleBadge>
-            
-            <CardHeader>
-              <Avatar role={member.role}>{member.initials}</Avatar>
-              <UserMeta>
-                <h4>{member.name}</h4>
-                <span>{member.id}</span>
-              </UserMeta>
-            </CardHeader>
+      {/* STAFF GRID / LOADING / EMPTY STATES */}
+      {staffLoading ? (
+        <LoadingContainer>
+          <Spinner />
+          <span>Fetching staff members...</span>
+        </LoadingContainer>
+      ) : filteredStaff.length > 0 ? (
+        <StaffGrid>
+          {filteredStaff.map(member => (
+            <StaffCard key={member.id}>
+              <RoleBadge role={member.role}>{member.role}</RoleBadge>
+              
+              <CardHeader>
+                <Avatar role={member.role}>{member.initials}</Avatar>
+                <UserMeta>
+                  <h4>{member.name}</h4>
+                  <span>ID: {member.id}</span>
+                </UserMeta>
+              </CardHeader>
 
-            <InfoList>
-              <InfoRow>
-                <span>Department:</span>
-                <span>{member.department}</span>
-              </InfoRow>
-              <InfoRow>
-                <span>Specialization:</span>
-                <span>{member.specialization}</span>
-              </InfoRow>
-              <InfoRow>
-                <span>Experience:</span>
-                <span>{member.experience}</span>
-              </InfoRow>
-              <InfoRow>
-                <span>Shift:</span>
-                <span>{member.shift}</span>
-              </InfoRow>
-            </InfoList>
+              <InfoList>
+                <InfoRow>
+                  <span>Branch:</span>
+                  <span>{member.branchName}</span>
+                </InfoRow>
+                <InfoRow>
+                  <span>Gender:</span>
+                  <span>{member.gender}</span>
+                </InfoRow>
+                <InfoRow>
+                  <span>DOB:</span>
+                  <span>{member.dobFormatted}</span>
+                </InfoRow>
+                <InfoRow>
+                  <span>Location:</span>
+                  <span>{member.location}</span>
+                </InfoRow>
+              </InfoList>
 
-            <ContactInfo>
-              <ContactRow>
-                <Phone size={13} /> {member.phone}
-              </ContactRow>
-              <ContactRow>
-                <Mail size={13} /> {member.email}
-              </ContactRow>
-            </ContactInfo>
+              <ContactInfo>
+                <ContactRow>
+                  <Phone size={13} /> {member.phone}
+                </ContactRow>
+                <ContactRow>
+                  <Mail size={13} /> {member.email}
+                </ContactRow>
+              </ContactInfo>
 
-            <CardActions>
-              <ViewBtn onClick={() => alert(`Viewing details of ${member.name}`)}>
-                <Eye size={14} /> View
-              </ViewBtn>
-              <EditBtn onClick={() => alert(`Editing details of ${member.name}`)}>
-                <Edit2 size={14} />
-              </EditBtn>
-            </CardActions>
-          </StaffCard>
-        ))}
-      </StaffGrid>
+              <CardActions>
+                <ViewBtn onClick={() => alert(`Viewing details of ${member.name}`)}>
+                  <Eye size={14} /> View
+                </ViewBtn>
+                <EditBtn onClick={() => alert(`Editing details of ${member.name}`)}>
+                  <Edit2 size={14} />
+                </EditBtn>
+                <DeleteBtn 
+                  onClick={() => handleDeleteStaff(member.id, member.branchId, member.name)}
+                  disabled={deleteLoading}
+                >
+                  <Trash2 size={14} />
+                </DeleteBtn>
+              </CardActions>
+            </StaffCard>
+          ))}
+        </StaffGrid>
+      ) : (
+        <EmptyContainer>
+          <h4>No staff members found</h4>
+          <p>Try refining your search or add a new staff member to get started.</p>
+        </EmptyContainer>
+      )}
 
       {/* FOOTER */}
       <FooterPagination>
-        <ResultsText>Showing {filteredStaff.length} of {MOCK_STAFF.length} staff members</ResultsText>
+        <ResultsText>Showing {filteredStaff.length} of {activeStaffList.length} staff members</ResultsText>
         <PaginationGroup>
           <PaginationBtn disabled={true}>
             <ChevronLeft size={14} /> Previous
@@ -621,6 +918,42 @@ const StaffManagement = () => {
         isOpen={isAddStaffModalOpen} 
         onClose={() => setIsAddStaffModalOpen(false)} 
       />
+
+      {/* CUSTOM CONFIRM DELETE MODAL */}
+      {deleteConfirmState.isOpen && (
+        <CustomModalOverlay>
+          <ConfirmModal>
+            <WarningIconWrapper>
+              <Trash2 size={28} />
+            </WarningIconWrapper>
+            <ConfirmTitle>Delete Staff Member</ConfirmTitle>
+            <ConfirmText>
+              Are you sure you want to delete staff member <strong>"{deleteConfirmState.name}"</strong>? This action cannot be undone.
+            </ConfirmText>
+            <ConfirmActions>
+              <CancelConfirmBtn 
+                type="button" 
+                onClick={() => setDeleteConfirmState({ isOpen: false, staffId: null, name: '' })}
+              >
+                Cancel
+              </CancelConfirmBtn>
+              <ActionConfirmBtn 
+                type="button" 
+                onClick={executeDelete}
+              >
+                Delete
+              </ActionConfirmBtn>
+            </ConfirmActions>
+          </ConfirmModal>
+        </CustomModalOverlay>
+      )}
+
+      {/* CUSTOM SUCCESS TOAST */}
+      {successToastState.isOpen && (
+        <SuccessToast>
+          <span>{successToastState.message}</span>
+        </SuccessToast>
+      )}
     </Container>
   );
 };

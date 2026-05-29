@@ -82,7 +82,7 @@ const Step3BasicDetails = ({ onNext, onPrev, data, updateData }) => {
   const handleContinue = (e) => {
     e.preventDefault();
 
-    if (!fullName || !profileName || !dob || !contactEmail || !contactPhone) {
+    if (!fullName || !profileName || !contactEmail || !contactPhone) {
       alert('Please fill in all required fields.');
       return;
     }
