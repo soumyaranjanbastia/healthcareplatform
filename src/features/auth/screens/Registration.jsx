@@ -46,7 +46,6 @@ const Registration = ({ onSignup, onSwitchToLogin }) => {
     country: 'India',
     state: 'Maharashtra',
     city: '',
-    companyName: 'HealthFirst Pharmacy',
     gstin: '22AAAAA0000A1Z5',
     pan: 'ABCDE1234F',
     startTime: '09:00',

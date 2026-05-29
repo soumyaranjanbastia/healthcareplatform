@@ -196,21 +196,12 @@ const AddDoctorProfessional = ({
   regNo, setRegNo,
   council, setCouncil,
   qualification, setQualification,
-  degree, setDegree,
   specialization, setSpecialization,
   experience, setExperience,
-  selectedLanguages, setSelectedLanguages,
-  condition, setCondition,
-  conditionsList, setConditionsList,
   about, setAbout,
   onContinue
 }) => {
   const [errors, setErrors] = useState({});
-  const languages = [
-    'English', 'Hindi', 'Tamil', 'Telugu', 'Kannada', 'Malayalam', 
-    'Marathi', 'Bengali', 'Gujarati', 'Punjabi', 'Urdu', 'Odia'
-  ];
-
   const dispatch = useDispatch();
   const { professions, isLoading: isSpecsLoading } = useSelector(state => state.getProfession);
 
@@ -220,7 +211,8 @@ const AddDoctorProfessional = ({
 
   useEffect(() => {
     if (!professions) {
-      dispatch(getProfessionRequest());
+      const companyId = localStorage.getItem('companyId');
+      dispatch(getProfessionRequest({ companyId }));
     }
   }, [dispatch, professions]);
 
@@ -237,21 +229,6 @@ const AddDoctorProfessional = ({
       }
     }
   }, [professions, specialization, setSpecialization]);
-
-  const handleToggleLanguage = (lang) => {
-    if (selectedLanguages.includes(lang)) {
-      setSelectedLanguages(selectedLanguages.filter(l => l !== lang));
-    } else {
-      setSelectedLanguages([...selectedLanguages, lang]);
-    }
-  };
-
-  const handleAddCondition = () => {
-    if (condition.trim()) {
-      setConditionsList([...conditionsList, condition.trim()]);
-      setCondition('');
-    }
-  };
 
   const handleNext = () => {
     const newErrors = {};
@@ -323,29 +300,17 @@ const AddDoctorProfessional = ({
         </InputGroup>
       </Row>
 
-      <Row>
-        <InputGroup>
-          <Label>Degree to display</Label>
-          <Input 
-            type="text" 
-            placeholder="eg: MBBS, BMS etc." 
-            value={degree}
-            onChange={e => setDegree(e.target.value)}
-          />
-        </InputGroup>
-
-        <InputGroup>
-          <Label>Specialization*</Label>
-          <SearchableSelect 
-            value={specialization} 
-            onChange={e => setSpecialization(e.target.value)}
-            placeholder={isSpecsLoading ? 'Loading specializations...' : 'Select Specialization'}
-            disabled={isSpecsLoading}
-            options={specializationsList.map(spec => ({ value: spec, label: spec }))}
-            error={errors.specialization}
-          />
-        </InputGroup>
-      </Row>
+      <InputGroup>
+        <Label>Specialization*</Label>
+        <SearchableSelect 
+          value={specialization} 
+          onChange={e => setSpecialization(e.target.value)}
+          placeholder={isSpecsLoading ? 'Loading specializations...' : 'Select Specialization'}
+          disabled={isSpecsLoading}
+          options={specializationsList.map(spec => ({ value: spec, label: spec }))}
+          error={errors.specialization}
+        />
+      </InputGroup>
 
       <InputGroup>
         <Label>Years of Experience</Label>
@@ -364,54 +329,6 @@ const AddDoctorProfessional = ({
             <Plus size={14} />
           </CounterBtn>
         </CounterWrapper>
-      </InputGroup>
-
-      <InputGroup>
-        <Label>Languages Spoken</Label>
-        <TagsList>
-          {languages.map(lang => (
-            <Tag 
-              key={lang}
-              type="button"
-              selected={selectedLanguages.includes(lang)}
-              onClick={() => handleToggleLanguage(lang)}
-            >
-              {lang}
-            </Tag>
-          ))}
-        </TagsList>
-      </InputGroup>
-
-      <InputGroup>
-        <Label>Condition we treat</Label>
-        <PhoneInputContainer>
-          <Input 
-            type="text" 
-            placeholder="Add a condition..." 
-            value={condition}
-            onChange={e => setCondition(e.target.value)}
-          />
-          <CounterBtn type="button" onClick={handleAddCondition} style={{ width: '44px', height: '44px', borderRadius: '10px' }}>
-            <Plus size={18} />
-          </CounterBtn>
-        </PhoneInputContainer>
-        <TagsList style={{ marginTop: 8 }}>
-          {conditionsList.map(cond => (
-            <span 
-              key={cond} 
-              style={{
-                backgroundColor: '#f1f5f9',
-                padding: '4px 12px',
-                borderRadius: '50px',
-                fontSize: '11px',
-                fontWeight: 600,
-                color: '#475569'
-              }}
-            >
-              {cond}
-            </span>
-          ))}
-        </TagsList>
       </InputGroup>
 
       <InputGroup>

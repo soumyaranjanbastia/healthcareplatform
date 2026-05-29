@@ -16,6 +16,9 @@ export const storeTokens = ({ accessToken, refreshToken, userType, user }) => {
     }
     if (user) {
       localStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
+      if (user.companyId) {
+        localStorage.setItem("companyId", user.companyId);
+      }
     }
     console.log("✅ Tokens, UserType and UserData stored successfully.");
   } catch (error) {

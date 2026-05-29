@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Phone, Mail, Eye, Edit, MapPin } from 'lucide-react';
+import { Phone, Mail, Eye, Edit, MapPin, Clock } from 'lucide-react';
 
 const Card = styled.div`
   background: #ffffff;
@@ -169,7 +169,7 @@ const getInitials = (name) => {
   return parts.map(p => p[0]).join('').substring(0, 2).toUpperCase();
 };
 
-const DoctorCard = ({ doctor, onView, onMapBranch }) => {
+const DoctorCard = ({ doctor, onView, onMapBranch, onManageAvailability }) => {
   const doctorName = doctor.fullName || doctor.name || 'Unknown Doctor';
   const displayAvatar = doctor.avatar || getInitials(doctorName);
   const displayShift = typeof doctor.shift === 'string' && doctor.shift.trim() 
@@ -237,9 +237,11 @@ const DoctorCard = ({ doctor, onView, onMapBranch }) => {
             <MapPin size={14} />
           </EditBtn>
         )}
-        <EditBtn onClick={() => alert(`Opening Edit Profile for ${doctor.name}...`)}>
-          <Edit size={14} />
-        </EditBtn>
+        {onManageAvailability && (
+          <EditBtn title="Manage Availability" onClick={() => onManageAvailability(doctor)}>
+            <Clock size={14} />
+          </EditBtn>
+        )}
       </ActionRow>
     </Card>
   );

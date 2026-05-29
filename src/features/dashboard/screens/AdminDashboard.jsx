@@ -17,9 +17,11 @@ import ComingSoon from '../../../components/common/ComingSoon';
 import DoctorList from '../../doctors/screens/DoctorList';
 import DoctorDetails from '../../doctors/screens/DoctorDetails';
 import AddDoctorFlow from '../../doctors/screens/AddDoctorFlow';
+import AvailabilitySettings from '../../doctors/screens/AvailabilitySettings';
 import BranchManagementView from '../../doctors/components/BranchManagementView';
 import { getBranchesRequest, deleteBranchRequest, clearDeleteState } from '../../doctors/redux/branchesSlice';
 import { getDoctorListRequest } from '../../doctors/redux/doctorListSlice';
+import { mapDoctorRequest, resetMapDoctorState } from '../../doctors/redux/mapDoctorSlice';
 
 const ContentWrapper = styled.div`
   max-width: 1440px;
@@ -172,9 +174,10 @@ const AdminDashboard = () => {
   const [selectedPatientId, setSelectedPatientId] = useState(null);
 
   // Doctors view states
-  const [doctorView, setDoctorView] = useState('LIST'); // 'LIST' | 'DETAILS' | 'ADD_NEW'
+  const [doctorView, setDoctorView] = useState('LIST'); // 'LIST' | 'DETAILS' | 'ADD_NEW' | 'AVAILABILITY'
   const [doctorsTab, setDoctorsTab] = useState('DIRECTORY'); // 'DIRECTORY' | 'BRANCHES'
   const [activeDoctor, setActiveDoctor] = useState(null);
+  const [activeDoctorForAvailability, setActiveDoctorForAvailability] = useState(null);
 
   // Redux selector for doctor list
   const { doctors: reduxDoctors = [] } = useSelector(state => state.doctorList);
@@ -217,6 +220,13 @@ const AdminDashboard = () => {
     deleteErrorMessage
   } = useSelector(state => state.branches);
 
+  // Map doctor state from Redux
+  const {
+    loading: mapDoctorLoading,
+    success: mapDoctorSuccess,
+    error: mapDoctorError
+  } = useSelector(state => state.mapDoctor || {});
+
   const [activeDoctorForMapping, setActiveDoctorForMapping] = useState(null);
   const [showMappingModal, setShowMappingModal] = useState(false);
 
@@ -232,18 +242,31 @@ const AdminDashboard = () => {
     }
   };
 
-  // Map doctor to branch locally
+  // Map doctor to branch via Redux Saga
   const handleMapDoctorToBranch = (doctorId, branchId) => {
-    setDoctors(prev => prev.map(doc => {
-      if (doc.id === doctorId) {
-        return {
-          ...doc,
-          branchId: branchId,
-        };
-      }
-      return doc;
+    const companyIdVal = currentUser?.companyId || localStorage.getItem('companyId');
+    dispatch(mapDoctorRequest({ 
+      doctorId, 
+      branchId, 
+      companyId: companyIdVal ? Number(companyIdVal) : undefined 
     }));
   };
+
+  useEffect(() => {
+    if (mapDoctorSuccess) {
+      alert("Doctor branch mapping updated successfully!");
+      dispatch(resetMapDoctorState());
+      dispatch(getDoctorListRequest({}));
+      fetchBranches();
+    }
+  }, [mapDoctorSuccess, dispatch]);
+
+  useEffect(() => {
+    if (mapDoctorError) {
+      alert(mapDoctorError);
+      dispatch(resetMapDoctorState());
+    }
+  }, [mapDoctorError, dispatch]);
 
   useEffect(() => {
     // Fetch dashboard overview when on Dashboard view
@@ -335,6 +358,15 @@ const AdminDashboard = () => {
           );
         }
 
+        if (doctorView === 'AVAILABILITY' && activeDoctorForAvailability) {
+          return (
+            <AvailabilitySettings
+              doctor={activeDoctorForAvailability}
+              onBack={() => setDoctorView('LIST')}
+            />
+          );
+        }
+
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <TabControl>
@@ -363,6 +395,10 @@ const AdminDashboard = () => {
                 onMapBranch={(doctor) => {
                   setActiveDoctorForMapping(doctor);
                   setShowMappingModal(true);
+                }}
+                onManageAvailability={(doctor) => {
+                  setActiveDoctorForAvailability(doctor);
+                  setDoctorView('AVAILABILITY');
                 }}
               />
             ) : (
@@ -457,25 +493,25 @@ const AdminDashboard = () => {
 
       {/* QUICK BRANCH MAPPING MODAL */}
       {showMappingModal && activeDoctorForMapping && (
-        <ModalOverlay onClick={() => setShowMappingModal(false)}>
+        <ModalOverlay onClick={() => !mapDoctorLoading && setShowMappingModal(false)}>
           <ModalCard onClick={e => e.stopPropagation()}>
             <ModalHeader>
               <h3>Map Doctor to Branch</h3>
-              <ModalCloseBtn onClick={() => setShowMappingModal(false)}>
+              <ModalCloseBtn onClick={() => !mapDoctorLoading && setShowMappingModal(false)} disabled={mapDoctorLoading}>
                 <X size={16} />
               </ModalCloseBtn>
             </ModalHeader>
             <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
-              Map <strong>{activeDoctorForMapping.name}</strong> to a branch:
+              Map <strong>{activeDoctorForMapping.fullName || activeDoctorForMapping.name || 'Unknown Doctor'}</strong> to a branch:
             </p>
             <FormGroup>
               <Label>Select Branch</Label>
               <Select 
                 value={activeDoctorForMapping.branchId || ''} 
+                disabled={mapDoctorLoading}
                 onChange={e => {
                   handleMapDoctorToBranch(activeDoctorForMapping.id, e.target.value ? Number(e.target.value) : null);
                   setShowMappingModal(false);
-                  alert(`Doctor successfully mapped to selected branch!`);
                 }}
               >
                 <option value="">-- Unmapped / No Branch --</option>
@@ -484,6 +520,11 @@ const AdminDashboard = () => {
                 ))}
               </Select>
             </FormGroup>
+            {mapDoctorLoading && (
+              <div style={{ fontSize: '12px', color: '#009688', fontWeight: 600, textAlign: 'center' }}>
+                Mapping doctor... Please wait.
+              </div>
+            )}
           </ModalCard>
         </ModalOverlay>
       )}

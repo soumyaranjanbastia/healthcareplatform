@@ -363,7 +363,6 @@ const BranchManagementView = ({ branches = [], doctors = [], isLoading = false, 
     }
     onMapDoctor(Number(selectedBranchId), selectedDoctorId);
     setShowModal(false);
-    alert("Doctor successfully assigned to branch!");
   };
 
   const handleUnmap = (doctorId) => {
@@ -454,7 +453,7 @@ const BranchManagementView = ({ branches = [], doctors = [], isLoading = false, 
                     {assignedDoctors.length > 0 ? (
                       assignedDoctors.map(doc => (
                         <DoctorTag key={doc.id}>
-                          <span>{doc.name}</span>
+                          <span>{doc.fullName || doc.name || 'Unknown Doctor'}</span>
                           <UnmapBtn title="Unassign Doctor" onClick={() => handleUnmap(doc.id)}>
                             <X size={12} />
                           </UnmapBtn>
@@ -496,9 +495,14 @@ const BranchManagementView = ({ branches = [], doctors = [], isLoading = false, 
             <FormGroup>
               <Label>Select Doctor</Label>
               <Select value={selectedDoctorId} onChange={e => setSelectedDoctorId(e.target.value)}>
-                {doctors.map(d => (
-                  <option key={d.id} value={d.id}>{d.name} ({d.specialization})</option>
-                ))}
+                {doctors.map(d => {
+                  const spec = d.specialization || (Array.isArray(d.qualification) ? d.qualification.join(', ') : d.qualification) || 'N/A';
+                  return (
+                    <option key={d.id} value={d.id}>
+                      {d.fullName || d.name || 'Unknown Doctor'} ({spec})
+                    </option>
+                  );
+                })}
               </Select>
             </FormGroup>
 

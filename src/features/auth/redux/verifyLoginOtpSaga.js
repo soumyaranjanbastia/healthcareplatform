@@ -19,7 +19,14 @@ function* handleVerifyLoginOtp(action) {
       payload
     );
 
-    yield put(verifyLoginOtpSuccess(response.data || response));
+    const responseData = response.data || response;
+    
+    // Store companyId in localStorage for subsequent API calls
+    if (responseData?.user?.companyId) {
+      localStorage.setItem('companyId', responseData.user.companyId);
+    }
+
+    yield put(verifyLoginOtpSuccess(responseData));
   } catch (error) {
     yield put(verifyLoginOtpFailure(error.message || 'Failed to verify OTP. Please try again.'));
   }

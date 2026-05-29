@@ -27,6 +27,9 @@ import doctorListReducer from "../features/doctors/redux/doctorListSlice";
 import getProfessionReducer from "../features/doctors/redux/getProfessionSlice";
 import patientManagementReducer from "../features/patients/redux/patientManagementSlice";
 import staffRegistrationReducer from "../features/staff/redux/staffSlice";
+import mapDoctorReducer from "../features/doctors/redux/mapDoctorSlice";
+import getAvailabilityReducer from "../features/doctors/redux/getAvailabilitySlice";
+import setAvailabilityReducer from "../features/doctors/redux/setAvailabilitySlice";
 
 const appReducer = combineReducers({
   staff: dashboardReducer, // Bound as 'staff' to prevent breaking legacy App.jsx selectors
@@ -57,6 +60,9 @@ const appReducer = combineReducers({
   getProfession: getProfessionReducer,
   patientManagement: patientManagementReducer,
   staffRegistration: staffRegistrationReducer,
+  mapDoctor: mapDoctorReducer,
+  getAvailability: getAvailabilityReducer,
+  setAvailability: setAvailabilityReducer,
 });
 
 const rootReducer = (state, action) => {

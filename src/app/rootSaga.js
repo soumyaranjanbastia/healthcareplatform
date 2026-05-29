@@ -27,6 +27,9 @@ import getProfessionSaga from '../features/doctors/redux/getProfessionSaga';
 import patientManagementSaga from '../features/patients/redux/patientManagementSaga';
 import { watchLogout } from '../features/auth/redux/logoutSaga';
 import staffRegistrationSaga from '../features/staff/redux/staffSaga';
+import mapDoctorSaga from '../features/doctors/redux/mapDoctorSaga';
+import getAvailabilitySaga from '../features/doctors/redux/getAvailabilitySaga';
+import setAvailabilitySaga from '../features/doctors/redux/setAvailabilitySaga';
 
 export default function* rootSaga() {
   yield all([
@@ -58,5 +61,8 @@ export default function* rootSaga() {
     fork(patientManagementSaga),
     fork(watchLogout),
     fork(staffRegistrationSaga),
+    fork(mapDoctorSaga),
+    fork(getAvailabilitySaga),
+    fork(setAvailabilitySaga),
   ]);
 }

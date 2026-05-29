@@ -300,12 +300,16 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
   const fullLocation = `${city ? city + ', ' : ''}${state ? state + ', ' : ''}${country}`.trim().replace(/,\s*$/, '');
 
   const handleStepSubmit = (currentStepNumber) => {
+    const companyIdVal = localStorage.getItem('companyId');
     const payload = {
       registrationType: 'provider',
+      companyId: companyIdVal ? Number(companyIdVal) : undefined,
+      email,
     };
 
     if (currentStepNumber === 3) {
       payload.BasicInfo = {
+        companyId: companyIdVal ? Number(companyIdVal) : undefined,
         email,
         phone: `${phonePrefix}${phone}`,
         profileImage: profileImage,
@@ -361,9 +365,13 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
   };
 
   const handleSubmitFinal = () => {
+    const companyIdVal = localStorage.getItem('companyId');
     const payload = {
       registrationType: 'provider',
+      companyId: companyIdVal ? Number(companyIdVal) : undefined,
+      email,
       BasicInfo: {
+        companyId: companyIdVal ? Number(companyIdVal) : undefined,
         email,
         phone: `${phonePrefix}${phone}`,
         profileImage: profileImage,
@@ -503,12 +511,8 @@ const AddDoctorFlow = ({ onClose, onComplete }) => {
             regNo={regNo} setRegNo={setRegNo}
             council={council} setCouncil={setCouncil}
             qualification={qualification} setQualification={setQualification}
-            degree={degree} setDegree={setDegree}
             specialization={specialization} setSpecialization={setSpecialization}
             experience={experience} setExperience={setExperience}
-            selectedLanguages={selectedLanguages} setSelectedLanguages={setSelectedLanguages}
-            condition={condition} setCondition={setCondition}
-            conditionsList={conditionsList} setConditionsList={setConditionsList}
             about={about} setAbout={setAbout}
             onContinue={() => handleStepSubmit(4)}
           />

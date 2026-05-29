@@ -29,10 +29,10 @@ const API_ENDPOINTS = {
   dashboardOverview: 'hospital/dashboardOverview',
   sendLoginOtp: 'hospital/send-login-otp',
   verifyLoginOtp: 'hospital/verify-login-otp',
-  professionalDetails: 'auth/addProfessionalDetails',
+  professionalDetails: 'hospital/addProfessionalDetails',
   insertEmailandPhone: 'auth/insertEmailandPhone',
   getProfession: 'auth/getProfession',
-  verifyAuthOtp: 'auth/verify',
+  verifyAuthOtp: 'hospital/verify',
   resendAuthOtp: 'auth/resend',
   logout: 'hospital/logout',
   getBranches: 'hospital/getBranches',
@@ -43,6 +43,9 @@ const API_ENDPOINTS = {
   createStaff: 'hospital/createStaff',
   getStaff: 'hospital/getStaff',
   deleteStaff: 'hospital/deleteStaff',
+  mapDoctorBranch: 'hospital/mapWithBranch',
+  setAvailability: 'hospital/createSchedule',
+  getAvailability: 'hospital/getProviderSchedule',
 };
 
 export default API_ENDPOINTS;
