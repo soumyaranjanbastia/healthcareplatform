@@ -192,7 +192,7 @@ const AdminDashboard = () => {
       if (Array.isArray(val.doctors)) return val.doctors;
       if (Array.isArray(val.list)) return val.list;
       if (Array.isArray(val.data)) return val.data;
-      
+
       const firstArrayProp = Object.values(val).find(prop => Array.isArray(prop));
       if (firstArrayProp) return firstArrayProp;
 
@@ -245,10 +245,10 @@ const AdminDashboard = () => {
   // Map doctor to branch via Redux Saga
   const handleMapDoctorToBranch = (doctorId, branchId) => {
     const companyIdVal = currentUser?.companyId || localStorage.getItem('companyId');
-    dispatch(mapDoctorRequest({ 
-      doctorId, 
-      branchId, 
-      companyId: companyIdVal ? Number(companyIdVal) : undefined 
+    dispatch(mapDoctorRequest({
+      doctorId,
+      branchId,
+      companyId: companyIdVal ? Number(companyIdVal) : undefined
     }));
   };
 
@@ -402,7 +402,7 @@ const AdminDashboard = () => {
                 }}
               />
             ) : (
-              <BranchManagementView 
+              <BranchManagementView
                 branches={branches}
                 doctors={Array.isArray(doctors) ? doctors : []}
                 isLoading={branchesLoading}
@@ -422,40 +422,40 @@ const AdminDashboard = () => {
         return <PatientManagement onViewDetails={handleViewPatientDetails} />;
       case 'Appointments':
         return (
-          <ComingSoon 
-            badgeText="Appointments" 
-            title="Hospital Appointments Calendar" 
-            gradientSpan="Coming Soon" 
+          <ComingSoon
+            badgeText="Appointments"
+            title="Hospital Appointments Calendar"
+            gradientSpan="Coming Soon"
             description="We are currently building a modular scheduling interface. You'll be able to view, update, and manage doctor bookings in a centralized calendar workspace."
             onNotifySuccess={() => setCurrentView('Dashboard')}
           />
         );
       case 'Analytics':
         return (
-          <ComingSoon 
-            badgeText="Analytics" 
-            title="Central Analytics & Operations Metrics" 
-            gradientSpan="Under Construction" 
+          <ComingSoon
+            badgeText="Analytics"
+            title="Central Analytics & Operations Metrics"
+            gradientSpan="Under Construction"
             description="A complete operations analytics panel displaying real-time clinical logs, staff distribution, and custom report builders is currently under development."
             onNotifySuccess={() => setCurrentView('Dashboard')}
           />
         );
       case 'Settings':
         return (
-          <ComingSoon 
-            badgeText="Settings" 
-            title="Admin System Settings & Audit Logs" 
-            gradientSpan="Under Development" 
+          <ComingSoon
+            badgeText="Settings"
+            title="Admin System Settings & Audit Logs"
+            gradientSpan="Under Development"
             description="Configure hospital details, roles, permissions, operational bounds, and track clinical auditing summaries. This panel will go live in the upcoming iteration."
             onNotifySuccess={() => setCurrentView('Dashboard')}
           />
         );
       case 'Notifications':
         return (
-          <ComingSoon 
-            badgeText="Notifications" 
-            title="Real-Time Alerts & Notification Center" 
-            gradientSpan="Coming Soon" 
+          <ComingSoon
+            badgeText="Notifications"
+            title="Real-Time Alerts & Notification Center"
+            gradientSpan="Coming Soon"
             description="We are building a robust live messaging and clinical notifications hub. Register your email below to get early updates!"
             icon={<Bell size={30} />}
             onNotifySuccess={() => setCurrentView('Dashboard')}
@@ -463,10 +463,10 @@ const AdminDashboard = () => {
         );
       case 'Billing':
         return (
-          <ComingSoon 
-            badgeText="Earnings & Finance" 
-            title="Hospital Revenue & Earnings Panels" 
-            gradientSpan="Under Development" 
+          <ComingSoon
+            badgeText="Earnings & Finance"
+            title="Hospital Revenue & Earnings Panels"
+            gradientSpan="Under Development"
             description="A complete financial panel displaying real-time patient fee earnings, transaction summaries, and digital payouts is currently under construction."
             icon={<CreditCard size={30} />}
             onNotifySuccess={() => setCurrentView('Dashboard')}
@@ -485,7 +485,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <DashboardLayout 
+    <DashboardLayout
       activeSidebarLabel={currentView}
       onSidebarItemClick={handleSidebarItemClick}
     >
@@ -506,8 +506,8 @@ const AdminDashboard = () => {
             </p>
             <FormGroup>
               <Label>Select Branch</Label>
-              <Select 
-                value={activeDoctorForMapping.branchId || ''} 
+              <Select
+                value={activeDoctorForMapping.branchId || ''}
                 disabled={mapDoctorLoading}
                 onChange={e => {
                   handleMapDoctorToBranch(activeDoctorForMapping.id, e.target.value ? Number(e.target.value) : null);

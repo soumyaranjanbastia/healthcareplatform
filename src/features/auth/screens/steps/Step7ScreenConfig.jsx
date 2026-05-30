@@ -144,16 +144,16 @@ const Step7ScreenConfig = ({ onNext, onPrev, data, updateData }) => {
           <QueryLabel>How many OPD Rooms available ?</QueryLabel>
           <InputWrapper>
             <SpinnerBtn type="button" onClick={() => adjustVal(setRooms, rooms, -1)}>-</SpinnerBtn>
-            <StyledInput 
-              type="text" 
-              value={rooms} 
-              readOnly 
+            <StyledInput
+              type="text"
+              value={rooms}
+              readOnly
             />
             <SuffixText>Rooms</SuffixText>
             <SpinnerBtn type="button" onClick={() => adjustVal(setRooms, rooms, 1)} style={{ marginLeft: 'auto' }}>+</SpinnerBtn>
           </InputWrapper>
           <InfoBox>
-            💡 You can add or modify EMR screens later from your dashboard settings
+            You can add or modify EMR screens later from your dashboard settings
           </InfoBox>
         </ConfigCard>
 
@@ -166,16 +166,16 @@ const Step7ScreenConfig = ({ onNext, onPrev, data, updateData }) => {
           <QueryLabel>How many consultation screens will you have?</QueryLabel>
           <InputWrapper>
             <SpinnerBtn type="button" onClick={() => adjustVal(setScreens, screens, -1)}>-</SpinnerBtn>
-            <StyledInput 
-              type="text" 
-              value={screens} 
-              readOnly 
+            <StyledInput
+              type="text"
+              value={screens}
+              readOnly
             />
             <SuffixText>screen</SuffixText>
             <SpinnerBtn type="button" onClick={() => adjustVal(setScreens, screens, 1)} style={{ marginLeft: 'auto' }}>+</SpinnerBtn>
           </InputWrapper>
           <InfoBox>
-            💡 You can add or modify EMR screens later from your dashboard settings
+            You can add or modify EMR screens later from your dashboard settings
           </InfoBox>
         </ConfigCard>
       </ConfigGrid>

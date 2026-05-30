@@ -16,24 +16,17 @@ const Step5BankDetails = ({ onNext, onPrev, data, updateData }) => {
     const newErrors = {};
 
     // 1. Account Holder Name
-    if (!bankHolderName.trim()) {
-      newErrors.bankHolderName = 'Account holder name is required';
-    } else {
+    if (bankHolderName && bankHolderName.trim()) {
       const nameRegex = /^[a-zA-Z\s]+$/;
       if (!nameRegex.test(bankHolderName.trim())) {
         newErrors.bankHolderName = 'Account holder name must contain letters only';
       }
     }
 
-    // 2. Account Number
-    if (!bankAccountNumber.trim()) {
-      newErrors.bankAccountNumber = 'Account number is required';
-    }
+    // 2. Account Number - completely optional
 
     // 3. IFSC Code
-    if (!bankIfsc.trim()) {
-      newErrors.bankIfsc = 'IFSC code is required';
-    } else {
+    if (bankIfsc && bankIfsc.trim()) {
       const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
       if (!ifscRegex.test(bankIfsc.trim())) {
         newErrors.bankIfsc = 'Invalid IFSC code format (e.g. SBIN0001234)';
@@ -41,7 +34,7 @@ const Step5BankDetails = ({ onNext, onPrev, data, updateData }) => {
     }
 
     // 4. UPI ID (Optional)
-    if (bankUpi.trim()) {
+    if (bankUpi && bankUpi.trim()) {
       const upiRegex = /^[a-zA-Z0-9.\-_]+@[a-zA-Z0-9]+$/;
       if (!upiRegex.test(bankUpi.trim())) {
         newErrors.bankUpi = 'Invalid UPI ID format (e.g. name@upi)';
@@ -70,7 +63,6 @@ const Step5BankDetails = ({ onNext, onPrev, data, updateData }) => {
       <WizardCard title="Bank Details" icon={<CreditCard size={20} />}>
         <WizardInput 
           label="Account Holder Name" 
-          required={true}
           placeholder="As per bank account" 
           value={bankHolderName}
           onChange={e => {
@@ -81,7 +73,6 @@ const Step5BankDetails = ({ onNext, onPrev, data, updateData }) => {
         />
         <WizardInput 
           label="Account Number" 
-          required={true}
           placeholder="Enter account number" 
           value={bankAccountNumber}
           onChange={e => {
@@ -92,7 +83,6 @@ const Step5BankDetails = ({ onNext, onPrev, data, updateData }) => {
         />
         <WizardInput 
           label="IFSC Code" 
-          required={true}
           placeholder="Enter IFSC code" 
           value={bankIfsc}
           maxLength={11}

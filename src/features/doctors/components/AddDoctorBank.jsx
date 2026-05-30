@@ -165,16 +165,37 @@ const AddDoctorBank = ({
 
   const handleNext = () => {
     const newErrors = {};
-    if (!accHolderName) newErrors.accHolderName = 'Account Holder Name is required.';
-    if (!accNumber) newErrors.accNumber = 'Account Number is required.';
-    if (!confirmAccNumber) {
-      newErrors.confirmAccNumber = 'Confirm Account Number is required.';
-    } else if (accNumber !== confirmAccNumber) {
-      newErrors.confirmAccNumber = 'Account numbers do not match!';
+
+    // Account Holder Name format check if filled
+    if (accHolderName && accHolderName.trim()) {
+      const nameRegex = /^[a-zA-Z\s]+$/;
+      if (!nameRegex.test(accHolderName.trim())) {
+        newErrors.accHolderName = 'Account Holder Name must only contain letters.';
+      }
     }
-    if (!ifscCode) newErrors.ifscCode = 'IFSC Code is required.';
-    if (!bankName) newErrors.bankName = 'Bank Name is required.';
-    if (!panNumber) newErrors.panNumber = 'PAN Number is required.';
+
+    // Account Number match check if either is filled
+    if (accNumber || confirmAccNumber) {
+      if (accNumber !== confirmAccNumber) {
+        newErrors.confirmAccNumber = 'Account numbers do not match!';
+      }
+    }
+
+    // IFSC Code format validation if filled
+    if (ifscCode && ifscCode.trim()) {
+      const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+      if (!ifscRegex.test(ifscCode.toUpperCase().trim())) {
+        newErrors.ifscCode = 'Invalid IFSC code format (e.g. SBIN0001234)';
+      }
+    }
+
+    // PAN Number format validation if filled
+    if (panNumber && panNumber.trim()) {
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (!panRegex.test(panNumber.toUpperCase().trim())) {
+        newErrors.panNumber = 'Invalid PAN format (e.g. ABCDE1234F)';
+      }
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -192,12 +213,12 @@ const AddDoctorBank = ({
       </div>
 
       <InputGroup>
-        <Label>Account Holder Name*</Label>
+        <Label>Account Holder Name</Label>
         <Input 
           type="text" 
           placeholder="Enter account holder name" 
           value={accHolderName}
-          onChange={e => setAccHolderName(e.target.value)}
+          onChange={e => setAccHolderName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
           style={errors.accHolderName ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
         />
         {errors.accHolderName && <ErrorText>{errors.accHolderName}</ErrorText>}
@@ -205,7 +226,7 @@ const AddDoctorBank = ({
 
       <Row>
         <InputGroup>
-          <Label>Account Number*</Label>
+          <Label>Account Number</Label>
           <PasswordWrapper>
             <Input 
               type={showAccNumber ? "text" : "password"} 
@@ -228,7 +249,7 @@ const AddDoctorBank = ({
         </InputGroup>
 
         <InputGroup>
-          <Label>Confirm Account Number*</Label>
+          <Label>Confirm Account Number</Label>
           <Input 
             type="text" 
             placeholder="Re-enter account number" 
@@ -242,19 +263,20 @@ const AddDoctorBank = ({
 
       <Row>
         <InputGroup>
-          <Label>IFSC Code*</Label>
+          <Label>IFSC Code</Label>
           <Input 
             type="text" 
             placeholder="SBIN0001234" 
             value={ifscCode}
-            onChange={e => setIfscCode(e.target.value)}
+            maxLength={11}
+            onChange={e => setIfscCode(e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())}
             style={errors.ifscCode ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
           />
           {errors.ifscCode && <ErrorText>{errors.ifscCode}</ErrorText>}
         </InputGroup>
 
         <InputGroup>
-          <Label>Bank Name*</Label>
+          <Label>Bank Name</Label>
           <Input 
             type="text" 
             placeholder="Enter bank name" 
@@ -267,12 +289,13 @@ const AddDoctorBank = ({
       </Row>
 
       <InputGroup style={{ maxWidth: '49%' }}>
-        <Label>PAN Number*</Label>
+        <Label>PAN Number</Label>
         <Input 
           type="text" 
           placeholder="ABCDE1234F" 
           value={panNumber}
-          onChange={e => setPanNumber(e.target.value)}
+          maxLength={10}
+          onChange={e => setPanNumber(e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())}
           style={errors.panNumber ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
         />
         {errors.panNumber && <ErrorText>{errors.panNumber}</ErrorText>}

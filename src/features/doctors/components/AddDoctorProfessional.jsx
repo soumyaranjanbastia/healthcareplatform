@@ -221,7 +221,7 @@ const AddDoctorProfessional = ({
       const healthService = professions.services.find(s => s.name === 'health' || s.id === 1);
       if (healthService && Array.isArray(healthService.specializations)) {
         setSpecializationsList(healthService.specializations);
-        
+
         // If the current specialization state is empty or not in the fetched list, select the first option
         if (healthService.specializations.length > 0 && !healthService.specializations.includes(specialization)) {
           setSpecialization(healthService.specializations[0]);
@@ -252,9 +252,9 @@ const AddDoctorProfessional = ({
 
       <InputGroup>
         <Label>Medical Registration Number*</Label>
-        <Input 
-          type="text" 
-          placeholder="Enter registration number" 
+        <Input
+          type="text"
+          placeholder="Enter registration number"
           value={regNo}
           onChange={e => setRegNo(e.target.value)}
           style={errors.regNo ? { borderColor: '#ef4444', boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.08)' } : {}}
@@ -265,8 +265,8 @@ const AddDoctorProfessional = ({
       <Row>
         <InputGroup>
           <Label>Registration Council*</Label>
-          <SearchableSelect 
-            value={council} 
+          <SearchableSelect
+            value={council}
             onChange={e => setCouncil(e.target.value)}
             placeholder="Select Council"
             options={[
@@ -281,8 +281,8 @@ const AddDoctorProfessional = ({
 
         <InputGroup>
           <Label>Highest Qualification*</Label>
-          <SearchableSelect 
-            value={qualification} 
+          <SearchableSelect
+            value={qualification}
             onChange={e => setQualification(e.target.value)}
             placeholder="Select Qualification"
             options={[
@@ -302,8 +302,8 @@ const AddDoctorProfessional = ({
 
       <InputGroup>
         <Label>Specialization*</Label>
-        <SearchableSelect 
-          value={specialization} 
+        <SearchableSelect
+          value={specialization}
           onChange={e => setSpecialization(e.target.value)}
           placeholder={isSpecsLoading ? 'Loading specializations...' : 'Select Specialization'}
           disabled={isSpecsLoading}
@@ -315,15 +315,15 @@ const AddDoctorProfessional = ({
       <InputGroup>
         <Label>Years of Experience</Label>
         <CounterWrapper>
-          <CounterBtn 
-            type="button" 
+          <CounterBtn
+            type="button"
             onClick={() => setExperience(prev => Math.max(1, prev - 1))}
           >
             <Minus size={14} />
           </CounterBtn>
           <CounterValue>{experience}</CounterValue>
-          <CounterBtn 
-            type="button" 
+          <CounterBtn
+            type="button"
             onClick={() => setExperience(prev => prev + 1)}
           >
             <Plus size={14} />
@@ -333,7 +333,7 @@ const AddDoctorProfessional = ({
 
       <InputGroup>
         <Label>About*</Label>
-        <TextArea 
+        <TextArea
           placeholder="Write about Yourself"
           value={about}
           onChange={e => setAbout(e.target.value)}

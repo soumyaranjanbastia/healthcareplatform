@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Mail, ArrowRight, CheckCircle } from 'lucide-react';
+import { Mail, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import WizardCard from '../../components/WizardCard';
 import WizardInput from '../../components/WizardInput';
@@ -107,16 +107,16 @@ const ModalText = styled.p`
 
 const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
   const dispatch = useDispatch();
-  
+
   // States from Redux
   const { isLoading, isSuccess, isError, errorMessage, successMessage, emailKey, phoneKey } = useSelector((state) => state.sendHospitalOtp);
-  
-  const { 
-    isLoading: isVerifyLoading, 
-    isSuccess: isVerifySuccess, 
-    isError: isVerifyError, 
-    errorMessage: verifyErrorMessage, 
-    successMessage: verifySuccessMessage 
+
+  const {
+    isLoading: isVerifyLoading,
+    isSuccess: isVerifySuccess,
+    isError: isVerifyError,
+    errorMessage: verifyErrorMessage,
+    successMessage: verifySuccessMessage
   } = useSelector((state) => state.verifyHospitalOtp);
 
   const {
@@ -136,6 +136,7 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
   const [phoneOtp, setPhoneOtp] = useState('');
   const [agreed, setAgreed] = useState(data.agreed || false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showOtpWarningModal, setShowOtpWarningModal] = useState(false);
   const [errors, setErrors] = useState({});
 
   // Active Keys Logic: Prioritize the keys from the Resend API if available
@@ -211,44 +212,48 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
     if (!agreed) {
       newErrors.agreed = 'Please agree to the Terms of Service and Privacy Policy.';
     }
-    if (!otpSent) {
-      newErrors.otpSent = 'Please click "Send OTP" to receive and enter verification codes.';
-    } else {
-      if (!emailOtp) {
-        newErrors.emailOtp = 'Email OTP is required.';
-      } else if (emailOtp.length !== 6) {
-        newErrors.emailOtp = 'OTP must be exactly 6 digits.';
-      }
-      if (!phoneOtp) {
-        newErrors.phoneOtp = 'Phone OTP is required.';
-      } else if (phoneOtp.length !== 6) {
-        newErrors.phoneOtp = 'OTP must be exactly 6 digits.';
-      }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    if (!otpSent || !emailOtp || !phoneOtp) {
+      setShowOtpWarningModal(true);
+      return;
+    }
+
+    if (emailOtp.length !== 6) {
+      newErrors.emailOtp = 'OTP must be exactly 6 digits.';
+    }
+    if (phoneOtp.length !== 6) {
+      newErrors.phoneOtp = 'OTP must be exactly 6 digits.';
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
+
     setErrors({});
-    dispatch(verifyHospitalOtpRequest({ 
-      emailOtp, 
-      emailKey: activeEmailKey, 
-      phoneOtp, 
-      phoneKey: activePhoneKey 
+    dispatch(verifyHospitalOtpRequest({
+      emailOtp,
+      emailKey: activeEmailKey,
+      phoneOtp,
+      phoneKey: activePhoneKey
     }));
   };
 
   const handleModalContinue = () => {
     setShowSuccessModal(false);
-    updateData({ 
-      email, 
-      phone, 
-      agreed, 
-      emailKey: activeEmailKey, 
-      phoneKey: activePhoneKey, 
-      emailOtp, 
-      phoneOtp 
+    updateData({
+      email,
+      phone,
+      agreed,
+      emailKey: activeEmailKey,
+      phoneKey: activePhoneKey,
+      emailOtp,
+      phoneOtp
     });
     onNext();
   };
@@ -257,20 +262,20 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
     <>
       <form onSubmit={handleContinue} noValidate>
         <WizardCard title="Company Email & Mobile Verification" icon={<Mail size={20} />}>
-          <WizardInput 
-            label="Email Address" 
-            required 
-            type="email" 
-            placeholder="partner@example.com" 
+          <WizardInput
+            label="Email Address"
+            required
+            type="email"
+            placeholder="partner@example.com"
             value={email}
             onChange={e => setEmail(e.target.value)}
             error={errors.email}
           />
-          <WizardInput 
-            label="Mobile Number" 
-            required 
-            type="tel" 
-            placeholder="9876543210" 
+          <WizardInput
+            label="Mobile Number"
+            required
+            type="tel"
+            placeholder="9876543210"
             value={phone}
             maxLength={10}
             onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
@@ -286,19 +291,19 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
 
           {otpSent && (
             <>
-              <WizardInput 
-                label="Enter Email OTP" 
-                required 
-                placeholder="6-digit OTP" 
+              <WizardInput
+                label="Enter Email OTP"
+                required
+                placeholder="6-digit OTP"
                 value={emailOtp}
                 maxLength={6}
                 onChange={e => setEmailOtp(e.target.value.replace(/\D/g, ''))}
                 error={errors.emailOtp}
               />
-              <WizardInput 
-                label="Enter Phone OTP" 
-                required 
-                placeholder="6-digit OTP" 
+              <WizardInput
+                label="Enter Phone OTP"
+                required
+                placeholder="6-digit OTP"
                 value={phoneOtp}
                 maxLength={6}
                 onChange={e => setPhoneOtp(e.target.value.replace(/\D/g, ''))}
@@ -308,10 +313,10 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
           )}
 
           <StyledCheckboxLabel>
-            <input 
-              type="checkbox" 
-              checked={agreed} 
-              onChange={e => setAgreed(e.target.checked)} 
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={e => setAgreed(e.target.checked)}
             />
             I agree to our Terms of Service and Privacy Policy
           </StyledCheckboxLabel>
@@ -338,6 +343,21 @@ const Step1Verification = ({ onNext, onPrev, data, updateData }) => {
             <ButtonWrapper>
               <WizardButton type="button" onClick={handleModalContinue}>
                 Continue
+              </WizardButton>
+            </ButtonWrapper>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+
+      {showOtpWarningModal && (
+        <ModalOverlay>
+          <ModalContent>
+            <AlertCircle size={64} color="#ef4444" style={{ margin: '0 auto' }} />
+            <ModalTitle>Validate OTP</ModalTitle>
+            <ModalText>OTP Validation Required</ModalText>
+            <ButtonWrapper>
+              <WizardButton type="button" onClick={() => setShowOtpWarningModal(false)}>
+                Close
               </WizardButton>
             </ButtonWrapper>
           </ModalContent>

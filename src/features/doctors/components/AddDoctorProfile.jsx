@@ -245,7 +245,9 @@ const AddDoctorProfile = ({
       }
     }
 
-    if (lastName) {
+    if (!lastName) {
+      newErrors.lastName = 'Last Name is required.';
+    } else {
       const nameRegex = /^[a-zA-Z\s]+$/;
       if (!nameRegex.test(lastName)) {
         newErrors.lastName = 'Last Name must only contain letters.';
@@ -361,7 +363,7 @@ const AddDoctorProfile = ({
         </InputGroup>
 
         <InputGroup>
-          <Label>Last Name</Label>
+          <Label>Last Name*</Label>
           <Input 
             type="text" 
             placeholder="Last Name" 

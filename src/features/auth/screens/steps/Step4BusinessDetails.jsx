@@ -234,7 +234,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
   };
 
   const handleRemoveBranch = (index) => {
-    if (branches.length === 1) return alert('At least one main branch is required.');
     setBranches(branches.filter((_, i) => i !== index));
     
     // Clean errors list for removed branch if any
@@ -295,106 +294,57 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    // 1. Company Name
-    if (!companyName.trim()) {
-      newErrors.companyName = 'Company name is required';
-    }
+    // 1. Company Name - completely optional
 
-    // 2. GSTIN
-    if (!gstin.trim()) {
-      newErrors.gstin = 'GSTIN is required';
-    } else {
+    // 2. GSTIN - optional (format check only if filled)
+    if (gstin && gstin.trim()) {
       const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
       if (!gstinRegex.test(gstin.trim())) {
         newErrors.gstin = 'Invalid GSTIN format (e.g. 22AAAAA0000A1Z5)';
       }
     }
 
-    // 3. PAN
-    if (!pan.trim()) {
-      newErrors.pan = 'PAN is required';
-    } else {
+    // 3. PAN - optional (format check only if filled)
+    if (pan && pan.trim()) {
       const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
       if (!panRegex.test(pan.trim())) {
         newErrors.pan = 'Invalid PAN format (e.g. ABCDE1234F)';
       }
     }
 
-    // 4. Country, State, City
-    if (!country) {
-      newErrors.country = 'Country is required';
-    }
-    if (!state) {
-      newErrors.state = 'State is required';
-    }
-    if (!city) {
-      newErrors.city = 'City is required';
-    }
+    // 4. Country, State, City - completely optional
 
-    // 5. Working Hours
-    if (!startTime) {
-      newErrors.startTime = 'Start time is required';
-    }
-    if (!endTime) {
-      newErrors.endTime = 'End time is required';
-    }
+    // 5. Working Hours - completely optional
 
     // 6. Branches Validation
     const branchErrors = [];
     branches.forEach((branch, index) => {
       const bErr = {};
-      if (!branch.name.trim()) {
-        bErr.name = 'Branch name is required';
-      }
-      if (!branch.country) {
-        bErr.country = 'Country is required';
-      }
-      if (!branch.state) {
-        bErr.state = 'State is required';
-      }
-      if (!branch.city) {
-        bErr.city = 'City is required';
-      }
-      
-      if (!branch.pincode.trim()) {
-        bErr.pincode = 'Pincode is required';
-      } else if (branch.pincode.length !== 6) {
-        bErr.pincode = 'Pincode must be exactly 6 digits';
+
+      if (branch.pincode && branch.pincode.trim()) {
+        if (branch.pincode.length !== 6) {
+          bErr.pincode = 'Pincode must be exactly 6 digits';
+        }
       }
 
-      if (!branch.radius.trim()) {
-        bErr.radius = 'Service radius is required';
-      }
-
-      if (!branch.nodalOfficerName.trim()) {
-        bErr.nodalOfficerName = 'Nodal officer name is required';
-      } else {
+      if (branch.nodalOfficerName && branch.nodalOfficerName.trim()) {
         const nameRegex = /^[a-zA-Z\s]+$/;
         if (!nameRegex.test(branch.nodalOfficerName.trim())) {
           bErr.nodalOfficerName = 'Nodal officer name must contain letters only';
         }
       }
 
-      if (!branch.nodalOfficerEmail.trim()) {
-        bErr.nodalOfficerEmail = 'Nodal officer email is required';
-      } else {
+      if (branch.nodalOfficerEmail && branch.nodalOfficerEmail.trim()) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(branch.nodalOfficerEmail.trim())) {
           bErr.nodalOfficerEmail = 'Invalid email address';
         }
       }
 
-      if (!branch.nodalOfficerPhone.trim()) {
-        bErr.nodalOfficerPhone = 'Nodal officer phone is required';
-      } else if (branch.nodalOfficerPhone.length !== 10) {
-        bErr.nodalOfficerPhone = 'Phone number must be exactly 10 digits';
-      }
-
-      if (!branch.startTime) {
-        bErr.startTime = 'Start time is required';
-      }
-      if (!branch.endTime) {
-        bErr.endTime = 'End time is required';
+      if (branch.nodalOfficerPhone && branch.nodalOfficerPhone.trim()) {
+        if (branch.nodalOfficerPhone.length !== 10) {
+          bErr.nodalOfficerPhone = 'Phone number must be exactly 10 digits';
+        }
       }
 
       if (Object.keys(bErr).length > 0) {
@@ -460,7 +410,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
       <WizardCard title="Company Details" icon={<Briefcase size={20} />}>
         <WizardInput 
           label="Company Name" 
-          required={true}
           placeholder="HealthFirst Pharmacy" 
           value={companyName}
           onChange={e => {
@@ -472,7 +421,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
         <FormRow>
           <WizardInput 
             label="GSTIN" 
-            required={true}
             placeholder="e.g. 22AAAAA0000A1Z5" 
             value={gstin}
             maxLength={15}
@@ -484,7 +432,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
           />
           <WizardInput 
             label="PAN" 
-            required={true}
             placeholder="e.g. ABCDE1234F" 
             value={pan}
             maxLength={10}
@@ -500,7 +447,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
           <LocationGrid>
             <SearchableSelectGroup 
               label="Country" 
-              required={true}
               value={country} 
               onChange={e => {
                 setCountry(e.target.value);
@@ -514,7 +460,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
             />
             <SearchableSelectGroup 
               label="State" 
-              required={true}
               value={state} 
               onChange={e => {
                 setState(e.target.value);
@@ -527,7 +472,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
             />
             <SearchableSelectGroup 
               label="City" 
-              required={true}
               value={city} 
               onChange={e => {
                 setCity(e.target.value);
@@ -542,7 +486,7 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
 
         <FormRow>
           <TimeGroup>
-            <Label>Start Time <RequiredStar>*</RequiredStar></Label>
+            <Label>Start Time</Label>
             <TimeRow>
               <TimeInputWrap>
                 <WizardInput 
@@ -573,7 +517,7 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
         
         <FormRow>
           <TimeGroup>
-            <Label>End Time <RequiredStar>*</RequiredStar></Label>
+            <Label>End Time</Label>
             <TimeRow>
               <TimeInputWrap>
                 <WizardInput 
@@ -651,7 +595,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
 
             <WizardInput 
               label="Branch Name" 
-              required={true}
               placeholder="Enter branch name" 
               value={branch.name}
               onChange={e => handleBranchChange(index, 'name', e.target.value)}
@@ -661,7 +604,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
             <LocationGrid>
               <SearchableSelectGroup 
                 label="Country" 
-                required={true}
                 value={branch.country || ''} 
                 onChange={e => handleBranchCountryChange(index, e.target.value)}
                 options={bCountryOptions}
@@ -670,7 +612,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
               />
               <SearchableSelectGroup 
                 label="State" 
-                required={true}
                 value={branch.state || ''} 
                 onChange={e => handleBranchStateChange(index, e.target.value)}
                 options={bStateOptions}
@@ -679,7 +620,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
               />
               <SearchableSelectGroup 
                 label="City" 
-                required={true}
                 value={branch.city || ''} 
                 onChange={e => handleBranchChange(index, 'city', e.target.value)}
                 options={bCityOptions}
@@ -691,7 +631,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
             <FormRow>
               <WizardInput 
                 label="Pincode" 
-                required={true}
                 placeholder="Enter pincode" 
                 value={branch.pincode}
                 maxLength={6}
@@ -700,7 +639,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
               />
               <WizardInput 
                 label="Service Radius (km)" 
-                required={true}
                 placeholder="e.g. 10" 
                 value={branch.radius}
                 onChange={e => handleBranchChange(index, 'radius', e.target.value.replace(/\D/g, ''))}
@@ -710,7 +648,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
 
             <WizardInput 
               label="Nodal Officer Name" 
-              required={true}
               placeholder="Enter nodal officer full name" 
               value={branch.nodalOfficerName || ''}
               onChange={e => handleBranchChange(index, 'nodalOfficerName', e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
@@ -720,7 +657,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
             <FormRow>
               <WizardInput 
                 label="Nodal Officer Email" 
-                required={true}
                 placeholder="officer@branch.com" 
                 value={branch.nodalOfficerEmail || ''}
                 onChange={e => handleBranchChange(index, 'nodalOfficerEmail', e.target.value)}
@@ -728,7 +664,6 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
               />
               <WizardInput 
                 label="Nodal Officer Phone" 
-                required={true}
                 placeholder="9876543210" 
                 value={branch.nodalOfficerPhone || ''}
                 maxLength={10}
@@ -739,7 +674,7 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
 
             <FormRow>
               <TimeGroup>
-                <Label>Start Time <RequiredStar>*</RequiredStar></Label>
+                <Label>Start Time</Label>
                 <TimeRow>
                   <TimeInputWrap>
                     <WizardInput 
@@ -767,7 +702,7 @@ const Step4BusinessDetails = ({ onNext, onPrev, data, updateData }) => {
             
             <FormRow>
               <TimeGroup>
-                <Label>End Time <RequiredStar>*</RequiredStar></Label>
+                <Label>End Time</Label>
                 <TimeRow>
                   <TimeInputWrap>
                     <WizardInput 
