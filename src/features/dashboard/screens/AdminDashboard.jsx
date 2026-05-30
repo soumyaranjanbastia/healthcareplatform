@@ -12,6 +12,8 @@ import StaffManagement from '../../staff/screens/StaffManagement';
 import PatientManagement from '../../patients/screens/PatientManagement';
 import PatientDetails from '../../patients/screens/PatientDetails';
 import ComingSoon from '../../../components/common/ComingSoon';
+import FinanceManagement from '../../finance/screens/FinanceManagement';
+import RolesPermissions from '../../roles/screens/RolesPermissions';
 
 // Doctors feature
 import DoctorList from '../../doctors/screens/DoctorList';
@@ -24,8 +26,6 @@ import { getDoctorListRequest } from '../../doctors/redux/doctorListSlice';
 import { mapDoctorRequest, resetMapDoctorState } from '../../doctors/redux/mapDoctorSlice';
 
 const ContentWrapper = styled.div`
-  max-width: 1440px;
-  margin: 0 auto;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -420,6 +420,10 @@ const AdminDashboard = () => {
           return <PatientDetails patientId={selectedPatientId} onBack={handleBackToPatients} />;
         }
         return <PatientManagement onViewDetails={handleViewPatientDetails} />;
+      case 'Staff':
+        return <StaffManagement />;
+      case 'RolesPermissions':
+        return <RolesPermissions />;
       case 'Appointments':
         return (
           <ComingSoon 
@@ -462,16 +466,7 @@ const AdminDashboard = () => {
           />
         );
       case 'Billing':
-        return (
-          <ComingSoon 
-            badgeText="Earnings & Finance" 
-            title="Hospital Revenue & Earnings Panels" 
-            gradientSpan="Under Development" 
-            description="A complete financial panel displaying real-time patient fee earnings, transaction summaries, and digital payouts is currently under construction."
-            icon={<CreditCard size={30} />}
-            onNotifySuccess={() => setCurrentView('Dashboard')}
-          />
-        );
+        return <FinanceManagement />;
       default:
         return (
           <ContentWrapper>

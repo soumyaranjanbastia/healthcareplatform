@@ -290,11 +290,13 @@ const PageControls = styled.div`
 const PatientManagement = ({ onViewDetails }) => {
   const [activeTab, setActiveTab] = useState('All Patients');
   const dispatch = useDispatch();
+  const { currentUser } = useSelector(state => state.sendLoginOtp);
   const { data: patientsList, loading, error } = useSelector(state => state.patientManagement);
 
   useEffect(() => {
-    dispatch(fetchPatientsRequest({}));
-  }, [dispatch]);
+    const payload = currentUser?.companyId ? { companyId: currentUser.companyId } : {};
+    dispatch(fetchPatientsRequest(payload));
+  }, [dispatch, currentUser]);
 
   return (
     <Container>
