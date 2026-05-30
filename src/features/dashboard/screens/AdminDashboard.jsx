@@ -466,16 +466,7 @@ const AdminDashboard = () => {
           />
         );
       case 'Billing':
-        return (
-          <ComingSoon
-            badgeText="Earnings & Finance"
-            title="Hospital Revenue & Earnings Panels"
-            gradientSpan="Under Development"
-            description="A complete financial panel displaying real-time patient fee earnings, transaction summaries, and digital payouts is currently under construction."
-            icon={<CreditCard size={30} />}
-            onNotifySuccess={() => setCurrentView('Dashboard')}
-          />
-        );
+        return <FinanceManagement />;
       default:
         return (
           <ContentWrapper>
