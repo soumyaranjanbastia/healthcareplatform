@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { LayoutDashboard, Users, Calendar, Activity, Settings, LogOut, X, UserCog, Stethoscope, Bell } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Activity, Settings, LogOut, X, UserCog, Stethoscope, Bell, Shield } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutRequest } from '../../features/auth/redux/logoutSlice';
 import ConfirmModal from '../ConfirmModal';
@@ -107,8 +107,9 @@ const Sidebar = ({ activeLabel, isOpen = true, onClose, onNavItemClick }) => {
     { id: 'Dashboard', label: 'Admin Dashboard', icon: <LayoutDashboard size={20} /> },
     { id: 'Patients', label: 'Patients Management', icon: <Users size={20} /> },
     { id: 'Doctors', label: 'Doctors Management', icon: <Stethoscope size={20} /> },
-    { id: 'Appointments', label: 'Booking Management', icon: <Calendar size={20} /> },
-    { id: 'Staff', label: 'Staff', icon: <UserCog size={20} /> },
+    { id: 'Appointments', label: 'Appointment Calendar', icon: <Calendar size={20} /> },
+    { id: 'Staff', label: 'Role Creation', icon: <UserCog size={20} /> },
+    { id: 'RolesPermissions', label: 'Roles & Permission', icon: <Shield size={20} /> },
     { id: 'Analytics', label: 'Analytics', icon: <Activity size={20} /> },
   ];
 
@@ -116,7 +117,7 @@ const Sidebar = ({ activeLabel, isOpen = true, onClose, onNavItemClick }) => {
     { id: 'Dashboard', label: 'Receptionist Dashboard', icon: <LayoutDashboard size={20} /> },
     { id: 'Patients', label: 'Patients Management', icon: <Users size={20} /> },
     { id: 'Doctors', label: 'Doctors Management', icon: <Stethoscope size={20} /> },
-    { id: 'Appointments', label: 'Booking Management', icon: <Calendar size={20} /> },
+    { id: 'Appointments', label: 'Appointment Calendar', icon: <Calendar size={20} /> },
   ];
 
   const navItems = userRole === 'Receptionist' ? receptionistNavItems : adminNavItems;
